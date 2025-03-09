@@ -61,7 +61,7 @@ const RootLayout = async ({ children }: RootLayoutProps) => {
         <SiteVerification />
         <GoogleAdSense />
         <GoogleAnalytics />
-        <link rel="canonical" href="https://dxwiki.github.io" />
+        <link rel="canonical" href="https://diki.kr" />
         <Script
           src="https://t1.kakaocdn.net/kakao_js_sdk/2.6.0/kakao.min.js"
           strategy="afterInteractive"
