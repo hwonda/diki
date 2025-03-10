@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { fontNanum, fontCoding, fontNoto } from '@/libs/fonts';
 import './globals.css';
 import ThemeProvider from '@/layouts/ThemeProvider';
 import Header from '@/components/common/Header';
@@ -12,6 +11,7 @@ import ReduxProvider from '@/components/redux/ReduxProvider';
 import StoreInitializer from '@/components/redux/StoreInitializer';
 import { fetchTermsData } from '@/utils/fetchData';
 import Footer from '@/components/common/Footer';
+import './assets/font/font.css';
 
 interface RootLayoutProps {
   readonly children: React.ReactNode;
@@ -69,12 +69,7 @@ const RootLayout = async ({ children }: RootLayoutProps) => {
         <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js" />
       </head>
       <body
-        className={`
-          overflow-x-hidden overflow-y-auto
-          ${ fontNanum.variable } 
-          ${ fontCoding.variable } 
-          ${ fontNoto.variable } 
-        `}
+        className='overflow-x-hidden overflow-y-auto'
       >
         <ReduxProvider>
           <StoreInitializer terms={terms} />
