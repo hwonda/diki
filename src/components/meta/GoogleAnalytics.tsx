@@ -1,18 +1,14 @@
 'use client';
 
 const GoogleAnalytics = () => {
-  const googleAnalyticsId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
-
-  if (!googleAnalyticsId) {
-    console.log('Google Analytics Tracking ID가 설정되지 않았습니다.');
-    return null;
-  }
+  const googleAnalyticsId = 'G-0T3HY5V5B4';
+  const googleAnalyticsSrc = `https://www.googletagmanager.com/gtag/js?id=${ googleAnalyticsId }`;
 
   return (
     <>
       <script
         async
-        src={`https://www.googletagmanager.com/gtag/js?id=${ googleAnalyticsId }`}
+        src={googleAnalyticsSrc}
       />
       <script
         dangerouslySetInnerHTML={{

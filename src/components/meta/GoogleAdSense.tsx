@@ -1,10 +1,10 @@
 const GoogleAdSense = () => {
-  const adsenseAccountId = process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID;
+  const adsenseAccountId = 'ca-pub-1278038564950020';
 
   return(
     <meta
       name="google-adsense-account"
-      content={adsenseAccountId || ''}
+      content={adsenseAccountId}
     />
   );
 };
