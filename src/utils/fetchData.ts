@@ -9,7 +9,7 @@ let terms: TermData[] = [];
 const fetchTermsData = async (): Promise<TermData[]> => {
   store.dispatch(setLoading(true));
   try {
-    const filePath = path.join(process.cwd(), 'public', 'data', 'terms.json');
+    const filePath = path.join(process.cwd(), 'src', 'data', 'terms.json');
     const fileExists = fs.existsSync(filePath);
 
     if (fileExists) {
@@ -57,7 +57,7 @@ const fetchProfilesData = async (): Promise<Profile[]> => {
   }
 
   try {
-    const filePath = path.join(process.cwd(), 'public', 'data', 'profiles.json');
+    const filePath = path.join(process.cwd(), 'src', 'data', 'profiles.json');
     const fileExists = fs.existsSync(filePath);
 
     if (fileExists) {

@@ -25,7 +25,7 @@ async function fetchAndSaveProfiles() {
     });
 
     // 데이터 디렉토리가 없으면 생성
-    const dataDir = path.join(process.cwd(), 'public', 'data');
+    const dataDir = path.join(process.cwd(), 'src', 'data');
     if (!fs.existsSync(dataDir)) {
       fs.mkdirSync(dataDir, { recursive: true });
     }
@@ -36,7 +36,7 @@ async function fetchAndSaveProfiles() {
       JSON.stringify(profilesData, null, 2)
     );
 
-    console.log(`Successfully saved ${ profilesData.length } profiles to public/data/profiles.json`);
+    console.log(`Successfully saved ${ profilesData.length } profiles to src/data/profiles.json`);
   } catch (error) {
     console.error('Error fetching profiles:', error);
     process.exit(1);

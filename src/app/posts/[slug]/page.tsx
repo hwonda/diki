@@ -17,7 +17,7 @@ export const dynamicParams = false;
 // 직접 terms.json 파일을 읽어오는 함수
 function readTermsData(): TermData[] {
   try {
-    const filePath = path.join(process.cwd(), 'public', 'data', 'terms.json');
+    const filePath = path.join(process.cwd(), 'src', 'data', 'terms.json');
     const fileContents = fs.readFileSync(filePath, 'utf8');
     return JSON.parse(fileContents) as TermData[];
   } catch (error) {
