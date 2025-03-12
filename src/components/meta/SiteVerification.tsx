@@ -1,5 +1,5 @@
 const GoogleVerification = () => {
-  const siteVerificationId = '4x7ZGis1Dd7U9HF5eDoullVPp9ZdgIrgYnHClhHO-x0';
+  const siteVerificationId = 'nKKjpnhW--8f7QArj2n_an37HrsOZNHmbFV0HWXDM04';
 
   return(
     <>
@@ -7,10 +7,10 @@ const GoogleVerification = () => {
         name="google-site-verification"
         content={siteVerificationId}
       />
-      <meta
+      {/* <meta
         name="naver-site-verification"
-        content="4f2d5a06c90b5260ce153023faef37a2b617c431"
-      />
+        content=""
+      /> */}
     </>
   );
 };
