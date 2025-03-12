@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import TableOfContents from '@/components/common/TableOfContents';
 import ShareModal from '@/components/common/ShareModal';
-import AdContainer from '@/components/common/AdContainer';
+// import AdContainer from '@/components/common/AdContainer';
 import PostHeader from './sections/PostHeader';
 import { TermData } from '@/types';
 
@@ -14,12 +14,12 @@ interface Props {
   slug: string;
 }
 
-const adSlots = [
-  '8925962934',
-  '7612881260',
-  '1384151310',
-  '9071069648',
-];
+// const adSlots = [
+//   '8925962934',
+//   '7612881260',
+//   '1384151310',
+//   '9071069648',
+// ];
 
 const PostDetailClient = ({ title, children, term, slug }: Props) => {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -44,7 +44,7 @@ const PostDetailClient = ({ title, children, term, slug }: Props) => {
         </div>
         <div className='hidden md:flex flex-col ml-4'>
           <div className='w-full h-[128px]' />
-          <div className='flex flex-col gap-12'>
+          {/* <div className='flex flex-col gap-12'>
             {adSlots.map((slot) => (
               <AdContainer
                 key={slot}
@@ -54,7 +54,7 @@ const PostDetailClient = ({ title, children, term, slug }: Props) => {
                 className="w-[122px] min-h-[600px]"
               />
             ))}
-          </div>
+          </div> */}
         </div>
       </div>
 

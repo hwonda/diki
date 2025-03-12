@@ -179,7 +179,7 @@ const ReferencesGrid = ({ references }: ReferencesSectionProps) => {
   if (allReferences.length === 0) return null;
 
   return (
-    <section className="group-section break-all">
+    <div className="group-section break-all">
       {/* <h2>
         <span className="text-primary sm:ml-[-20px] mr-2.5 sm:opacity-0 group-section-title transition-opacity">{'#'}</span>
         {'참고 자료'}
@@ -238,7 +238,7 @@ const ReferencesGrid = ({ references }: ReferencesSectionProps) => {
           );
         })}
       </div>
-    </section>
+    </div>
   );
 };
 
