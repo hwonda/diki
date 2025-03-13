@@ -30,7 +30,7 @@ jobs:
         with:
           source-directory: "output"
           destination-github-username: "hwonda"
-          destination-repository-name: "dxwiki.github.io"
+          destination-repository-name: "diki"
           user-email: ${{ secrets.HWON_EMAIL }}
           commit-message: ${{ github.event.commits[0].message }}
           target-branch: main
