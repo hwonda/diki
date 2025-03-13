@@ -2,7 +2,7 @@
 
 import { References } from '@/types';
 import React, { useMemo } from 'react';
-
+import Link from 'next/link';
 interface ReferencesSectionProps {
   references: References;
 }
@@ -119,6 +119,38 @@ const ReferencesGrid = ({ references }: ReferencesSectionProps) => {
   const [isLargeScreen, setIsLargeScreen] = React.useState(false);
   const tooltipRefs = React.useRef<{ [key: string]: HTMLDivElement | null }>({});
 
+  const colorConfig = {
+    '튜토리얼': {
+      outline: 'group-hover:outline-emerald-600 dark:group-hover:outline-emerald-400',
+      text: 'group-hover:text-emerald-600 dark:group-hover:text-emerald-400',
+      border: 'border-emerald-600 dark:border-emerald-400',
+      decoration: 'decoration-emerald-600 dark:decoration-emerald-400',
+    },
+    '참고서적': {
+      outline: 'group-hover:outline-orange-600 dark:group-hover:outline-orange-400',
+      text: 'group-hover:text-orange-600 dark:group-hover:text-orange-400',
+      border: 'border-orange-600 dark:border-orange-400',
+      decoration: 'decoration-orange-600 dark:decoration-orange-400',
+    },
+    '연구논문': {
+      outline: 'group-hover:outline-rose-600 dark:group-hover:outline-rose-400',
+      text: 'group-hover:text-rose-600 dark:group-hover:text-rose-400',
+      border: 'border-rose-600 dark:border-rose-400',
+      decoration: 'decoration-rose-600 dark:decoration-rose-400',
+    },
+    '오픈소스': {
+      outline: 'group-hover:outline-violet-600 dark:group-hover:outline-violet-400',
+      text: 'group-hover:text-violet-600 dark:group-hover:text-violet-400',
+      border: 'border-violet-600 dark:border-violet-400',
+      decoration: 'decoration-violet-600 dark:decoration-violet-400',
+    },
+  };
+
+  // 타입에 따른 색상 설정 가져오기
+  const getColorConfig = (type: string) => {
+    return colorConfig[type as keyof typeof colorConfig];
+  };
+
   React.useEffect(() => {
     const checkScreenSize = () => {
       setIsLargeScreen(window.innerWidth >= 1024);
@@ -139,7 +171,7 @@ const ReferencesGrid = ({ references }: ReferencesSectionProps) => {
     ...(references.books?.map((item) => ({
       type: '참고서적',
       details: [
-        item.authors && '저자: ' + item.authors.join(', '),
+        item.authors && item.authors.join(', '),
         item.publisher && '(' + item.publisher,
         item.year && !item.publisher
           ? `(${ item.year })`
@@ -153,7 +185,7 @@ const ReferencesGrid = ({ references }: ReferencesSectionProps) => {
     ...(references.academic?.map((item) => ({
       type: '연구논문',
       details: [
-        item.authors && '저자: ' + item.authors.join(', '),
+        item.authors && item.authors.join(', '),
         item.year && `(${ item.year })`,
         item.doi && `\nDOI: ${ item.doi }`,
       ].filter(Boolean).join(' '),
@@ -180,13 +212,10 @@ const ReferencesGrid = ({ references }: ReferencesSectionProps) => {
 
   return (
     <div className="group-section break-all">
-      {/* <h2>
-        <span className="text-primary sm:ml-[-20px] mr-2.5 sm:opacity-0 group-section-title transition-opacity">{'#'}</span>
-        {'참고 자료'}
-      </h2> */}
       <div className="grid sm:grid-cols-3 lg:grid-cols-4 gap-px bg-light border border-light auto-rows-auto">
         {gridItems.map((item) => {
           const tooltipId = `${ item.type }-${ item.id }`;
+          const colors = getColorConfig(item.type);
 
           return (
             <div
@@ -201,36 +230,35 @@ const ReferencesGrid = ({ references }: ReferencesSectionProps) => {
                 if (el) tooltipRefs.current[tooltipId] = el;
               }}
             >
-              <a
+              <Link
                 href={item.external_link || '#'}
                 target={item.external_link ? '_blank' : undefined}
                 rel={item.external_link ? 'noopener noreferrer' : undefined}
                 onClick={!item.external_link ? (e) => e.preventDefault() : undefined}
                 className={`
-                  block size-full p-2.5 hover:outline hover:outline-1 hover:outline-primary text-center
-                  transition-colors duration-200
+                  block size-full p-2.5 text-center transition-colors duration-200
                   ${ item.external_link ? '' : 'cursor-default' }
+                  hover:no-underline group-hover:outline group-hover:outline-1 ${ colors.outline }
                 `}
               >
-                <span className="group-hover:text-primary group-hover:underline underline-offset-4 hover:decoration-primary text-sm font-medium break-words">{item.title}</span>
-              </a>
+                <span
+                  className={`
+                    text-sm font-medium break-words ${ colors.text } 
+                    group-hover:underline group-hover:underline-offset-4 ${ colors.decoration }
+                  `}
+                >
+                  {item.title}
+                </span>
+              </Link>
 
               {activeTooltip === tooltipId && item.details && (
                 <div
-                  className="animate-slideDown absolute top-full mt-2 left-0 border border-primary
-                  bg-gray5 text-main text-xs p-2 rounded shadow-lg
-                  z-50 before:content-[''] before:absolute before:top-[-4px] before:left-[15px]
-                  before:size-0 before:border-x-4 before:border-x-transparent before:border-b-4
-                  before:border-b-primary"
-                  style={{
-                    width: tooltipRefs.current[tooltipId]?.offsetWidth || 'auto',
-                    maxWidth: '100%',
-                    whiteSpace: 'normal',
-                  }}
+                  className={`animate-slideDown absolute w-[calc(100%+2px)] -left-px border ${ colors.border }
+                  bg-gray5 text-main text-xs p-2 shadow-md z-50`}
                 >
                   <div className="flex flex-col gap-1.5">
-                    <span className="text-xs font-medium text-gray2">{item.type}</span>
-                    <p className="whitespace-pre-line text-[13px] break-words">{item.details}</p>
+                    <span className={`text-xs font-medium ${ colors.text }`}>{item.type}</span>
+                    <p className="whitespace-pre-line text-[13px] break-words m-0">{item.details}</p>
                   </div>
                 </div>
               )}
