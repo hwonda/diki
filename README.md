@@ -1,1 +1,1 @@
-# dxwiki.github.io
+# diki.kr
