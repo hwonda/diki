@@ -8,6 +8,34 @@ interface ReferencesSectionProps {
   references: References;
 }
 
+// 색상 설정 정의
+export const colorConfig = {
+  '튜토리얼': {
+    outline: 'group-hover:outline-emerald-600 dark:group-hover:outline-emerald-400',
+    text: 'text-emerald-600 dark:text-emerald-400',
+    border: 'border-emerald-600 dark:border-emerald-400',
+    decoration: 'decoration-emerald-600 dark:decoration-emerald-400',
+  },
+  '참고서적': {
+    outline: 'group-hover:outline-orange-600 dark:group-hover:outline-orange-400',
+    text: 'text-orange-600 dark:text-orange-400',
+    border: 'border-orange-600 dark:border-orange-400',
+    decoration: 'decoration-orange-600 dark:decoration-orange-400',
+  },
+  '연구논문': {
+    outline: 'group-hover:outline-rose-600 dark:group-hover:outline-rose-400',
+    text: 'text-rose-600 dark:text-rose-400',
+    border: 'border-rose-600 dark:border-rose-400',
+    decoration: 'decoration-rose-600 dark:decoration-rose-400',
+  },
+  '오픈소스': {
+    outline: 'group-hover:outline-violet-600 dark:group-hover:outline-violet-400',
+    text: 'text-violet-600 dark:text-violet-400',
+    border: 'border-violet-600 dark:border-violet-400',
+    decoration: 'decoration-violet-600 dark:decoration-violet-400',
+  },
+};
+
 // 아코디언 확장 상태 관리
 const useAccordionState = () => {
   const [expandedItems, setExpandedItems] = React.useState<Record<string, Record<number, boolean>>>({
@@ -143,9 +171,20 @@ const ReferencesSection = ({ references }: ReferencesSectionProps) => {
   }) => {
     if (!items?.length) return null;
 
+    // 섹션에 따른 색상 설정 가져오기
+    const getColorBySection = () => {
+      if (section === 'tutorials') return colorConfig['튜토리얼'];
+      if (section === 'books') return colorConfig['참고서적'];
+      if (section === 'academic') return colorConfig['연구논문'];
+      if (section === 'opensource') return colorConfig['오픈소스'];
+      return colorConfig['튜토리얼']; // 기본값
+    };
+
+    const colors = getColorBySection();
+
     return (
       <div className='flex flex-col'>
-        <strong className='ml-1 mb-1.5'>{title}</strong>
+        <strong className={`ml-1 mb-1.5 ${ colors.text }`}>{title}</strong>
         {items.map((item, index) => (
           <div key={index} className={`ml-1 overflow-hidden ${ index === 0 ? 'border-t border-light' : '' }`}>
             <div
@@ -154,12 +193,12 @@ const ReferencesSection = ({ references }: ReferencesSectionProps) => {
                 expandedItems[section][index] ? 'border-x bg-gray5' : ''
               }`}
             >
-              <span className={`text-main text-sm group-hover:text-primary ${ expandedItems[section][index] ? 'text-primary -ml-px' : 'line-clamp-1' }`}>
+              <span className={`text-sm ${ colors.text } ${ expandedItems[section][index] ? '-ml-px' : 'text-main line-clamp-1' }`}>
                 {getTitle(item)}
               </span>
               <span className='size-5'>
                 <ChevronDown
-                  className={`size-5 transition-transform group-hover:text-primary ${
+                  className={`size-5 transition-transform ${ colors.text } ${
                     expandedItems[section][index] ? 'rotate-180' : ''
                   }`}
                 />
@@ -177,14 +216,14 @@ const ReferencesSection = ({ references }: ReferencesSectionProps) => {
                 }`}
               >
                 <span className="flex justify-between">
-                  <span className="text-xs text-gray2 font-medium mb-1 block">
+                  <span className={`text-xs ${ colors.text } font-medium mb-1 block`}>
                     {section === 'tutorials' && '튜토리얼'}
                     {section === 'books' && '참고서적'}
                     {section === 'academic' && '연구논문'}
                     {section === 'opensource' && '오픈소스'}
                   </span>
                   {getExternalLink(item) && (
-                    <span className='flex justify-center text-xs text-primary font-normal'>
+                    <span className={`flex justify-center text-xs ${ colors.text } font-normal`}>
                       {'바로가기 →'}
                     </span>
                   )}
@@ -215,7 +254,7 @@ const ReferencesSection = ({ references }: ReferencesSectionProps) => {
           <ReferenceList title="오픈소스" items={references.opensource} section="opensource" getTitle={(item) => item.name || ''} formatDetails={formatOpenSourceDetails} getExternalLink={(item) => item.external_link} />
         </div>
       ) : (
-        <ReferencesGrid references={references} />
+        <ReferencesGrid references={references} colorConfig={colorConfig} />
       )}
     </section>
   );

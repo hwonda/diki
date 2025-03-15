@@ -3,8 +3,11 @@
 import { References } from '@/types';
 import React, { useMemo } from 'react';
 import Link from 'next/link';
+import { colorConfig as defaultColorConfig } from './ReferencesSection';
+
 interface ReferencesSectionProps {
   references: References;
+  colorConfig?: typeof defaultColorConfig;
 }
 
 // 그리드 아이템 타입 정의
@@ -114,37 +117,10 @@ const createGridLayout = (items: ReferenceItem[], maxCols: number) => {
   return sortedItems;
 };
 
-const ReferencesGrid = ({ references }: ReferencesSectionProps) => {
+const ReferencesGrid = ({ references, colorConfig = defaultColorConfig }: ReferencesSectionProps) => {
   const [activeTooltip, setActiveTooltip] = React.useState<string | null>(null);
   const [isLargeScreen, setIsLargeScreen] = React.useState(false);
   const tooltipRefs = React.useRef<{ [key: string]: HTMLDivElement | null }>({});
-
-  const colorConfig = {
-    '튜토리얼': {
-      outline: 'group-hover:outline-emerald-600 dark:group-hover:outline-emerald-400',
-      text: 'group-hover:text-emerald-600 dark:group-hover:text-emerald-400',
-      border: 'border-emerald-600 dark:border-emerald-400',
-      decoration: 'decoration-emerald-600 dark:decoration-emerald-400',
-    },
-    '참고서적': {
-      outline: 'group-hover:outline-orange-600 dark:group-hover:outline-orange-400',
-      text: 'group-hover:text-orange-600 dark:group-hover:text-orange-400',
-      border: 'border-orange-600 dark:border-orange-400',
-      decoration: 'decoration-orange-600 dark:decoration-orange-400',
-    },
-    '연구논문': {
-      outline: 'group-hover:outline-rose-600 dark:group-hover:outline-rose-400',
-      text: 'group-hover:text-rose-600 dark:group-hover:text-rose-400',
-      border: 'border-rose-600 dark:border-rose-400',
-      decoration: 'decoration-rose-600 dark:decoration-rose-400',
-    },
-    '오픈소스': {
-      outline: 'group-hover:outline-violet-600 dark:group-hover:outline-violet-400',
-      text: 'group-hover:text-violet-600 dark:group-hover:text-violet-400',
-      border: 'border-violet-600 dark:border-violet-400',
-      decoration: 'decoration-violet-600 dark:decoration-violet-400',
-    },
-  };
 
   // 타입에 따른 색상 설정 가져오기
   const getColorConfig = (type: string) => {
