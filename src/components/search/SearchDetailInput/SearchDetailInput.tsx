@@ -97,15 +97,15 @@ const SearchDetailInput = () => {
     // };
   };
 
-  const handleDateChange = (dates: [Date | null, Date | null], type: 'published' | 'modified') => {
+  const handleDateChange = (dates: [Date | null | undefined, Date | null | undefined], type: 'published' | 'modified') => {
     if (type === 'published') {
-      dispatch(setPublishedDateRange(dates));
+      dispatch(setPublishedDateRange(dates as [Date | null, Date | null]));
     } else {
-      dispatch(setModifiedDateRange(dates));
+      dispatch(setModifiedDateRange(dates as [Date | null, Date | null]));
     }
   };
 
-  const formatDateRange = (range: [Date | null, Date | null]) => {
+  const formatDateRange = (range: [Date | null | undefined, Date | null | undefined]) => {
     if (!range[0]) return '전체 기간';
 
     const formatDate = (date: Date) => {
@@ -139,9 +139,25 @@ const SearchDetailInput = () => {
       color: var(--text) !important;
     }
     .react-datepicker__month-container {
-        // width: 278px;
+        width: 240px !important;
         background-color: var(--background);
         // border-radius: 5px;
+    }
+    .react-datepicker__month-text {
+      height: 36px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      color: var(--text) !important;
+    }
+    .react-datepicker__month-text:hover {
+      background-color: var(--background-secondary) !important;
+      color: var(--text) !important;
+    }
+    .react-datepicker__month-text--selected,
+    .react-datepicker__month-text--keyboard-selected{
+      background-color: var(--background-secondary) !important;
+      color: var(--text) !important;
     }
     .react-datepicker__header {
       background-color: var(--background);
@@ -196,7 +212,7 @@ const SearchDetailInput = () => {
       }
     }
 
-    const formatDateParam = (date: Date | null) => {
+    const formatDateParam = (date: Date | null | undefined) => {
       if (!date) return '';
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
