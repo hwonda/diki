@@ -58,26 +58,32 @@ const Slider = ({ displayLevels, range, onRangeChange }: SliderProps) => {
 
     const percent = Math.max(0, Math.min(100, (e.clientX - bounds.left) / bounds.width * 100));
     const segmentWidth = 100 / (displayLevels.length - 1);
-    const levels = Array.from({ length: displayLevels.length }, (_, i) => i);
-    const closestLevel = levels.reduce((closest, level) => {
-      const levelPosition = level * segmentWidth;
-      const currentDiff = Math.abs(percent - levelPosition);
-      const closestDiff = Math.abs(percent - (closest * segmentWidth));
-      return currentDiff < closestDiff ? level : closest;
-    }, 0);
+    const clickedValue = Math.round(percent / segmentWidth);
+    const clampedValue = Math.max(0, Math.min(displayLevels.length - 1, clickedValue));
 
-    // 각 핸들과 클릭된 레벨 간의 거리 계산
-    const distanceToStart = Math.abs(closestLevel - range[0]);
-    const distanceToEnd = Math.abs(closestLevel - range[1]);
+    // 클릭한 위치가 시작 핸들과 끝 핸들 사이에 있는지 확인
+    if (clampedValue > range[0] && clampedValue < range[1]) {
+      // 클릭한 위치가 어느 핸들에 더 가까운지 계산
+      const distanceToStart = Math.abs(clampedValue - range[0]);
+      const distanceToEnd = Math.abs(clampedValue - range[1]);
 
-    const newRange: [number, number] = [...range];
-    if (distanceToStart <= distanceToEnd) {
-      newRange[0] = closestLevel;
+      const newRange: [number, number] = [...range];
+      if (distanceToStart <= distanceToEnd) {
+        newRange[0] = clampedValue;
+      } else {
+        newRange[1] = clampedValue;
+      }
+      onRangeChange(newRange);
     } else {
-      newRange[1] = closestLevel;
+      // 클릭한 위치가 범위 밖에 있는 경우, 가장 가까운 핸들을 이동
+      const newRange: [number, number] = [...range];
+      if (clampedValue <= range[0]) {
+        newRange[0] = clampedValue;
+      } else {
+        newRange[1] = clampedValue;
+      }
+      onRangeChange(newRange);
     }
-
-    onRangeChange(newRange);
   }, [range, onRangeChange, displayLevels.length]);
 
   useEffect(() => {
@@ -97,7 +103,7 @@ const Slider = ({ displayLevels, range, onRangeChange }: SliderProps) => {
       {displayLevels.map((level, index) => (
         <div
           key={index}
-          className="absolute top-1 text-center text-xs text-gray3 w-10 cursor-pointer"
+          className="absolute top-1 text-center text-xs text-gray3 w-10 cursor-pointer z-10"
           style={{
             left: `${ getPositionFromValue(index) + 4.5 }%`,
             transform: 'translateX(-50%)',
@@ -122,7 +128,7 @@ const Slider = ({ displayLevels, range, onRangeChange }: SliderProps) => {
 
       {/* Start Level Label */}
       <div
-        className="absolute top-1 text-center text-xs text-primary w-10"
+        className="absolute top-1 text-center text-xs text-primary w-10 z-10"
         style={{
           left: `${ getPositionFromValue(range[0]) + 4.5 }%`,
           transform: 'translateX(-50%)',
@@ -133,7 +139,7 @@ const Slider = ({ displayLevels, range, onRangeChange }: SliderProps) => {
 
       {/* End Level Label */}
       <div
-        className="absolute top-1 text-center text-xs text-primary w-10"
+        className="absolute top-1 text-center text-xs text-primary w-10 z-10"
         style={{
           left: `${ getPositionFromValue(range[1]) + 4.5 }%`,
           transform: 'translateX(-50%)',
@@ -142,17 +148,24 @@ const Slider = ({ displayLevels, range, onRangeChange }: SliderProps) => {
         {displayLevels[range[1]]}
       </div>
 
-      {/* Slider Track */}
+      {/* Background Track (Gray Bar) */}
+      <div
+        className="absolute top-6 w-full h-1 bg-gray4 z-0"
+        style={{ top: '26px' }}
+      />
+
+      {/* Slider Track with Invisible Padding */}
       <div
         ref={sliderRef}
-        className="absolute top-6 w-full h-1 bg-gray4"
+        className="absolute top-6 w-full h-1 cursor-pointer z-20"
         onClick={handleTrackClick}
+        style={{ padding: '10px 0', marginTop: '-10px', backgroundColor: 'transparent' }}
       >
         {/* Level Markers on Track */}
         {displayLevels.map((_, index) => (
           <div
             key={index}
-            className="absolute w-px h-2 bg-gray3 top-[-4px]"
+            className="absolute w-px h-2 bg-gray3 top-[8px] z-10"
             style={{
               left: `${ getPositionFromValue(index) }%`,
               transform: 'translateX(-50%)',
@@ -162,7 +175,7 @@ const Slider = ({ displayLevels, range, onRangeChange }: SliderProps) => {
 
         {/* Selected Range */}
         <div
-          className="absolute h-full bg-primary rounded-full"
+          className="absolute h-1 bg-primary rounded-full top-[12px] z-10"
           style={{
             left: `${ getPositionFromValue(range[0]) }%`,
             right: `${ 100 - getPositionFromValue(range[1]) }%`,
@@ -171,13 +184,17 @@ const Slider = ({ displayLevels, range, onRangeChange }: SliderProps) => {
 
         {/* Handles */}
         <div
-          className="absolute size-3 mt-[-4px] ml-[-6px] bg-primary rounded-full cursor-pointer"
-          style={{ left: `${ getPositionFromValue(range[0]) }%` }}
+          className={`absolute size-3 -mt-px ml-[-6px] bg-primary rounded-full cursor-pointer z-30 ${
+            activeHandle === 'start' ? 'ring-4 ring-primary/10 dark:ring-primary/30' : ''
+          }`}
+          style={{ left: `${ getPositionFromValue(range[0]) }%`, top: '9px' }}
           onMouseDown={(e) => handleMouseDown(e, 'start')}
         />
         <div
-          className="absolute size-3 mt-[-4px] ml-[-6px] bg-primary rounded-full cursor-pointer"
-          style={{ left: `${ getPositionFromValue(range[1]) }%` }}
+          className={`absolute size-3 -mt-px ml-[-6px] bg-primary rounded-full cursor-pointer z-30 ${
+            activeHandle === 'end' ? 'ring-4 ring-primary/10 dark:ring-primary/30' : ''
+          }`}
+          style={{ left: `${ getPositionFromValue(range[1]) }%`, top: '9px' }}
           onMouseDown={(e) => handleMouseDown(e, 'end')}
         />
       </div>
