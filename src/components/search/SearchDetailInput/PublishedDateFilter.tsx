@@ -69,8 +69,8 @@ const PublishedDateFilter = ({
       </span>
       {activeModal === 'publishedDate' && (
         <div className="filter-modal absolute top-full left-0 mt-2 w-64 border border-primary bg-background shadow-lg dark:shadow-gray5 rounded-lg p-3.5 z-10">
-          <div className="text-sm font-medium mb-2.5">{publishedDateRange[0]?.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
-          <div className="text-sm font-medium mb-2.5">{publishedDateRange[1]?.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+          {/* <div className="text-sm font-medium mb-2.5">{publishedDateRange[0]?.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+          <div className="text-sm font-medium mb-2.5">{publishedDateRange[1]?.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}</div> */}
           <div className="flex justify-center">
             <DatePicker
               selected={publishedDateRange[0]}
