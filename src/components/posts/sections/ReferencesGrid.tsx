@@ -4,6 +4,7 @@ import { References } from '@/types';
 import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { colorConfig as defaultColorConfig } from './ReferencesSection';
+import { getAllReferences } from './referenceUtils';
 
 interface ReferencesSectionProps {
   references: References;
@@ -15,7 +16,7 @@ interface GridItem {
   id: string;
   title: string;
   type: string;
-  details: string;
+  details: string | React.ReactNode;
   external_link?: string;
   colSpan: number;
   rowIndex?: number;
@@ -26,7 +27,7 @@ interface GridItem {
 interface ReferenceItem {
   title?: string;
   type: string;
-  details?: string;
+  details?: string | React.ReactNode;
   external_link?: string;
 }
 
@@ -123,9 +124,9 @@ const ReferencesGrid = ({ references, colorConfig = defaultColorConfig }: Refere
   const tooltipRefs = React.useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   // 타입에 따른 색상 설정 가져오기
-  const getColorConfig = (type: string) => {
+  const getColorConfig = React.useCallback((type: string) => {
     return colorConfig[type as keyof typeof colorConfig];
-  };
+  }, [colorConfig]);
 
   React.useEffect(() => {
     const checkScreenSize = () => {
@@ -138,45 +139,9 @@ const ReferencesGrid = ({ references, colorConfig = defaultColorConfig }: Refere
   }, []);
 
   // 모든 참고자료를 하나의 배열로 통합
-  const allReferences = useMemo(() => [
-    ...(references.tutorials?.map((item) => ({
-      type: '튜토리얼',
-      details: item.platform,
-      ...item,
-    })) || []),
-    ...(references.books?.map((item) => ({
-      type: '참고서적',
-      details: [
-        item.authors && item.authors.join(', '),
-        item.publisher && '(' + item.publisher,
-        item.year && !item.publisher
-          ? `(${ item.year })`
-          : item.year && item.publisher
-            ? `, ${ item.year })`
-            : ')',
-        item.isbn && `\nISBN: ${ item.isbn }`,
-      ].filter(Boolean).join(' '),
-      ...item,
-    })) || []),
-    ...(references.academic?.map((item) => ({
-      type: '연구논문',
-      details: [
-        item.authors && item.authors.join(', '),
-        item.year && `(${ item.year })`,
-        item.doi && `\nDOI: ${ item.doi }`,
-      ].filter(Boolean).join(' '),
-      ...item,
-    })) || []),
-    ...(references.opensource?.map((item) => ({
-      type: '오픈소스',
-      details: [
-        item.description,
-        item.license && `License: ${ item.license }`,
-      ].filter(Boolean).join('\n'),
-      title: item.name,
-      ...item,
-    })) || []),
-  ], [references]);
+  const allReferences = useMemo(() =>
+    getAllReferences(references, colorConfig),
+  [references, colorConfig]);
 
   // 그리드 아이템 생성 - 화면 크기에 따라 최대 열 수 조정
   const gridItems = useMemo(() =>
@@ -230,11 +195,11 @@ const ReferencesGrid = ({ references, colorConfig = defaultColorConfig }: Refere
               {activeTooltip === tooltipId && item.details && (
                 <div
                   className={`animate-slideDown absolute w-[calc(100%+2px)] -left-px border ${ colors.border }
-                  bg-gray5 text-main text-xs p-2 shadow-md z-50`}
+                  bg-gray5 text-main p-2 shadow-md z-50`}
                 >
-                  <div className="flex flex-col gap-1.5">
-                    <span className={`text-xs font-medium ${ colors.text }`}>{item.type}</span>
-                    <p className="whitespace-pre-line text-[13px] break-words m-0">{item.details}</p>
+                  <div className="flex flex-col">
+                    <span className={`text-sm font-medium ${ colors.titleGradient }`}>{item.type}</span>
+                    <div className="whitespace-pre-line text-sm break-words m-0">{item.details}</div>
                   </div>
                 </div>
               )}
