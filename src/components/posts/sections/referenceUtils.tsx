@@ -2,14 +2,17 @@ import React from 'react';
 import { References } from '@/types';
 import { colorConfig as defaultColorConfig } from './ReferencesSection';
 
+const tagLayout = 'flex items-start mt-1 gap-1 sm:mt-1.5 sm:gap-1.5';
+const tagStyle = 'text-xs pt-[2px] pr-[5px] pb-[3px] pl-[6px]  border rounded-lg shrink-0 w-14 text-center';
+
 // 참조 항목 세부 정보 포맷팅 함수들
 export const formatTutorialDetails = (tutorial: NonNullable<References['tutorials']>[number], colorConfig = defaultColorConfig) => {
   return tutorial.platform ? [
-    <div key="platform" className="flex items-start mt-1 gap-1 sm:mt-1.5 sm:gap-1.5">
-      <span className={`text-xs px-1.5 py-0.5 border rounded-full shrink-0 ${ colorConfig['튜토리얼'].border } ${ colorConfig['튜토리얼'].text }`}>
+    <div key="platform" className={tagLayout}>
+      <span className={`${ tagStyle } ${ colorConfig['튜토리얼'].border } ${ colorConfig['튜토리얼'].text }`}>
         {'플랫폼'}
       </span>
-      <span className='text-sm font-medium'>{tutorial.platform}</span>
+      <span className='text-sm font-medium mt-px'>{tutorial.platform}</span>
     </div>,
   ] : [];
 };
@@ -19,11 +22,11 @@ export const formatBookDetails = (book: NonNullable<References['books']>[number]
 
   if (book.authors?.length) {
     parts.push(
-      <div key="authors" className="flex items-start mt-1 gap-1 sm:mt-1.5 sm:gap-1.5">
-        <span className={`text-xs px-1.5 py-0.5 border rounded-full shrink-0 ${ colorConfig['참고서적'].border } ${ colorConfig['참고서적'].text }`}>
+      <div key="authors" className={tagLayout}>
+        <span className={`${ tagStyle } ${ colorConfig['참고서적'].border } ${ colorConfig['참고서적'].text }`}>
           {'저자'}
         </span>
-        <span className='text-sm font-medium'>
+        <span className='text-sm font-medium mt-px'>
           {book.authors.join(', ')}
           {book.publisher && <span>{'('}{book.publisher}</span>}
           {book.year && !book.publisher && <span>{'('}{book.year}{')'}</span>}
@@ -36,11 +39,11 @@ export const formatBookDetails = (book: NonNullable<References['books']>[number]
 
   if (book.isbn) {
     parts.push(
-      <div key="isbn" className="flex items-start mt-1 gap-1 sm:mt-1.5 sm:gap-1.5">
-        <span className={`text-xs px-1.5 py-0.5 border rounded-full shrink-0 ${ colorConfig['참고서적'].border } ${ colorConfig['참고서적'].text }`}>
+      <div key="isbn" className={tagLayout}>
+        <span className={`${ tagStyle } ${ colorConfig['참고서적'].border } ${ colorConfig['참고서적'].text }`}>
           {'ISBN'}
         </span>
-        <span className='text-sm font-medium'>{book.isbn}</span>
+        <span className='text-sm font-medium mt-px'>{book.isbn}</span>
       </div>
     );
   }
@@ -53,22 +56,22 @@ export const formatAcademicDetails = (paper: NonNullable<References['academic']>
 
   if (paper.authors?.length) {
     parts.push(
-      <div key="authors" className="flex items-start mt-1 gap-1 sm:mt-1.5 sm:gap-1.5">
-        <span className={`text-xs px-1.5 py-0.5 border rounded-full shrink-0 ${ colorConfig['연구논문'].border } ${ colorConfig['연구논문'].text }`}>
+      <div key="authors" className={tagLayout}>
+        <span className={`${ tagStyle } ${ colorConfig['연구논문'].border } ${ colorConfig['연구논문'].text }`}>
           {'저자'}
         </span>
-        <span className='text-sm font-medium'>{paper.authors.join(', ')}{paper.year && <span>{'('}{paper.year}{')'}</span>}</span>
+        <span className='text-sm font-medium mt-px'>{paper.authors.join(', ')}{paper.year && <span>{'('}{paper.year}{')'}</span>}</span>
       </div>
     );
   }
 
   if (paper.doi) {
     parts.push(
-      <div key="doi" className="flex items-start mt-1 gap-1 sm:mt-1.5 sm:gap-1.5">
-        <span className={`text-xs px-1.5 py-0.5 border rounded-full shrink-0 ${ colorConfig['연구논문'].border } ${ colorConfig['연구논문'].text }`}>
+      <div key="doi" className={tagLayout}>
+        <span className={`${ tagStyle } ${ colorConfig['연구논문'].border } ${ colorConfig['연구논문'].text }`}>
           {'DOI'}
         </span>
-        <span className='text-sm font-medium'>{paper.doi}</span>
+        <span className='text-sm font-medium mt-px'>{paper.doi}</span>
       </div>
     );
   }
@@ -81,22 +84,22 @@ export const formatOpenSourceDetails = (project: NonNullable<References['opensou
 
   if (project.description) {
     parts.push(
-      <div key="description" className="flex items-start mt-1 gap-1 sm:mt-1.5 sm:gap-1.5">
-        <span className={`text-xs px-1.5 py-0.5 border rounded-full shrink-0 ${ colorConfig['오픈소스'].border } ${ colorConfig['오픈소스'].text }`}>
+      <div key="description" className={tagLayout}>
+        <span className={`${ tagStyle } ${ colorConfig['오픈소스'].border } ${ colorConfig['오픈소스'].text }`}>
           {'설명'}
         </span>
-        <span className='text-sm font-medium'>{project.description}</span>
+        <span className='text-sm font-medium mt-px'>{project.description}</span>
       </div>
     );
   }
 
   if (project.license) {
     parts.push(
-      <div key="license" className="flex items-start mt-1 gap-1 sm:mt-1.5 sm:gap-1.5">
-        <span className={`text-xs px-1.5 py-0.5 border rounded-full shrink-0 ${ colorConfig['오픈소스'].border } ${ colorConfig['오픈소스'].text }`}>
+      <div key="license" className={tagLayout}>
+        <span className={`${ tagStyle } ${ colorConfig['오픈소스'].border } ${ colorConfig['오픈소스'].text }`}>
           {'라이선스'}
         </span>
-        <span className='text-sm font-medium'>{project.license}</span>
+        <span className='text-sm font-medium mt-px'>{project.license}</span>
       </div>
     );
   }

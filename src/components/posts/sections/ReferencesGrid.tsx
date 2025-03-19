@@ -32,7 +32,7 @@ interface ReferenceItem {
 }
 
 // 그리드 레이아웃 생성 함수
-const createGridLayout = (items: ReferenceItem[], maxCols: number) => {
+const createGridLayout = (items: ReferenceItem[], maxCols: number = 3) => {
   if (items.length === 0) return [];
   if (items.length === 1) return [{
     ...items[0],
@@ -49,9 +49,8 @@ const createGridLayout = (items: ReferenceItem[], maxCols: number) => {
 
     // 텍스트 길이에 따라 colSpan 결정
     let colSpan = 1;
-    if (titleLength > 14) colSpan = 2;
-    if (titleLength > 30) colSpan = Math.min(3, maxCols);
-    if (titleLength > 45) colSpan = maxCols;
+    if (titleLength > 23) colSpan = 2;
+    if (titleLength > 45) colSpan = 3;
 
     return {
       ...item,
@@ -65,6 +64,22 @@ const createGridLayout = (items: ReferenceItem[], maxCols: number) => {
 
   // 모든 아이템을 colSpan이 큰 순서대로 정렬
   gridItems.sort((a, b) => b.colSpan - a.colSpan || b.titleLength - a.titleLength);
+
+  // 가장 긴 요소를 찾아서 맨 마지막으로 이동
+  if (gridItems.length > 1) {
+    // colSpan이 가장 크거나, colSpan이 같다면 titleLength가 가장 큰 요소 찾기
+    const longestItemIndex = gridItems.findIndex((item, idx) => {
+      if (idx === 0) return true;
+      return item.colSpan > gridItems[0].colSpan
+             || (item.colSpan === gridItems[0].colSpan && item.titleLength > gridItems[0].titleLength);
+    });
+
+    // 가장 긴 요소가 있다면 제거하고 맨 뒤로 이동
+    if (longestItemIndex !== -1) {
+      const longestItem = gridItems.splice(longestItemIndex, 1)[0];
+      gridItems.push(longestItem);
+    }
+  }
 
   // 각 행에 배치된 아이템의 colSpan 합계를 추적
   const rows: number[] = [0];
@@ -120,7 +135,6 @@ const createGridLayout = (items: ReferenceItem[], maxCols: number) => {
 
 const ReferencesGrid = ({ references, colorConfig = defaultColorConfig }: ReferencesSectionProps) => {
   const [activeTooltip, setActiveTooltip] = React.useState<string | null>(null);
-  const [isLargeScreen, setIsLargeScreen] = React.useState(false);
   const tooltipRefs = React.useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   // 타입에 따른 색상 설정 가져오기
@@ -128,32 +142,22 @@ const ReferencesGrid = ({ references, colorConfig = defaultColorConfig }: Refere
     return colorConfig[type as keyof typeof colorConfig];
   }, [colorConfig]);
 
-  React.useEffect(() => {
-    const checkScreenSize = () => {
-      setIsLargeScreen(window.innerWidth >= 1024);
-    };
-
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    return () => window.removeEventListener('resize', checkScreenSize);
-  }, []);
-
   // 모든 참고자료를 하나의 배열로 통합
   const allReferences = useMemo(() =>
     getAllReferences(references, colorConfig),
   [references, colorConfig]);
 
-  // 그리드 아이템 생성 - 화면 크기에 따라 최대 열 수 조정
+  // 그리드 아이템 생성 - 항상 3열로 고정
   const gridItems = useMemo(() =>
-    createGridLayout(allReferences, isLargeScreen ? 4 : 3),
-  [allReferences, isLargeScreen]
+    createGridLayout(allReferences, 3),
+  [allReferences]
   );
 
   if (allReferences.length === 0) return null;
 
   return (
     <div className="group-section break-all">
-      <div className="grid sm:grid-cols-3 lg:grid-cols-4 gap-px bg-light border border-light auto-rows-auto">
+      <div className="grid sm:grid-cols-3 gap-px bg-light border border-light auto-rows-auto">
         {gridItems.map((item) => {
           const tooltipId = `${ item.type }-${ item.id }`;
           const colors = getColorConfig(item.type);
@@ -198,7 +202,7 @@ const ReferencesGrid = ({ references, colorConfig = defaultColorConfig }: Refere
                   bg-gray5 text-main p-2 shadow-md z-50`}
                 >
                   <div className="flex flex-col">
-                    <span className={`text-sm font-medium ${ colors.titleGradient }`}>{item.type}</span>
+                    <span className={`text-sm font-medium ${ colors.text }`}>{item.type}</span>
                     <div className="whitespace-pre-line text-sm break-words m-0">{item.details}</div>
                   </div>
                 </div>

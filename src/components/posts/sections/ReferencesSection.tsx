@@ -165,22 +165,22 @@ const ReferencesSection = ({ references }: ReferencesSectionProps) => {
             >
               <a
                 {...getLinkProps(getExternalLink(item))}
-                className={`block px-3 py-2.5 hover:bg-background-secondary no-underline ${
+                className={`block px-2 py-1 hover:bg-background-secondary no-underline ${
                   !getExternalLink(item) ? 'cursor-default' : ''
                 }`}
               >
-                <span className="flex justify-end">
-                  {getExternalLink(item) && (
-                    <span className="text-xs text-primary font-normal">
-                      {'바로가기 →'}
-                    </span>
-                  )}
-                </span>
                 <div className="flex flex-col">
                   {formatDetails(item).map((detail, i) => (
                     detail && <React.Fragment key={i}>{detail}</React.Fragment>
                   ))}
                 </div>
+                <span className="flex justify-end">
+                  {getExternalLink(item) && (
+                    <span className="text-xs text-primary font-normal p-1.5">
+                      {'바로가기 →'}
+                    </span>
+                  )}
+                </span>
               </a>
             </div>
           </div>
