@@ -26,18 +26,13 @@ const Slider = ({ displayLevels, range, onRangeChange }: SliderProps) => {
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!isDragging || !activeHandle) return;
 
-    const getValueFromPosition = (position: number) => {
-      const bounds = sliderRef.current?.getBoundingClientRect();
-      if (!bounds) return 0;
+    const bounds = sliderRef.current?.getBoundingClientRect();
+    if (!bounds) return;
 
-      const percent = Math.max(0, Math.min(100, (position - bounds.left) / bounds.width * 100));
-      const index = Math.round((percent / 100) * (displayLevels.length - 1));
-      return Math.max(0, Math.min(displayLevels.length - 1, index));
-    };
+    const percent = Math.max(0, Math.min(100, (e.clientX - bounds.left) / bounds.width * 100));
+    const newValue = (percent / 100) * (displayLevels.length - 1);
 
-    const newValue = getValueFromPosition(e.clientX);
     const newRange: [number, number] = [...range];
-
     if (activeHandle === 'start') {
       newRange[0] = Math.min(newValue, range[1]);
     } else {
@@ -47,18 +42,23 @@ const Slider = ({ displayLevels, range, onRangeChange }: SliderProps) => {
     onRangeChange(newRange);
   }, [isDragging, activeHandle, range, onRangeChange, displayLevels.length]);
 
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     setIsDragging(false);
     setActiveHandle(null);
-  };
+
+    // Snap to nearest marker
+    const newRange: [number, number] = [...range];
+    newRange[0] = Math.round(newRange[0]);
+    newRange[1] = Math.round(newRange[1]);
+    onRangeChange(newRange);
+  }, [range, onRangeChange]);
 
   const handleTrackClick = useCallback((e: React.MouseEvent) => {
     const bounds = sliderRef.current?.getBoundingClientRect();
     if (!bounds) return;
 
     const percent = Math.max(0, Math.min(100, (e.clientX - bounds.left) / bounds.width * 100));
-    const segmentWidth = 100 / (displayLevels.length - 1);
-    const clickedValue = Math.round(percent / segmentWidth);
+    const clickedValue = (percent / 100) * (displayLevels.length - 1);
     const clampedValue = Math.max(0, Math.min(displayLevels.length - 1, clickedValue));
 
     // 클릭한 위치가 시작 핸들과 끝 핸들 사이에 있는지 확인
@@ -69,18 +69,18 @@ const Slider = ({ displayLevels, range, onRangeChange }: SliderProps) => {
 
       const newRange: [number, number] = [...range];
       if (distanceToStart <= distanceToEnd) {
-        newRange[0] = clampedValue;
+        newRange[0] = Math.round(clampedValue);
       } else {
-        newRange[1] = clampedValue;
+        newRange[1] = Math.round(clampedValue);
       }
       onRangeChange(newRange);
     } else {
       // 클릭한 위치가 범위 밖에 있는 경우, 가장 가까운 핸들을 이동
       const newRange: [number, number] = [...range];
       if (clampedValue <= range[0]) {
-        newRange[0] = clampedValue;
+        newRange[0] = Math.round(clampedValue);
       } else {
-        newRange[1] = clampedValue;
+        newRange[1] = Math.round(clampedValue);
       }
       onRangeChange(newRange);
     }
@@ -95,7 +95,7 @@ const Slider = ({ displayLevels, range, onRangeChange }: SliderProps) => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging, activeHandle, handleMouseMove]);
+  }, [isDragging, activeHandle, handleMouseMove, handleMouseUp]);
 
   return (
     <div className="relative w-full h-12 px-2">
@@ -108,18 +108,32 @@ const Slider = ({ displayLevels, range, onRangeChange }: SliderProps) => {
             left: `${ getPositionFromValue(index) + 4.5 }%`,
             transform: 'translateX(-50%)',
           }}
-          onClick={() => {
-            const distanceToStart = Math.abs(index - range[0]);
-            const distanceToEnd = Math.abs(index - range[1]);
+          onClick={(e) => {
+            e.stopPropagation();
 
-            const newRange: [number, number] = [...range];
-            if (distanceToStart <= distanceToEnd) {
-              newRange[0] = index;
+            // 클릭한 마커가 현재 범위 내에 있는지 확인
+            if (index > range[0] && index < range[1]) {
+              // 더 가까운 핸들을 이동
+              const distanceToStart = Math.abs(index - range[0]);
+              const distanceToEnd = Math.abs(index - range[1]);
+
+              const newRange: [number, number] = [...range];
+              if (distanceToStart <= distanceToEnd) {
+                newRange[0] = index;
+              } else {
+                newRange[1] = index;
+              }
+              onRangeChange(newRange);
             } else {
-              newRange[1] = index;
+              // 범위 밖에 있는 경우 가장 가까운 핸들을 이동
+              const newRange: [number, number] = [...range];
+              if (index <= range[0]) {
+                newRange[0] = index;
+              } else {
+                newRange[1] = index;
+              }
+              onRangeChange(newRange);
             }
-
-            onRangeChange(newRange);
           }}
         >
           {level}
@@ -132,6 +146,7 @@ const Slider = ({ displayLevels, range, onRangeChange }: SliderProps) => {
         style={{
           left: `${ getPositionFromValue(range[0]) + 4.5 }%`,
           transform: 'translateX(-50%)',
+          opacity: isDragging && activeHandle === 'start' ? 0 : 1,
         }}
       >
         {displayLevels[range[0]]}
@@ -143,6 +158,7 @@ const Slider = ({ displayLevels, range, onRangeChange }: SliderProps) => {
         style={{
           left: `${ getPositionFromValue(range[1]) + 4.5 }%`,
           transform: 'translateX(-50%)',
+          opacity: isDragging && activeHandle === 'end' ? 0 : 1,
         }}
       >
         {displayLevels[range[1]]}
@@ -179,6 +195,8 @@ const Slider = ({ displayLevels, range, onRangeChange }: SliderProps) => {
           style={{
             left: `${ getPositionFromValue(range[0]) }%`,
             right: `${ 100 - getPositionFromValue(range[1]) }%`,
+            transition: isDragging ? 'none' : 'left 0.2s ease-out, right 0.2s ease-out',
+
           }}
         />
 
@@ -187,14 +205,23 @@ const Slider = ({ displayLevels, range, onRangeChange }: SliderProps) => {
           className={`absolute size-3 -mt-px ml-[-6px] bg-primary rounded-full cursor-pointer z-30 ${
             activeHandle === 'start' ? 'ring-4 ring-primary/10 dark:ring-primary/30' : ''
           }`}
-          style={{ left: `${ getPositionFromValue(range[0]) }%`, top: '9px' }}
+          style={{
+            left: `${ getPositionFromValue(range[0]) }%`,
+            top: '9px',
+            transition: isDragging ? 'none' : 'left 0.2s ease-out, opacity 0.1s ease-out',
+          }}
           onMouseDown={(e) => handleMouseDown(e, 'start')}
         />
         <div
           className={`absolute size-3 -mt-px ml-[-6px] bg-primary rounded-full cursor-pointer z-30 ${
             activeHandle === 'end' ? 'ring-4 ring-primary/10 dark:ring-primary/30' : ''
           }`}
-          style={{ left: `${ getPositionFromValue(range[1]) }%`, top: '9px' }}
+          style={{
+            left: `${ getPositionFromValue(range[1]) }%`,
+            top: '9px',
+            transition: isDragging ? 'none' : 'left 0.2s ease-out, opacity 0.1s ease-out',
+
+          }}
           onMouseDown={(e) => handleMouseDown(e, 'end')}
         />
       </div>
