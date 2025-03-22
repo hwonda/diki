@@ -23,7 +23,7 @@
 }
 .react-datepicker__month-text--selected,
 .react-datepicker__month-text--keyboard-selected{
-  background-color: var(--background-secondary);
+  background-color: var(--background) !important;
   color: var(--text) !important;
 }
 .react-datepicker__header {
@@ -39,7 +39,8 @@
 .react-datepicker__day {
   color: var(--text) !important;
 }
-.react-datepicker__day--today {
+.react-datepicker__day--today,
+.react-datepicker__month-text--today {
   color: var(--primary) !important;
   background-color: var(--gray5) !important;
   border-radius: 4px !important;
@@ -63,7 +64,4 @@
 .react-datepicker__month-text--in-range:hover, .react-datepicker__month-text--in-selecting-range:hover {
   background-color: var(--accent) !important;
   color: white !important;
-}
-.react-datepicker__month-text--today {
-  background-color: var(--background);
 }
