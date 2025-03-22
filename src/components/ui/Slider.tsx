@@ -46,7 +46,7 @@ const Slider = ({ displayLevels, range, onRangeChange }: SliderProps) => {
     setIsDragging(false);
     setActiveHandle(null);
 
-    // 가장 가까운 마커로 스냅
+    // Snap to nearest marker
     const newRange: [number, number] = [...range];
     newRange[0] = Math.round(newRange[0]);
     newRange[1] = Math.round(newRange[1]);
@@ -59,54 +59,30 @@ const Slider = ({ displayLevels, range, onRangeChange }: SliderProps) => {
 
     const percent = Math.max(0, Math.min(100, (e.clientX - bounds.left) / bounds.width * 100));
     const clickedValue = (percent / 100) * (displayLevels.length - 1);
+    const clampedValue = Math.max(0, Math.min(displayLevels.length - 1, clickedValue));
 
-    // 클릭한 위치에 해당하는 가장 가까운 인덱스 찾기
-    const leftIndex = Math.floor(clickedValue);
-    const rightIndex = Math.ceil(clickedValue);
+    // 클릭한 위치가 시작 핸들과 끝 핸들 사이에 있는지 확인
+    if (clampedValue > range[0] && clampedValue < range[1]) {
+      // 클릭한 위치가 어느 핸들에 더 가까운지 계산
+      const distanceToStart = Math.abs(clampedValue - range[0]);
+      const distanceToEnd = Math.abs(clampedValue - range[1]);
 
-    // 정확히 마커 위를 클릭한 경우
-    if (leftIndex === rightIndex) {
-      if (leftIndex === range[0] || leftIndex === range[1]) return;
-      if (leftIndex > range[0] && leftIndex < range[1]) {
-        onRangeChange([leftIndex, range[1]]);
-      } else if (leftIndex < range[0]) {
-        onRangeChange([leftIndex, range[1]]);
-      } else if (leftIndex > range[1]) {
-        onRangeChange([range[0], leftIndex]);
-      }
-      return;
-    }
-
-    // 마커 사이를 클릭한 경우 (세그먼트 토글 동작)
-    // 해당 세그먼트가 현재 활성화 상태인지 확인
-    const isSegmentActive = leftIndex >= range[0] && rightIndex <= range[1];
-
-    if (isSegmentActive) {
-      // 활성화된 세그먼트를 클릭한 경우, 가장 가까운 핸들을 움직여 비활성화
-      const distanceToStart = Math.abs(clickedValue - range[0]);
-      const distanceToEnd = Math.abs(clickedValue - range[1]);
-
+      const newRange: [number, number] = [...range];
       if (distanceToStart <= distanceToEnd) {
-        onRangeChange([rightIndex, range[1]]);
+        newRange[0] = Math.round(clampedValue);
       } else {
-        onRangeChange([range[0], leftIndex]);
+        newRange[1] = Math.round(clampedValue);
       }
+      onRangeChange(newRange);
     } else {
-      // 비활성화된 세그먼트를 클릭한 경우, 가장 가까운 핸들을 움직여 활성화
-      if (clickedValue < range[0]) {
-        onRangeChange([leftIndex, range[1]]);
-      } else if (clickedValue > range[1]) {
-        onRangeChange([range[0], rightIndex]);
+      // 클릭한 위치가 범위 밖에 있는 경우, 가장 가까운 핸들을 이동
+      const newRange: [number, number] = [...range];
+      if (clampedValue <= range[0]) {
+        newRange[0] = Math.round(clampedValue);
       } else {
-        const distanceToStart = Math.abs(clickedValue - range[0]);
-        const distanceToEnd = Math.abs(clickedValue - range[1]);
-
-        if (distanceToStart <= distanceToEnd) {
-          onRangeChange([leftIndex, range[1]]);
-        } else {
-          onRangeChange([range[0], rightIndex]);
-        }
+        newRange[1] = Math.round(clampedValue);
       }
+      onRangeChange(newRange);
     }
   }, [range, onRangeChange, displayLevels.length]);
 
@@ -135,28 +111,28 @@ const Slider = ({ displayLevels, range, onRangeChange }: SliderProps) => {
           onClick={(e) => {
             e.stopPropagation();
 
-            // 현재 범위의 시작이나 끝 마커 클릭 시 아무 작업도 하지 않음
-            if (index === range[0] || index === range[1]) return;
-
-            // 범위 내부의 마커 클릭 시
+            // 클릭한 마커가 현재 범위 내에 있는지 확인
             if (index > range[0] && index < range[1]) {
-              // 가장 가까운 핸들을 이동하여 해당 마커 제외
+              // 더 가까운 핸들을 이동
               const distanceToStart = Math.abs(index - range[0]);
               const distanceToEnd = Math.abs(index - range[1]);
 
+              const newRange: [number, number] = [...range];
               if (distanceToStart <= distanceToEnd) {
-                onRangeChange([index, range[1]]);
+                newRange[0] = index;
               } else {
-                onRangeChange([range[0], index]);
+                newRange[1] = index;
               }
-            }
-            // 범위 왼쪽의 마커 클릭 시
-            else if (index < range[0]) {
-              onRangeChange([index, range[1]]);
-            }
-            // 범위 오른쪽의 마커 클릭 시
-            else if (index > range[1]) {
-              onRangeChange([range[0], index]);
+              onRangeChange(newRange);
+            } else {
+              // 범위 밖에 있는 경우 가장 가까운 핸들을 이동
+              const newRange: [number, number] = [...range];
+              if (index <= range[0]) {
+                newRange[0] = index;
+              } else {
+                newRange[1] = index;
+              }
+              onRangeChange(newRange);
             }
           }}
         >
@@ -220,6 +196,7 @@ const Slider = ({ displayLevels, range, onRangeChange }: SliderProps) => {
             left: `${ getPositionFromValue(range[0]) }%`,
             right: `${ 100 - getPositionFromValue(range[1]) }%`,
             transition: isDragging ? 'none' : 'left 0.2s ease-out, right 0.2s ease-out',
+
           }}
         />
 
@@ -243,6 +220,7 @@ const Slider = ({ displayLevels, range, onRangeChange }: SliderProps) => {
             left: `${ getPositionFromValue(range[1]) }%`,
             top: '9px',
             transition: isDragging ? 'none' : 'left 0.2s ease-out, opacity 0.1s ease-out',
+
           }}
           onMouseDown={(e) => handleMouseDown(e, 'end')}
         />
