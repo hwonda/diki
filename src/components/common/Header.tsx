@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import ScrollDirectionHandler from '@/components/common/ScrollDirectionHandler';
 import ThemeSwitch from '@/components/theme/ThemeSwitch';
-import { Send, BookMarked } from 'lucide-react';
+import { Send, Search } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { setSearchedTerms } from '@/store/termsSlice';
 import TooltipButton from '../ui/TooltipButton';
@@ -37,10 +37,10 @@ const Header = () => {
               <TooltipButton
                 isLink={true}
                 href='/posts'
-                tooltip='목록'
+                tooltip='검색'
                 className='rounded-md p-2 hover:bg-background-secondary duration-300'
               >
-                <BookMarked className='size-4' />
+                <Search className='size-4' />
               </TooltipButton>
               <TooltipButton
                 isLink={true}
