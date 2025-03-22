@@ -3,7 +3,38 @@ import SearchInput from '@/components/search/SearchInput';
 import RecentTerms from '@/components/posts/RecentTerms';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
+import { Metadata } from 'next';
+import { dikiMetadata } from '@/constants';
 // import AdContainer from '@/components/common/AdContainer';
+
+export function generateMetadata(): Metadata {
+  return {
+    title: dikiMetadata.title,
+    description: dikiMetadata.description,
+    openGraph: {
+      title: dikiMetadata.title,
+      description: dikiMetadata.description,
+      url: dikiMetadata.url,
+      siteName: dikiMetadata.title,
+      locale: 'ko_KR',
+      type: 'website',
+      images: [
+        {
+          url: dikiMetadata.thumbnailURL,
+          width: 1200,
+          height: 630,
+          alt: dikiMetadata.title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: dikiMetadata.title,
+      description: dikiMetadata.description,
+      images: [dikiMetadata.thumbnailURL],
+    },
+  };
+}
 
 export default async function Home() {
   return (
