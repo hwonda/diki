@@ -1,8 +1,4 @@
 
-.group-section:hover .group-section-title {
-  opacity: 1;
-}
-
 .react-datepicker {
   border-color: var(--background) !important;
 }
@@ -43,6 +39,11 @@
 .react-datepicker__day {
   color: var(--text) !important;
 }
+.react-datepicker__day--today {
+  color: var(--primary) !important;
+  background-color: var(--gray5) !important;
+  border-radius: 4px !important;
+}
 .react-datepicker__day--outside-month {
   color: var(--gray3) !important;
 }
@@ -55,9 +56,6 @@
 }
 .react-datepicker__day--keyboard-selected {
   background-color: var(--background);
-}
-.react-datepicker__day--today {
-  color: var(--primary) !important;
 }
 .react-datepicker__month-text--in-range, .react-datepicker__month-text--in-selecting-range  {
   background-color: var(--background-secondary) !important;
