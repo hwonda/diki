@@ -83,8 +83,14 @@ const SearchDetailInput = () => {
     }
   };
 
-  const handleFilterClick = (modalName: string) => {
-    dispatch(setActiveModal(modalName));
+  const handleFilterClick = (modalName: string | null) => {
+    if( modalName === null ) {
+      requestAnimationFrame(() => {
+        dispatch(setActiveModal(null));
+      });
+    } else {
+      dispatch(setActiveModal(modalName));
+    }
 
     if (modalName === 'searchQuery' && activeModal === modalName) {
       inputRef.current?.blur();

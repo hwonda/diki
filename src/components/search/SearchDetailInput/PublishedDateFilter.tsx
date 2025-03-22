@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface PublishedDateFilterProps {
   activeModal: string | null | undefined;
-  handleFilterClick: (modalName: string)=> void;
+  handleFilterClick: (modalName: string | null)=> void;
   publishedDateRange: [string | null, string | null];
   hasInteractedPublished: boolean;
   handleDateChange: (dates: [Date | null, Date | null], type: 'published' | 'modified')=> void;
@@ -46,6 +46,7 @@ const PublishedDateFilter = ({
 
     handleDateChange([startDate, endDate], 'published');
     setIsMonthYearPickerVisible(false);
+    handleFilterClick(null);
   };
 
   // 월/년 선택 모드로 전환할 때 날짜 초기화하는 함수 추가
@@ -55,6 +56,23 @@ const PublishedDateFilter = ({
       handleDateChange([null, null], 'published');
     }
     setIsMonthYearPickerVisible(!isMonthYearPickerVisible);
+  };
+
+  const handleDatePickerChange = (dates: [Date | null, Date | null]) => {
+    event?.stopPropagation();
+
+    if (isMonthYearPickerVisible) {
+      handleMonthYearChange(dates);
+    } else {
+      handleDateChange([
+        dates[0] || null,
+        dates[1] || null,
+      ], 'published');
+
+      if (dates[0] && dates[1]) {
+        handleFilterClick(null);
+      }
+    }
   };
 
   return (
@@ -82,16 +100,7 @@ const PublishedDateFilter = ({
           <div className="flex justify-center">
             <DatePicker
               selected={startDate}
-              onChange={(dates: [Date | null, Date | null]) => {
-                if (isMonthYearPickerVisible) {
-                  handleMonthYearChange(dates);
-                } else {
-                  handleDateChange([
-                    dates[0] || null,
-                    dates[1] || null,
-                  ], 'published');
-                }
-              }}
+              onChange={handleDatePickerChange}
               startDate={startDate}
               endDate={endDate}
               selectsRange={true}

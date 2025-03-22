@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface ModifiedDateFilterProps {
   activeModal: string | null | undefined;
-  handleFilterClick: (modalName: string)=> void;
+  handleFilterClick: (modalName: string | null)=> void;
   modifiedDateRange: [string | null, string | null];
   hasInteractedModified: boolean;
   handleDateChange: (dates: [Date | null, Date | null], type: 'published' | 'modified')=> void;
@@ -43,7 +43,7 @@ const ModifiedDateFilter = ({
 
     handleDateChange([startDate, endDate], 'modified');
     setIsMonthYearPickerVisible(false);
-    handleFilterClick('');
+    handleFilterClick(null);
   };
 
   const handleMonthYearPickerToggle = (e: React.MouseEvent) => {
@@ -52,6 +52,23 @@ const ModifiedDateFilter = ({
       handleDateChange([null, null], 'modified');
     }
     setIsMonthYearPickerVisible(!isMonthYearPickerVisible);
+  };
+
+  const handleDatePickerChange = (dates: [Date | null, Date | null]) => {
+    event?.stopPropagation();
+
+    if (isMonthYearPickerVisible) {
+      handleMonthYearChange(dates);
+    } else {
+      handleDateChange([
+        dates[0] || null,
+        dates[1] || null,
+      ], 'modified');
+
+      if (dates[0] && dates[1]) {
+        handleFilterClick(null);
+      }
+    }
   };
 
   return (
@@ -79,20 +96,7 @@ const ModifiedDateFilter = ({
           <div className="flex justify-center">
             <DatePicker
               selected={startDate}
-              onChange={(dates: [Date | null, Date | null]) => {
-                if (isMonthYearPickerVisible) {
-                  handleMonthYearChange(dates);
-                } else {
-                  handleDateChange([
-                    dates[0] || null,
-                    dates[1] || null,
-                  ], 'modified');
-
-                  if (dates[0] && dates[1]) {
-                    handleFilterClick('');
-                  }
-                }
-              }}
+              onChange={handleDatePickerChange}
               startDate={startDate}
               endDate={endDate}
               selectsRange={true}
