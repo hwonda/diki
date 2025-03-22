@@ -11,8 +11,8 @@ interface SearchState {
   searchQuery: string;
   activeModal: string | null;
   complexRange: ComplexRange;
-  publishedDateRange: [Date | null, Date | null];
-  modifiedDateRange: [Date | null, Date | null];
+  publishedDateRange: [string | null, string | null];
+  modifiedDateRange: [string | null, string | null];
   hasInteractedPublished: boolean;
   hasInteractedModified: boolean;
   hasInteractedComplex: boolean;
@@ -52,11 +52,11 @@ const searchSlice = createSlice({
       state.complexRange[type] = newRange;
       state.hasInteractedComplex = true;
     },
-    setPublishedDateRange: (state, action: PayloadAction<[Date | null, Date | null]>) => {
+    setPublishedDateRange: (state, action: PayloadAction<[string | null, string | null]>) => {
       state.publishedDateRange = action.payload;
       state.hasInteractedPublished = true;
     },
-    setModifiedDateRange: (state, action: PayloadAction<[Date | null, Date | null]>) => {
+    setModifiedDateRange: (state, action: PayloadAction<[string | null, string | null]>) => {
       state.modifiedDateRange = action.payload;
       state.hasInteractedModified = true;
     },

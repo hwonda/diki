@@ -1,4 +1,3 @@
-
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { ko } from 'date-fns/locale';
@@ -8,10 +7,10 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 interface ModifiedDateFilterProps {
   activeModal: string | null | undefined;
   handleFilterClick: (modalName: string)=> void;
-  modifiedDateRange: [Date | null | undefined, Date | null | undefined];
+  modifiedDateRange: [string | null, string | null];
   hasInteractedModified: boolean;
-  handleDateChange: (dates: [Date | null | undefined, Date | null | undefined], type: 'published' | 'modified')=> void;
-  formatDateRange: (range: [Date | null | undefined, Date | null | undefined])=> string;
+  handleDateChange: (dates: [Date | null, Date | null], type: 'published' | 'modified')=> void;
+  formatDateRange: (range: [string | null, string | null])=> string;
 }
 
 const ModifiedDateFilter = ({
@@ -24,12 +23,18 @@ const ModifiedDateFilter = ({
 }: ModifiedDateFilterProps) => {
   const [isMonthYearPickerVisible, setIsMonthYearPickerVisible] = useState(false);
 
+  const getDateFromString = (dateString: string | null): Date | null => {
+    return dateString ? new Date(dateString) : null;
+  };
+
+  const startDate = getDateFromString(modifiedDateRange[0]);
+  const endDate = getDateFromString(modifiedDateRange[1]);
+
   const handleMonthYearChange = (dates: [Date | null, Date | null]) => {
     if (!dates[0]) return;
 
     if (!dates[1]) {
       const startDate = new Date(dates[0].getFullYear(), dates[0].getMonth(), 1);
-      // const endDate = new Date(dates[0].getFullYear(), dates[0].getMonth() + 1, 0);
       handleDateChange([startDate, null], 'modified');
       return;
     }
@@ -38,6 +43,7 @@ const ModifiedDateFilter = ({
 
     handleDateChange([startDate, endDate], 'modified');
     setIsMonthYearPickerVisible(false);
+    handleFilterClick('');
   };
 
   const handleMonthYearPickerToggle = (e: React.MouseEvent) => {
@@ -72,19 +78,23 @@ const ModifiedDateFilter = ({
         <div className="filter-modal absolute top-full right-0 mt-2 w-64 border border-primary bg-background shadow-lg dark:shadow-gray5 rounded-lg p-3.5 z-10">
           <div className="flex justify-center">
             <DatePicker
-              selected={modifiedDateRange[0]}
+              selected={startDate}
               onChange={(dates: [Date | null, Date | null]) => {
                 if (isMonthYearPickerVisible) {
                   handleMonthYearChange(dates);
                 } else {
                   handleDateChange([
-                    dates[0] || undefined,
-                    dates[1] || undefined,
+                    dates[0] || null,
+                    dates[1] || null,
                   ], 'modified');
+
+                  if (dates[0] && dates[1]) {
+                    handleFilterClick('');
+                  }
                 }
               }}
-              startDate={modifiedDateRange[0]}
-              endDate={modifiedDateRange[1]}
+              startDate={startDate}
+              endDate={endDate}
               selectsRange={true}
               calendarClassName="dark:bg-background"
               locale={ko}
@@ -104,7 +114,6 @@ const ModifiedDateFilter = ({
               }) => (
                 <div className="flex justify-between items-center px-2">
                   {!isMonthYearPickerVisible ? (
-                    // 일반 달력 모드일 때 월 네비게이션
                     <>
                       <button
                         onClick={(e) => {
@@ -143,7 +152,6 @@ const ModifiedDateFilter = ({
                       </button>
                     </>
                   ) : (
-                    // 월/년 선택 모드일 때 연도 네비게이션
                     <>
                       <button
                         onClick={(e) => {
