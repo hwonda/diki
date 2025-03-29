@@ -10,7 +10,7 @@ on:
     branches: ["main"]
   workflow_dispatch:
   schedule:
-    - cron: "0 15 * * *"
+    - cron: "0 16 * * *"
 
 jobs:
   build:
@@ -27,6 +27,9 @@ jobs:
 
       - name: creates output
         run: sh ./build.sh
+
+      - name: Install git
+        run: apk add git
 
       - name: Force sync forked repo with upstream
         run: |
