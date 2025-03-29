@@ -36,6 +36,7 @@ jobs:
           user-email: ${{ secrets.HWON_EMAIL }}
           commit-message: ${{ github.event.commits[0].message || '[문서] 자정 자동 배포' }}
           target-branch: main
+          force: true
       - name: Trigger Vercel Deployment
         if: success() && github.event_name == 'schedule'
         run: |
