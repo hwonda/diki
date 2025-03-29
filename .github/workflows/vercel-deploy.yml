@@ -16,14 +16,30 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container: pandoc/latex
+
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
+
       - name: Install mustache (to update the date)
         run: apk add ruby && gem install mustache
+
       - name: creates output
         run: sh ./build.sh
+
+      - name: Force sync forked repo with upstream
+        run: |
+          git config --global user.name "hwonda"
+          git config --global user.email "${{ secrets.HWON_EMAIL }}"
+          git clone https://x-access-token:${{ secrets.HWON_TOKEN }}@github.com/hwonda/diki.git fork-repo
+          cd fork-repo
+          git remote add upstream https://github.com/dxwiki/diki.git
+          git fetch upstream
+          git checkout main
+          git reset --hard upstream/main
+          git push origin main --force
+
       - name: Pushes to another repository
         id: push_directory
         uses: cpina/github-action-push-to-another-repository@main
@@ -36,7 +52,7 @@ jobs:
           user-email: ${{ secrets.HWON_EMAIL }}
           commit-message: ${{ github.event.commits[0].message || '[문서] 자정 자동 배포' }}
           target-branch: main
-          force: true
+
       - name: Trigger Vercel Deployment
         if: success() && github.event_name == 'schedule'
         run: |
