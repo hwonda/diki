@@ -18,24 +18,10 @@ jobs:
     container: pandoc/latex
     steps:
       - uses: actions/checkout@v2
-        with:
-          fetch-depth: 1
-
       - name: Install mustache (to update the date)
         run: apk add ruby && gem install mustache
-
       - name: creates output
         run: sh ./build.sh
-
-      - name: Set commit message
-        id: commit_message
-        run: |
-          if [ "${{ github.event_name }}" == "schedule" ] || [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "message=Automated update $(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
-          else
-            echo "message=${{ github.event.commits[0].message || 'Update content' }}" >> $GITHUB_OUTPUT
-          fi
-
       - name: Pushes to another repository
         id: push_directory
         uses: cpina/github-action-push-to-another-repository@main
@@ -46,5 +32,9 @@ jobs:
           destination-github-username: "hwonda"
           destination-repository-name: "diki"
           user-email: ${{ secrets.HWON_EMAIL }}
-          commit-message: ${{ steps.commit_message.outputs.message }}
+          commit-message: ${{ github.event.commits[0].message }}
           target-branch: main
+      - name: Trigger Vercel Deployment
+        if: success()
+        run: |
+          curl -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"
