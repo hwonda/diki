@@ -30,6 +30,13 @@ export const getSitemapURLs = async (): Promise<SitemapURL[]> => {
     return date.toISOString().split('T')[0] + 'T00:00:00+00:00';
   };
 
+  // Create a copy of postLists before sorting
+  const sortedPostLists = [...postLists].sort((a, b) => {
+    const dateA = a.metadata?.updated_at || a.metadata?.created_at || new Date();
+    const dateB = b.metadata?.updated_at || b.metadata?.created_at || new Date();
+    return new Date(dateB).getTime() - new Date(dateA).getTime();
+  });
+
   const urls: SitemapURL[] = [
     {
       loc: baseUrl,
@@ -39,7 +46,7 @@ export const getSitemapURLs = async (): Promise<SitemapURL[]> => {
       loc: `${ baseUrl }/posts`,
       lastmod: formatDate(new Date()),
     },
-    ...postLists.map(({ url, metadata }) => {
+    ...sortedPostLists.map(({ url, metadata }) => {
       const date = metadata?.updated_at || metadata?.created_at;
       const lastmod = date ? new Date(date) : new Date();
 
