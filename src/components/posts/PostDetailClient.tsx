@@ -44,7 +44,6 @@ const PostDetailClient = ({ title, children, term, slug }: Props) => {
     const updateAdCount = () => {
       if (!contentRef.current) return;
       const contentHeight = contentRef.current.offsetHeight;
-      console.log('콘텐츠 높이:', contentHeight);
       setVisibleAdCount(determineAdCount(contentHeight));
     };
 
