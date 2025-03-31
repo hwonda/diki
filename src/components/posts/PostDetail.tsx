@@ -30,7 +30,7 @@ const PostDetail = async ({ term, slug, lastTermId }: Props) => {
       />
       <UsecaseSection usecase={term.usecase ?? { industries: [], example: '', description: '' }} />
       <ReferencesSection references={term.references ?? { tutorials: [], books: [], academic: [], opensource: [] }} />
-      <div className='block sm:hidden'>
+      <div className='block lg:hidden'>
         <AdContainer
           slot="7024538925"
           format="auto"
