@@ -6,7 +6,7 @@ import { TermData } from '@/types';
 import PostCard from '@/components/posts/PostCard';
 import Pagination from '@/components/common/Pagination';
 import SortButtons from './SortButtons';
-// import AdContainer from '@/components/common/AdContainer';
+import AdContainer from '@/components/common/AdContainer';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store';
 import { setCurrentPage, setSortType } from '@/store/pageSlice';
@@ -192,11 +192,11 @@ const PostList = ({ itemsPerPage }: PaginationProps) => {
         pageNumbers={pageNumbers}
         setCurrentPage={(page) => dispatch(setCurrentPage(page))}
       />
-      {/* <AdContainer
-        slot="6636477998"
+      <AdContainer
+        slot="3276865601"
         format="auto"
         className="w-full min-h-[60px] sm:min-h-[160px]"
-      /> */}
+      />
     </>
   );
 };
