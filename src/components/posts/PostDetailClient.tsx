@@ -75,7 +75,7 @@ const PostDetailClient = ({ title, children, term, slug }: Props) => {
         </div>
         <div className='hidden lg:flex flex-col ml-4'>
           <div className='w-full h-[128px]' />
-          <div className='flex flex-col justify-between' style={{ height: `calc(${ contentRef.current?.offsetHeight }px - 350px)` }}>
+          <div className='flex flex-col justify-between' style={{ height: `calc(${ contentRef.current?.offsetHeight }px - 352px)` }}>
             {adConfig.slots.slice(0, visibleAdCount).map((slot) => (
               <AdContainer
                 key={slot}
