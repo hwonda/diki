@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import { Slider as MUISlider, styled } from '@mui/material';
 
 interface SliderProps {
   displayLevels: string[];
@@ -8,223 +9,118 @@ interface SliderProps {
   onRangeChange: (newRange: [number, number])=> void;
 }
 
+// Styled MUI Slider component
+const StyledSlider = styled(MUISlider)(() => ({
+  color: 'var(--primary)',
+  height: 3,
+  '& .MuiSlider-thumb': {
+    height: 12,
+    width: 12,
+    margin:0,
+    backgroundColor: 'var(--primary)',
+    '&:focus, &:hover, &.Mui-active': {
+      boxShadow: '0 0 0 8px var(--primary-opacity)',
+    },
+  },
+  '& .MuiSlider-rail': {
+    backgroundColor: 'var(--gray4)',
+    opacity: 1,
+  },
+  '& .MuiSlider-track': {
+    height: 3,
+  },
+  '& .MuiSlider-mark': {
+    backgroundColor: 'var(--gray3)',
+
+  },
+  '& .MuiSlider-markActive': {
+    backgroundColor: 'var(--gray4)',
+  },
+  '& .MuiSlider-markLabel': {
+    color: 'var(--gray3)',
+    fontSize: '12px',
+  },
+  '& .MuiSlider-markLabelActive': {
+    color: 'var(--accent)',
+  },
+  '& .css-swtyag-MuiSlider-markLabel, .css-1qb795b-MuiSlider-markLabel': {
+    fontFamily: 'Pretendard',
+    top: '25px',
+  },
+}));
+
 const Slider = ({ displayLevels, range, onRangeChange }: SliderProps) => {
-  const sliderRef = useRef<HTMLDivElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [activeHandle, setActiveHandle] = useState<'start' | 'end' | null>(null);
+  // 슬라이더 range를 0-100 범위로 변환
+  const [sliderValue, setSliderValue] = useState<[number, number]>([
+    (range[0] / (displayLevels.length - 1)) * 100,
+    (range[1] / (displayLevels.length - 1)) * 100,
+  ]);
 
-  const getPositionFromValue = (value: number) => {
-    return (value / (displayLevels.length - 1)) * 100;
-  };
+  // 슬라이더 마크 생성
+  const marks = displayLevels.map((level, index) => ({
+    value: (index / (displayLevels.length - 1)) * 100,
+    label: level,
+  }));
 
-  const handleMouseDown = (e: React.MouseEvent, handle: 'start' | 'end') => {
-    e.preventDefault();
-    setIsDragging(true);
-    setActiveHandle(handle);
-  };
-
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!isDragging || !activeHandle) return;
-
-    const bounds = sliderRef.current?.getBoundingClientRect();
-    if (!bounds) return;
-
-    const percent = Math.max(0, Math.min(100, (e.clientX - bounds.left) / bounds.width * 100));
-    const newValue = (percent / 100) * (displayLevels.length - 1);
-
-    const newRange: [number, number] = [...range];
-    if (activeHandle === 'start') {
-      newRange[0] = Math.min(newValue, range[1]);
-    } else {
-      newRange[1] = Math.max(newValue, range[0]);
-    }
-
-    onRangeChange(newRange);
-  }, [isDragging, activeHandle, range, onRangeChange, displayLevels.length]);
-
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
-    setActiveHandle(null);
-
-    // Snap to nearest marker
-    const newRange: [number, number] = [...range];
-    newRange[0] = Math.round(newRange[0]);
-    newRange[1] = Math.round(newRange[1]);
-    onRangeChange(newRange);
-  }, [range, onRangeChange]);
-
-  const handleTrackClick = useCallback((e: React.MouseEvent) => {
-    const bounds = sliderRef.current?.getBoundingClientRect();
-    if (!bounds) return;
-
-    const percent = Math.max(0, Math.min(100, (e.clientX - bounds.left) / bounds.width * 100));
-    const clickedValue = (percent / 100) * (displayLevels.length - 1);
-    const clampedValue = Math.max(0, Math.min(displayLevels.length - 1, clickedValue));
-
-    // 클릭한 위치가 시작 핸들과 끝 핸들 사이에 있는지 확인
-    if (clampedValue > range[0] && clampedValue < range[1]) {
-      // 클릭한 위치가 어느 핸들에 더 가까운지 계산
-      const distanceToStart = Math.abs(clampedValue - range[0]);
-      const distanceToEnd = Math.abs(clampedValue - range[1]);
-
-      const newRange: [number, number] = [...range];
-      if (distanceToStart <= distanceToEnd) {
-        newRange[0] = Math.round(clampedValue);
-      } else {
-        newRange[1] = Math.round(clampedValue);
-      }
-      onRangeChange(newRange);
-    } else {
-      // 클릭한 위치가 범위 밖에 있는 경우, 가장 가까운 핸들을 이동
-      const newRange: [number, number] = [...range];
-      if (clampedValue <= range[0]) {
-        newRange[0] = Math.round(clampedValue);
-      } else {
-        newRange[1] = Math.round(clampedValue);
-      }
-      onRangeChange(newRange);
-    }
-  }, [range, onRangeChange, displayLevels.length]);
-
+  // 외부 범위 변경 시 내부 값 업데이트
   useEffect(() => {
-    if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
+    setSliderValue([
+      (range[0] / (displayLevels.length - 1)) * 100,
+      (range[1] / (displayLevels.length - 1)) * 100,
+    ]);
+  }, [range, displayLevels.length]);
+
+  const handleChange = (_event: Event, newValue: number | number[]) => {
+    if (Array.isArray(newValue)) {
+      setSliderValue(newValue as [number, number]);
     }
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isDragging, activeHandle, handleMouseMove, handleMouseUp]);
+  };
+
+  const handleChangeCommitted = (_event: React.SyntheticEvent | Event, newValue: number | number[]) => {
+    if (Array.isArray(newValue)) {
+      // 퍼센트 값을 인덱스로 변환
+      const startIndex = Math.round((newValue[0] / 100) * (displayLevels.length - 1));
+      const endIndex = Math.round((newValue[1] / 100) * (displayLevels.length - 1));
+
+      // 범위 내에 있는지 확인
+      const newRange: [number, number] = [
+        Math.max(0, Math.min(displayLevels.length - 1, startIndex)),
+        Math.max(0, Math.min(displayLevels.length - 1, endIndex)),
+      ];
+
+      onRangeChange(newRange);
+    }
+  };
 
   return (
-    <div className="relative w-full h-12 px-2">
-      {/* Level Markers */}
-      {displayLevels.map((level, index) => (
-        <div
-          key={index}
-          className="absolute top-1 text-center text-[13px] text-gray3 w-10 cursor-pointer z-10"
-          style={{
-            left: `${ getPositionFromValue(index) + 4.5 }%`,
-            transform: 'translateX(-50%)',
-          }}
-          onClick={(e) => {
-            e.stopPropagation();
-
-            // 클릭한 마커가 현재 범위 내에 있는지 확인
-            if (index > range[0] && index < range[1]) {
-              // 더 가까운 핸들을 이동
-              const distanceToStart = Math.abs(index - range[0]);
-              const distanceToEnd = Math.abs(index - range[1]);
-
-              const newRange: [number, number] = [...range];
-              if (distanceToStart <= distanceToEnd) {
-                newRange[0] = index;
-              } else {
-                newRange[1] = index;
-              }
-              onRangeChange(newRange);
-            } else {
-              // 범위 밖에 있는 경우 가장 가까운 핸들을 이동
-              const newRange: [number, number] = [...range];
-              if (index <= range[0]) {
-                newRange[0] = index;
-              } else {
-                newRange[1] = index;
-              }
-              onRangeChange(newRange);
-            }
-          }}
-        >
-          {level}
-        </div>
-      ))}
-
-      {/* Start Level Label */}
-      <div
-        className="absolute top-1 text-center text-[13px] text-primary w-10 z-10"
+    <div className="relative w-full">
+      <StyledSlider
+        value={sliderValue}
+        onChange={handleChange}
+        onChangeCommitted={handleChangeCommitted}
+        // valueLabelDisplay="off"
+        marks={marks}
+        min={0}
+        max={100}
+      />
+      {/* <div
+        className="absolute top-[31px] text-center text-primary w-10 z-10 text-xs"
         style={{
-          left: `${ getPositionFromValue(range[0]) + 4.5 }%`,
+          left: `${ sliderValue[0] }%`,
           transform: 'translateX(-50%)',
-          opacity: isDragging && activeHandle === 'start' ? 0 : 1,
         }}
       >
         {displayLevels[range[0]]}
       </div>
-
-      {/* End Level Label */}
       <div
-        className="absolute top-1 text-center text-[13px] text-primary w-10 z-10"
+        className="absolute top-[31px] text-center text-primary w-10 z-10 text-xs"
         style={{
-          left: `${ getPositionFromValue(range[1]) + 4.5 }%`,
+          left: `${ sliderValue[1] }%`,
           transform: 'translateX(-50%)',
-          opacity: isDragging && activeHandle === 'end' ? 0 : 1,
         }}
       >
         {displayLevels[range[1]]}
-      </div>
-
-      {/* Background Track (Gray Bar) */}
-      <div
-        className="absolute top-6 w-full h-1 bg-gray4 z-0"
-        style={{ top: '26px' }}
-      />
-
-      {/* Slider Track with Invisible Padding */}
-      <div
-        ref={sliderRef}
-        className="absolute top-6 w-full h-1 cursor-pointer z-20"
-        onClick={handleTrackClick}
-        style={{ padding: '20px 0', marginTop: '-10px', backgroundColor: 'transparent' }}
-      >
-        {/* Level Markers on Track */}
-        {displayLevels.map((_, index) => (
-          <div
-            key={index}
-            className="absolute w-px h-2 bg-gray3 top-[8px] z-10"
-            style={{
-              left: `${ getPositionFromValue(index) }%`,
-              transform: 'translateX(-50%)',
-            }}
-          />
-        ))}
-
-        {/* Selected Range */}
-        <div
-          className="absolute h-1 bg-primary rounded-full top-[12px] z-10"
-          style={{
-            left: `${ getPositionFromValue(range[0]) }%`,
-            right: `${ 100 - getPositionFromValue(range[1]) }%`,
-            transition: isDragging ? 'none' : 'left 0.2s ease-out, right 0.2s ease-out',
-
-          }}
-        />
-
-        {/* Handles */}
-        <div
-          className={`absolute size-3 -mt-px ml-[-6px] bg-primary rounded-full cursor-pointer z-30 ${
-            activeHandle === 'start' ? 'ring-4 ring-primary/10 dark:ring-primary/30' : ''
-          }`}
-          style={{
-            left: `${ getPositionFromValue(range[0]) }%`,
-            top: '9px',
-            transition: isDragging ? 'none' : 'left 0.2s ease-out, opacity 0.1s ease-out',
-          }}
-          onMouseDown={(e) => handleMouseDown(e, 'start')}
-        />
-        <div
-          className={`absolute size-3 -mt-px ml-[-6px] bg-primary rounded-full cursor-pointer z-30 ${
-            activeHandle === 'end' ? 'ring-4 ring-primary/10 dark:ring-primary/30' : ''
-          }`}
-          style={{
-            left: `${ getPositionFromValue(range[1]) }%`,
-            top: '9px',
-            transition: isDragging ? 'none' : 'left 0.2s ease-out, opacity 0.1s ease-out',
-
-          }}
-          onMouseDown={(e) => handleMouseDown(e, 'end')}
-        />
-      </div>
+      </div> */}
     </div>
   );
 };

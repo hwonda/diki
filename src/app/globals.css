@@ -16,6 +16,7 @@ body {
   font-family: 'Pretendard', sans-serif;
 
   --primary: #0099cc;
+  --primary-opacity: rgba(0, 153, 204, 0.2);
   --secondary: #b9ddf1;
   --accent: #0080ab;
 
@@ -45,6 +46,7 @@ body {
 
 .dark {
   --primary: #33cfff;
+  --primary-opacity: rgba(51, 207, 255, 0.2);
   --secondary: #03537f;
   --accent: #66a2b7;
 

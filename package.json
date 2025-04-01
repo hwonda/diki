@@ -20,10 +20,13 @@
         "static": "ts-node --project tsconfig.node.json ./scripts/generateFeed.ts && ts-node --project tsconfig.node.json ./scripts/generateSitemap.ts && ts-node --project tsconfig.node.json ./scripts/generateRobots.ts"
     },
     "dependencies": {
+        "@emotion/react": "^11.14.0",
+        "@emotion/styled": "^11.14.0",
+        "@mui/material": "^7.0.1",
         "@reduxjs/toolkit": "^2.5.0",
         "dayjs": "^1.11.13",
-        "lunr": "^2.3.9",
         "lucide-react": "^0.436.0",
+        "lunr": "^2.3.9",
         "next": "14.2.13",
         "react": "^18",
         "react-dom": "^18",
