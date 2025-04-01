@@ -8,12 +8,25 @@ import { Send, Search } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { setSearchedTerms } from '@/store/termsSlice';
 import TooltipButton from '../ui/TooltipButton';
+import { useEffect, useState } from 'react';
+import { useTheme } from 'next-themes';
 
 const Header = () => {
   const pathname = usePathname();
   const isHomePage = pathname === '/';
   const isContactPage = pathname === '/contact';
   const dispatch = useDispatch();
+  const { theme, resolvedTheme } = useTheme();
+  const [isThemeChanging, setIsThemeChanging] = useState(false);
+
+  useEffect(() => {
+    const handleThemeChange = () => {
+      setIsThemeChanging(true);
+      setTimeout(() => setIsThemeChanging(false), 100);
+    };
+
+    handleThemeChange();
+  }, [theme, resolvedTheme]);
 
   const handleClickHome = () => {
     dispatch(setSearchedTerms([]));
@@ -22,7 +35,10 @@ const Header = () => {
   return (
     <>
       <ScrollDirectionHandler />
-      <header className='fixed left-0 top-0 z-50 w-full bg-background-opacity' style={{ transform: 'translateY(var(--header-transform, 0))' }}>
+      <header
+        className={`fixed left-0 top-0 z-50 w-full bg-background-opacity ${ !isThemeChanging ? 'duration-1000' : '' }`}
+        style={{ transform: 'translateY(var(--header-transform, 0))' }}
+      >
         <div className='flex justify-center items-center max-w-6xl mx-auto px-4 py-3 md:px-6 lg:px-8'>
           <div className='w-full flex justify-end items-center gap-3'>
             {!isHomePage && (
