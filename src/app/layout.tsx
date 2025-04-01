@@ -56,7 +56,7 @@ export const metadata: Metadata = {
 
 const RootLayout = async ({ children }: RootLayoutProps) => {
   const terms = await fetchTermsData();
-  
+
   // Generate the script for hydrating the store
   const preloadedStateScript = createPreloadedStateScript(terms);
 
@@ -72,7 +72,6 @@ const RootLayout = async ({ children }: RootLayoutProps) => {
           strategy="afterInteractive"
         />
         <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js" />
-        {/* Add the preloaded state as an inline script in the head */}
         <script
           id="__PRELOADED_STATE__"
           dangerouslySetInnerHTML={{ __html: preloadedStateScript }}
