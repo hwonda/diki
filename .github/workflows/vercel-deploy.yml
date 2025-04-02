@@ -14,7 +14,6 @@ on:
 
 jobs:
   build:
-    if: github.repository == 'dxwiki/diki'
     runs-on: ubuntu-latest
     container: pandoc/latex
 
@@ -43,6 +42,9 @@ jobs:
           git checkout main
           git reset --hard upstream/main
           git commit --allow-empty -m "Sync with upstream [skip ci] [skip vercel]"
+          echo "VERCEL_SKIP_BUILD=true" > .vercel/env
+          git add .vercel/env || true
+          git commit -m "Add VERCEL_SKIP_BUILD env [skip ci] [skip vercel]" || true
           git push origin main --force
 
       - name: Pushes to another repository
