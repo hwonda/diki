@@ -86,7 +86,7 @@ export const formatOpenSourceDetails = (project: NonNullable<References['opensou
     parts.push(
       <div key="description" className={tagLayout}>
         <span className={`${ tagStyle } ${ colorConfig['오픈소스'].border } ${ colorConfig['오픈소스'].text }`}>
-          {'설명'}
+          {'개념'}
         </span>
         <span className='text-sm font-medium mt-px'>{project.description}</span>
       </div>
