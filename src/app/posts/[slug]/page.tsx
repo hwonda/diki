@@ -38,7 +38,7 @@ function findTermBySlug(slug: string): TermData | undefined {
 export async function generateStaticParams() {
   const termsData = readTermsData();
   return termsData.map((term) => ({
-    slug: term.title?.en?.toLowerCase().replace(/\s+/g, '_') ?? 'not-found',
+    slug: transformToSlug(term.title?.en ?? 'not-found'),
   }));
 }
 
