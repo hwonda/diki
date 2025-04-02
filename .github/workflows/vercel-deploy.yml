@@ -42,7 +42,7 @@ jobs:
           git fetch upstream
           git checkout main
           git reset --hard upstream/main
-          git commit --allow-empty -m "Sync with upstream [skip vercel]"
+          git commit --allow-empty -m "Sync with upstream [skip ci] [skip vercel]"
           git push origin main --force
 
       - name: Pushes to another repository
@@ -55,11 +55,10 @@ jobs:
           destination-github-username: "hwonda"
           destination-repository-name: "diki"
           user-email: ${{ secrets.HWON_EMAIL }}
-          commit-message: "[문서] 자정 자동 배포"
+          commit-message: ${{ github.event.commits[0].message || '[문서] 자정 자동 배포' }}
           target-branch: main
 
       - name: Trigger Vercel Deployment
         if: success() && github.event_name == 'schedule'
         run: |
-          sleep 5
           curl -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"
