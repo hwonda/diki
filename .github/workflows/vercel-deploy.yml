@@ -14,6 +14,7 @@ on:
 
 jobs:
   build:
+    if: github.repository == 'dxwiki/diki'
     runs-on: ubuntu-latest
     container: pandoc/latex
 
@@ -53,7 +54,7 @@ jobs:
           destination-github-username: "hwonda"
           destination-repository-name: "diki"
           user-email: ${{ secrets.HWON_EMAIL }}
-          commit-message: ${{ github.event.commits[0].message || '[문서] 자정 자동 배포' }}
+          commit-message: ${{ github.event.commits[0].message || '[문서] 자정 자동 배포' }} [skip ci]
           target-branch: main
 
       - name: Trigger Vercel Deployment
