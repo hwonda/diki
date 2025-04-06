@@ -3,7 +3,7 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store';
 import { setSearchQuery, resetSearchState } from '@/store/searchSlice';
-import { setCurrentPage } from '@/store/pageSlice';
+import { setCurrentPage, setSortType } from '@/store/pageSlice';
 import { useState, useEffect, useRef } from 'react';
 import { Search, X } from 'lucide-react';
 import SearchTip from '@/components/search/SearchTip';
@@ -28,6 +28,7 @@ const SearchInput = () => {
   useEffect(() => {
     dispatch(resetSearchState());
     dispatch(setCurrentPage(1));
+    dispatch(setSortType('created'));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
