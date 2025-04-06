@@ -51,7 +51,7 @@ const ContactClient = () => {
               </Link>
               <div className='flex flex-col justify-center items-center md:items-start gap-1'>
                 <TooltipButton
-                  tooltip={`${ p.name }님의 포스트 보기`}
+                  tooltip={`${ p.name }님의 프로필 보기`}
                   isLink={true}
                   href={`/profiles/${ authorSlug }`}
                   className='text-center text-xl md:text-2xl font-semibold text-primary hover:text-accent hover:underline hover:underline-offset-4'

@@ -81,7 +81,7 @@ const PostHeader = ({ term, onShare }: PostHeaderProps) => {
             term.metadata.authors.map((author, index) => (
               <span key={author}>
                 <TooltipButton
-                  tooltip={`${ author }님의 포스트 보기`}
+                  tooltip={`${ author }님의 프로필 보기`}
                   isLink={true}
                   href={`/profiles/${ authorSlugs[author] || '' }`}
                   className="text-primary hover:text-accent hover:underline"
