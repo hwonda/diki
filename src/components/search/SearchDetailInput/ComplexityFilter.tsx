@@ -58,19 +58,19 @@ const ComplexityFilter = ({
           </div>
           <div className="grid grid-cols-[60px_1fr] pr-4">
             <span className="col-span-2 text-sm font-medium">{'직무 연관도'}</span>
-            <span className="text-sm flex justify-center mt-[5px] ml-[-6px]">{'DA'}</span>
+            <span className="text-sm flex justify-center mt-1 ml-[-6px]">{'DA'}</span>
             <Slider
               displayLevels={relevanceLevels}
               range={complexRange.DA}
               onRangeChange={(newRange: [number, number]) => handleComplexRangeChange('DA', newRange)}
             />
-            <span className="text-sm flex justify-center mt-[5px] ml-[-6px]">{'DS'}</span>
+            <span className="text-sm flex justify-center mt-1 ml-[-6px]">{'DS'}</span>
             <Slider
               displayLevels={relevanceLevels}
               range={complexRange.DS}
               onRangeChange={(newRange: [number, number]) => handleComplexRangeChange('DS', newRange)}
             />
-            <span className="text-sm flex justify-center mt-[5px] ml-[-6px]">{'DE'}</span>
+            <span className="text-sm flex justify-center mt-1 ml-[-6px]">{'DE'}</span>
             <Slider
               displayLevels={relevanceLevels}
               range={complexRange.DE}
