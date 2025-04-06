@@ -10,7 +10,7 @@ interface ContactButtonWrapperProps {
 
 const ContactButtonWrapper = ({ email, github, linkedin }: ContactButtonWrapperProps) => {
   return(
-    <div className="flex items-center justify-center gap-2">
+    <div className="flex shrink-0 items-center justify-center gap-2">
       {email && (
         <TooltipButton
           isLink={true}

@@ -83,7 +83,12 @@ const ProfileClient = ({
   return (
     <>
       <div className='flex gap-4 items-center'>
-        <h1 className="text-xl sm:text-2xl font-bold">{profile.name}{' 님의 프로필'}</h1>
+        <h1 className="text-xl sm:text-2xl font-bold">
+          {profile.name}
+          <span className='text-sub text-xl'>
+            {'('}{profile.username}{') 님의 프로필'}
+          </span>
+        </h1>
         <ContactButtonWrapper
           email={profile.email}
           github={profile.social.github}
