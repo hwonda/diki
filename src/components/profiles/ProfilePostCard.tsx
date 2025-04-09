@@ -38,12 +38,12 @@ const ProfilePostCard = ({ term }: ProfilePostCardProps) => {
               {term.title?.ko}
               <ChevronRight className="animate-slideLeftToRight hidden group-hover:block size-5 text-primary" />
             </span>
-            <Link
+            {/* <Link
               href={`/posts/edit?id=${ term.id }`}
               className="sm:hidden group-hover:block text-sm text-gray2 rounded-full pl-3.5 pr-[13px] py-1 border border-gray2 hover:border-primary hover:text-primary hover:bg-gray5"
             >
               {'수정'}
-            </Link>
+            </Link> */}
           </div>
           <span className="text-sub text-sm truncate">{term.title?.en}</span>
           <span className="text-sub line-clamp-1 text-base">
