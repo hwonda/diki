@@ -15,7 +15,7 @@ function parseMarkdownSegment(segment: string) {
   html = html.replace(/(<li class="list-disc">.+?<\/li>(?:\s*<li class="list-disc">.+?<\/li>)*)/g, '<ul class="list">$1</ul>');
 
   // br 처리는 리스트 처리 후에 실행
-  html = html.replace(/<br\s*\/?>/gi, '<br><div class="br-gap"></div>');
+  html = html.replace(/<br\s*\/?>/gi, '<div class="br-gap"></div>');
 
   // Bold / Italic / Inline code / 링크
   html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
