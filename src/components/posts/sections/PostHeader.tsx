@@ -52,7 +52,7 @@ const PostHeader = ({ term, onShare }: PostHeaderProps) => {
               term.title?.en && (
                 <span className='text-main break-all'>
                   {'('}{term.title.en}{')'}
-                  <button className='relative top-[2px]'>
+                  <div className='relative top-[2px] inline-block'>
                     <TooltipButton
                       onClick={handleShareClick}
                       tooltip="공유하기"
@@ -60,7 +60,7 @@ const PostHeader = ({ term, onShare }: PostHeaderProps) => {
                     >
                       <Share2 className='size-6' />
                     </TooltipButton>
-                  </button>
+                  </div>
                 </span>
               )
             }
