@@ -302,7 +302,7 @@ export default function CreatePage() {
                   <span>{preview === 'post' ? '•' : ''}</span>
                 </div>
               </DropdownItem>
-              <DropdownItem
+              {/* <DropdownItem
                 onClick={() => togglePreviewMode('json')}
                 className={preview === 'json' ? 'text-primary' : ''}
               >
@@ -310,7 +310,7 @@ export default function CreatePage() {
                   <span>{'JSON 미리보기'}</span>
                   <span>{preview === 'json' ? '•' : ''}</span>
                 </div>
-              </DropdownItem>
+              </DropdownItem> */}
             </DropdownList>
           </Dropdown>
         </div>
@@ -328,12 +328,12 @@ export default function CreatePage() {
           >
             {'포스트 미리보기'}
           </button>
-          <button
+          {/* <button
             onClick={() => togglePreviewMode('json')}
             className={getTabClass('json')}
           >
             {'JSON 미리보기'}
-          </button>
+          </button> */}
         </div>
       </div>
 
