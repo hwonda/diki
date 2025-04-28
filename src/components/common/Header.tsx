@@ -10,6 +10,7 @@ import { setSearchedTerms } from '@/store/termsSlice';
 import TooltipButton from '../ui/TooltipButton';
 import { useEffect, useState } from 'react';
 import { useTheme } from 'next-themes';
+import AuthStatus from '@/components/auth/AuthStatus';
 
 const Header = () => {
   const pathname = usePathname();
@@ -39,16 +40,20 @@ const Header = () => {
         className={`fixed left-0 top-0 z-50 w-full bg-background-opacity ${ !isThemeChanging ? 'duration-1000' : '' }`}
         style={{ transform: 'translateY(var(--header-transform, 0))' }}
       >
-        <div className='flex justify-center items-center max-w-6xl mx-auto px-4 py-3 md:px-6 lg:px-8'>
-          <div className='w-full flex justify-end items-center gap-3'>
-            {!isHomePage && (
-              <Link href='/' onClick={handleClickHome}>
-                <span className='h-8 flex items-center text-3xl font-bold'>
-                  <span className='text-primary'>{'D'}</span>
-                  {'iki'}
-                </span>
-              </Link>
-            )}
+        <div className='flex justify-between items-center max-w-6xl mx-auto px-4 py-3 md:px-6 lg:px-8'>
+          <AuthStatus />
+
+          <div className='flex items-center gap-3'>
+            <div className='w-full flex justify-end items-center gap-3'>
+              {!isHomePage && (
+                <Link href='/' onClick={handleClickHome}>
+                  <span className='h-8 flex items-center text-3xl font-bold'>
+                    <span className='text-primary'>{'D'}</span>
+                    {'iki'}
+                  </span>
+                </Link>
+              )}
+            </div>
             <div className={`flex items-center gap-1 ${ isHomePage || isContactPage ? 'windows:pr-[5px]' : '' }`}>
               <TooltipButton
                 isLink={true}
