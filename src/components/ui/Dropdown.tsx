@@ -86,7 +86,7 @@ const DropdownItem = ({
   onClick,
   className,
 }: {
-  children: React.ReactElement;
+  children: ReactNode;
   onClick?: ()=> void;
   className?: string;
 }) => {
@@ -98,14 +98,12 @@ const DropdownItem = ({
   };
 
   return (
-    <button
-      className={`flex w-full justify-center items-center rounded-lg text-left text-sm text-main ${ className }`}
+    <div
+      className={`w-full rounded-md transition-colors duration-150 ease-in-out text-sm hover:bg-background-secondary cursor-pointer ${ className }`}
       onClick={handleItemClick}
     >
-      <span className='w-full p-2 rounded-md transition-colors duration-150 ease-in-out hover:bg-background-secondary'>
-        {children}
-      </span>
-    </button>
+      {children}
+    </div>
   );
 };
 

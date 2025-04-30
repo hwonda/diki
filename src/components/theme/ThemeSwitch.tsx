@@ -30,7 +30,7 @@ const ThemeSwitch = () => {
   const ThemeItem = ({ newTheme, Icon, label }: DropdownItemProps) => (
     <DropdownItem onClick={() => setTheme(newTheme)}>
       <div className='flex w-full items-center justify-between'>
-        <div className='flex items-center gap-2'>
+        <div className='p-2 flex items-center gap-2'>
           <Icon width={14} />
           {label}
         </div>

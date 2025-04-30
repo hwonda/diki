@@ -77,19 +77,19 @@ export default function AuthStatus() {
 
         <DropdownList>
           <DropdownItem>
-            <Link href={`/profiles/${ user.username }`} className="w-full block">
+            <Link href={`/profiles/${ user.username }`} className="p-2 block w-full">
               {'내 프로필'}
             </Link>
           </DropdownItem>
 
           <DropdownItem>
-            <Link href="/create" className="w-full block">
-              {'글 작성하기'}
+            <Link href="/create" className="p-2 block w-full">
+              {'포스트 작성하기'}
             </Link>
           </DropdownItem>
 
           <DropdownItem onClick={handleLogout}>
-            <span className="text-red-500">{'로그아웃'}</span>
+            <span className="p-2 block w-full text-level-5">{'로그아웃'}</span>
           </DropdownItem>
         </DropdownList>
       </Dropdown>
