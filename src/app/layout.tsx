@@ -54,17 +54,52 @@ export const metadata: Metadata = {
 
 const RootLayout = async ({ children }: RootLayoutProps) => {
   return (
-    <html lang='en' suppressHydrationWarning>
+    <html lang='ko' suppressHydrationWarning>
       <head>
         <SiteVerification />
         <GoogleAdSense />
         <GoogleAnalytics />
-        <link rel="canonical" href="https://diki.kr" />
+        <link rel="canonical" href={dikiMetadata.url} />
         <Script
           src="https://t1.kakaocdn.net/kakao_js_sdk/2.6.0/kakao.min.js"
           strategy="afterInteractive"
         />
         <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebSite',
+              'name': dikiMetadata.title,
+              'url': dikiMetadata.url,
+              'description': dikiMetadata.description,
+              'potentialAction': {
+                '@type': 'SearchAction',
+                'target': {
+                  '@type': 'EntryPoint',
+                  'urlTemplate': `${ dikiMetadata.url }/posts?q={search_term_string}`,
+                },
+                'query-input': 'required name=search_term_string',
+              },
+            }),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Organization',
+              'name': dikiMetadata.title,
+              'url': dikiMetadata.url,
+              'logo': `${ dikiMetadata.url }/logo.png`,
+              'sameAs': [
+                'https://github.com/dxwiki/diki',
+              ],
+            }),
+          }}
+        />
       </head>
       <body
         className={`${ fontCoding.variable } ${ fontTinos.variable } overflow-x-hidden overflow-y-auto`}

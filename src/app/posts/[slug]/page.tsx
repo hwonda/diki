@@ -49,12 +49,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {};
   }
 
-  const title = `${ term.title?.ko }${ term.title?.en ? `(${ term.title.en })` : '' }`;
+  const title = `${ term.title?.ko }${ term.title?.en ? ` (${ term.title.en })` : '' }`;
   const description = term.description?.short;
+
+  // undefined 값을 필터링하여 문자열 배열로 변환
+  const keywords: string[] = [
+    term.title?.ko,
+    term.title?.en,
+    '디키',
+    'Diki',
+    '데이터용어',
+    '데이터사전',
+  ].filter((keyword): keyword is string => keyword !== undefined);
 
   return {
     title: title,
     description: description,
+    alternates: {
+      canonical: `${ dikiMetadata.url }/posts/${ params.slug }`,
+    },
+    keywords: keywords,
     openGraph: {
       title: title,
       description: description ?? '',
@@ -89,8 +103,38 @@ export default function PostPage({ params }: Props) {
     notFound();
   }
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    'headline': `${ term.title?.ko }${ term.title?.en ? ` (${ term.title.en })` : '' }`,
+    'description': term.description?.short || '',
+    'author': term.metadata?.authors?.map((author) => ({
+      '@type': 'Person',
+      'name': author,
+    })) || [],
+    'publisher': {
+      '@type': 'Organization',
+      'name': '디키 (Diki)',
+      'logo': {
+        '@type': 'ImageObject',
+        'url': `${ dikiMetadata.url }/logo.png`,
+      },
+    },
+    'datePublished': term.metadata?.created_at || '',
+    'dateModified': term.metadata?.updated_at || term.metadata?.created_at || '',
+    'url': `${ dikiMetadata.url }/posts/${ params.slug }`,
+    'mainEntityOfPage': {
+      '@type': 'WebPage',
+      '@id': `${ dikiMetadata.url }/posts/${ params.slug }`,
+    },
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <PostDetail term={term} slug={params.slug} lastTermId={lastTermId} />
     </>
   );

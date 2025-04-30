@@ -11,6 +11,10 @@ export function generateMetadata(): Metadata {
   return {
     title: dikiMetadata.title,
     description: dikiMetadata.description,
+    alternates: {
+      canonical: dikiMetadata.url,
+    },
+    keywords: ['디키', 'Diki', '데이터사전', '데이터용어', '데이터위키', '용어사전'],
     openGraph: {
       title: dikiMetadata.title,
       description: dikiMetadata.description,

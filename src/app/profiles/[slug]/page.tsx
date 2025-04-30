@@ -18,6 +18,10 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   return {
     title: `${ profile.name } 프로필`,
     description: `${ profile.name }님의 프로필 페이지입니다.`,
+    alternates: {
+      canonical: `${ dikiMetadata.url }/profiles/${ params.slug }`,
+    },
+    keywords: ['디키', 'Diki', profile.name, '프로필', '데이터전문가'],
     openGraph: {
       title: `${ profile.name } 프로필`,
       description: `${ profile.name }님의 프로필 페이지입니다.`,
