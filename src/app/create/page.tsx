@@ -11,7 +11,7 @@ import DifficultySection from '@/components/create/DifficultySection';
 import RelevanceSection from '@/components/create/RelevanceSection';
 import UsecaseSection from '@/components/create/UsecaseSection';
 import ReferencesSection from '@/components/create/ReferencesSection';
-import PostPreview from '@/components/create/PostPreview';
+import EditPreview from '@/components/create/EditPreview';
 import { Dropdown, DropdownTrigger, DropdownList, DropdownItem, DropdownContext } from '@/components/ui/Dropdown';
 import { ConfirmModal } from '@/components/ui/Modal';
 import { ChevronDown } from 'lucide-react';
@@ -345,7 +345,7 @@ export default function CreatePage() {
         </div>
       ) : preview === 'post' ? (
         <div className="overflow-y-auto overflow-x-hidden h-[73vh] border border-gray3 rounded-lg">
-          <PostPreview term={formData} />
+          <EditPreview term={formData} />
         </div>
       ) : (
         <>
