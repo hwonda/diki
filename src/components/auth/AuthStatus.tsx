@@ -21,8 +21,7 @@ export default function AuthStatus() {
   const [user, setUser] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // 쿠키에서 사용자 정보 읽기
+  const updateUserInfo = () => {
     const userInfoCookie = document.cookie
       .split('; ')
       .find((row) => row.startsWith('user-info='));
@@ -36,6 +35,23 @@ export default function AuthStatus() {
       }
     }
     setLoading(false);
+  };
+
+  useEffect(() => {
+    updateUserInfo();
+
+    // 쿠키 변경 감지
+    const handleStorageChange = () => {
+      updateUserInfo();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    document.addEventListener('visibilitychange', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      document.removeEventListener('visibilitychange', handleStorageChange);
+    };
   }, []);
 
   const handleLogout = async () => {
@@ -58,10 +74,10 @@ export default function AuthStatus() {
 
   if (!user) {
     return (
-      <div />
-      // <Link href="/login" className="rounded-md text-sm text-gray1 hover:text-main">
-      //   {'기여하기'}
-      // </Link>
+      // <div />
+      <Link href="/login" className="rounded-md text-sm text-gray1 hover:text-main">
+        {'기여하기'}
+      </Link>
     );
   }
 

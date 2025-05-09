@@ -1,7 +1,6 @@
 export interface SocialType {
   github?: string;
   linkedin?: string;
-  twitter?: string;
 }
 
 export interface Profile {
@@ -12,4 +11,5 @@ export interface Profile {
   role: string;
   social: SocialType;
   thumbnail: string;
+  updatedAt?: string;
 }
