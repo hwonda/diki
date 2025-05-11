@@ -74,12 +74,12 @@ export default function CreatePage() {
         setIsLoggedIn(true);
 
         // 현재 사용자를 authors에 추가
-        if (parsedUserInfo.name) {
+        if (parsedUserInfo.username) {
           setFormData((prev) => ({
             ...prev,
             metadata: {
               ...prev.metadata,
-              authors: [parsedUserInfo.name],
+              authors: [parsedUserInfo.username],
             },
           }));
         }

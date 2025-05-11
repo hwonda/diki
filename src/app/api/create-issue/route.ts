@@ -44,9 +44,9 @@ export async function POST(request: NextRequest) {
     }
 
     // 작성자 정보 추가
-    if (userInfo?.name && data.metadata?.authors) {
-      if (!data.metadata.authors.includes(userInfo.name)) {
-        data.metadata.authors.push(userInfo.name);
+    if (userInfo?.username && data.metadata?.authors) {
+      if (!data.metadata.authors.includes(userInfo.username)) {
+        data.metadata.authors.push(userInfo.username);
       }
     }
 
@@ -107,7 +107,8 @@ function formatIssueBody(data: TermData, userInfo: UserInfo | null): string {
 ## 기본 정보
 - 한글 제목: ${ data.title?.ko || '' }
 - 영문 제목: ${ data.title?.en || '' }
-- 기여자: ${ userInfo?.name || '없음' }
+- 기타 제목: ${ data.title?.etc || '' }
+- 기여자: ${ userInfo?.username || '없음' }
 
 ## 설명
 ### 짧은 설명
@@ -141,6 +142,9 @@ ${ data.terms?.length === 0 ? '관련 용어 없음' : '' }
 - 설명: ${ data.usecase?.description || '' }
 - 예시: ${ data.usecase?.example || '' }
 - 산업 분야: ${ (data.usecase?.industries || []).join(', ') }
+
+## 참고 자료
+- 참고 자료 1: ${ data.references || '' }
 
 ## 태그
 ${ (data.tags || []).map((tag) => `- ${ tag.name || '' }`).join('\n') }
