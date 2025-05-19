@@ -13,6 +13,7 @@ import CanonicalTag from '@/components/meta/CanonicalTag';
 import KakaoSDK from '@/components/meta/KakaoSDK';
 import AmpAdScript from '@/components/meta/AmpAdScript';
 import JsonLdScripts from '@/components/meta/JsonLdScripts';
+import MicrosoftClarity from '@/components/meta/MicrosoftClarity';
 import ReduxProvider from '@/components/redux/ReduxProvider';
 import DataInitializer from '@/components/redux/DataInitializer';
 import Footer from '@/components/common/Footer';
@@ -67,6 +68,7 @@ const RootLayout = async ({ children }: RootLayoutProps) => {
         <KakaoSDK />
         <AmpAdScript />
         <JsonLdScripts />
+        <MicrosoftClarity />
       </head>
       <body
         className={`${ fontCoding.variable } ${ fontTinos.variable } overflow-x-hidden overflow-y-auto`}
