@@ -115,3 +115,8 @@ body {
 .group-section:hover .group-section-title {
   opacity: 1;
 }
+
+.privacy-policy-content p {
+  margin: 0.25rem 0.5rem;
+  margin-left: 1rem;
+}
