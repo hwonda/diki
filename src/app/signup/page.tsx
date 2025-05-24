@@ -92,7 +92,7 @@ function SignupContent() {
         <div className="w-full flex items-center justify-center gap-2 text-sm text-gray1 mt-6">
           <p>{'이미 계정이 있으신가요?'}</p>
           <Link href="/login" className="text-primary hover:underline font-medium">
-            {'로그인하기'}
+            {'로그인'}
           </Link>
         </div>
       </div>
