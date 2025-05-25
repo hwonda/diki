@@ -242,10 +242,10 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
 
       <form onSubmit={handleSubmit} noValidate>
         <div className="bg-background border border-gray4 rounded-xl">
-          <div className="flex flex-col gap-2 h-[60vh] overflow-y-auto overflow-x-hidden p-6 md:p-8">
+          <div className="flex flex-col gap-6 h-[60vh] overflow-y-auto overflow-x-hidden p-6 md:p-8">
             <div>
-              <label className="block text-main font-medium mb-2">
-                {'이름 (한글)'}
+              <label className="block text-primary font-medium mb-2">
+                {'이름(한글)'}
               </label>
               <input
                 type="text"
@@ -288,7 +288,7 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
             <div className="col-span-1 md:col-span-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-main font-medium mb-2">
+                  <label className="block text-primary font-medium mb-2">
                     {'GitHub'}
                   </label>
                   <div className="relative">
@@ -307,7 +307,7 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
                 </div>
 
                 <div>
-                  <label className="block text-main font-medium mb-2">
+                  <label className="block text-primary font-medium mb-2">
                     {'LinkedIn'}
                   </label>
                   <div className="relative">
