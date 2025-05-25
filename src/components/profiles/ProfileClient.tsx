@@ -121,7 +121,7 @@ const ProfileClient = ({
           <div className='flex items-center gap-3'>
             {isCurrentUser && (
               <Link
-                href={`/profiles/edit/${ username }`}
+                href={`/profiles/${ username }/edit`}
                 className="text-sm px-3 py-1.5 rounded-md bg-primary dark:bg-secondary text-white hover:bg-accent dark:hover:bg-background-secondary"
               >
                 {'프로필 편집'}
