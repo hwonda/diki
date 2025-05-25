@@ -8,18 +8,33 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { getAuthorSlug } from '@/utils/filters';
 import TooltipButton from '@/components/ui/TooltipButton';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 const ContactClient = () => {
   const profiles = useSelector((state: RootState) => state.profiles.profiles);
+  const terms = useSelector((state: RootState) => state.terms.terms);
   const [isDataReady, setIsDataReady] = useState(false);
 
+  const ownerProfiles = useMemo(
+    () => profiles.filter((p) => p.role === 'owner').sort((a, b) => a.id - b.id),
+    [profiles]
+  );
+
+  const activeContributors = useMemo(() => {
+    const contributorProfiles = profiles.filter((p) => p.role === 'contributor');
+    return contributorProfiles.filter((profile) =>
+      terms.some((term) =>
+        Array.isArray(term.metadata?.authors) && term.metadata.authors.includes(profile.username)
+      )
+    ).sort((a, b) => a.id - b.id);
+  }, [profiles, terms]);
+
   useEffect(() => {
-    if (profiles.length > 0) {
+    if (profiles.length > 0 && terms.length > 0) {
       setIsDataReady(true);
     }
-  }, [profiles]);
+  }, [profiles, terms]);
 
   if (!isDataReady) {
     return (
@@ -27,14 +42,13 @@ const ContactClient = () => {
     );
   }
 
-  const ownerProfiles = profiles.filter((p) => p.role === 'owner').sort((a, b) => a.id - b.id);
-  const contributorProfiles = profiles.filter((p) => p.role === 'contributor').sort((a, b) => a.id - b.id);
-
   const ProfileCard = ({ profile, isOwner = false }: { profile: Profile, isOwner?: boolean }) => {
     const authorSlug = getAuthorSlug(profile.username);
     return (
       <div
-        className="flex flex-col md:flex-row justify-center items-center text-center transition-transform gap-0 md:gap-10 border w-full py-5 md:py-0 border-gray4 rounded-xl md:border-0"
+        className={`flex flex-col md:flex-row justify-center items-center text-center transition-transform 
+          ${ isOwner ? 'gap-0 md:gap-10' : 'gap-0 md:gap-4' } border w-full py-5 md:py-0 border-gray4 rounded-xl md:border-0
+          `}
       >
         <Link href={`/profiles/${ authorSlug }`}>
           <div
@@ -125,18 +139,18 @@ const ContactClient = () => {
           </div>
         </section>
 
-        {contributorProfiles.length > 0 && (
+        {activeContributors.length > 0 && (
           <section className="w-full mb-10">
             <div className="flex flex-col items-center md:items-start gap-1 mb-8">
               <h3 className="text-xl md:text-2xl text-sub">
-                {'Thanks to our Contributors'}
+                {'Knowledge Sharers'}
               </h3>
               <p className="hidden md:block md:text-base text-gray2">
-                {'Diki의 발전에 기여해 주신 모든 분들께 감사드립니다.'}
+                {'지식을 나누며 함께 성장해 주신 분들입니다.'}
               </p>
             </div>
             <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 z-10">
-              {contributorProfiles.map((profile) => (
+              {activeContributors.map((profile) => (
                 <ProfileCard key={profile.id} profile={profile} isOwner={false} />
               ))}
             </div>
