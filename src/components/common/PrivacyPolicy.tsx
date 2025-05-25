@@ -6,14 +6,13 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 interface PrivacyPolicyProps {
   onCheckChange: (checked: boolean)=> void;
   isChecked: boolean;
+  onScrolledToBottom?: (scrolled: boolean)=> void;
 }
 
-export default function PrivacyPolicy({ onCheckChange, isChecked }: PrivacyPolicyProps) {
+export default function PrivacyPolicy({ onCheckChange, isChecked, onScrolledToBottom }: PrivacyPolicyProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [height, setHeight] = useState<number | undefined>(undefined);
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
-  const [autoCheckApplied, setAutoCheckApplied] = useState(false);
-  const [showWarning, setShowWarning] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const policyContentRef = useRef<HTMLDivElement>(null);
 
@@ -29,15 +28,12 @@ export default function PrivacyPolicy({ onCheckChange, isChecked }: PrivacyPolic
 
       if (isAtBottom && !hasScrolledToBottom) {
         setHasScrolledToBottom(true);
-        setShowWarning(false);
-
-        if (!autoCheckApplied && !isChecked) {
-          onCheckChange(true);
-          setAutoCheckApplied(true);
+        if (onScrolledToBottom) {
+          onScrolledToBottom(true);
         }
       }
     }
-  }, [hasScrolledToBottom, autoCheckApplied, isChecked, onCheckChange]);
+  }, [hasScrolledToBottom, onScrolledToBottom]);
 
   useEffect(() => {
     if (contentRef.current) {
@@ -56,65 +52,29 @@ export default function PrivacyPolicy({ onCheckChange, isChecked }: PrivacyPolic
     }
   }, [isExpanded, checkScrollPosition]);
 
-  useEffect(() => {
-    if (!isChecked) {
-      setAutoCheckApplied(false);
-    }
-  }, [isChecked]);
-
-  useEffect(() => {
-    const signupContainer = document.querySelector('.signup-container');
-    if (signupContainer) {
-      if (isExpanded) {
-        signupContainer.classList.add('expanded-policy');
-      } else {
-        signupContainer.classList.remove('expanded-policy');
-      }
-    }
-
-    return () => {
-      if (signupContainer) {
-        signupContainer.classList.remove('expanded-policy');
-      }
-    };
-  }, [isExpanded]);
-
   return (
     <div className="w-full">
-      <div
-        className="flex items-center space-x-2 cursor-pointer"
-        onClick={() => {
-          if (!isExpanded) {
-            toggleExpand();
-          }
-        }}
-      >
+      <div className="flex items-center space-x-2 cursor-pointer">
         <input
           type="checkbox"
           id="privacy-check"
           checked={isChecked}
           onChange={(e) => {
-            if (hasScrolledToBottom) {
-              onCheckChange(e.target.checked);
-            } else if (!isExpanded) {
-              toggleExpand();
-            }
+            onCheckChange(e.target.checked);
           }}
           className="size-4 accent-primary cursor-pointer"
           onClick={(e) => {
             e.stopPropagation();
-            if (!hasScrolledToBottom) {
-              e.preventDefault();
-              setShowWarning(true);
-            } else {
-              setShowWarning(false);
-            }
           }}
         />
         <label
           htmlFor="privacy-check"
           className="text-sm text-main cursor-pointer grow"
-          onClick={(e) => e.stopPropagation()}
+          onClick={() => {
+            if (!isExpanded) {
+              setIsExpanded(true);
+            }
+          }}
         >
           {'[필수] 개인정보 처리방침'}
         </label>
@@ -122,9 +82,8 @@ export default function PrivacyPolicy({ onCheckChange, isChecked }: PrivacyPolic
           onClick={(e) => {
             e.stopPropagation();
             toggleExpand();
-            setShowWarning(false);
           }}
-          className="text-main hover:text-primary transition-colors"
+          className="text-primary hover:text-accent transition-colors"
           aria-label={isExpanded ? '개인정보 처리방침 닫기' : '개인정보 처리방침 열기'}
         >
           {isExpanded
@@ -144,12 +103,8 @@ export default function PrivacyPolicy({ onCheckChange, isChecked }: PrivacyPolic
         </button>
       </div>
 
-      {showWarning && (
-        <p className="text-xs text-primary mt-1 ml-6">{'개인정보 처리방침을 끝까지 확인해야 체크 가능합니다'}</p>
-      )}
-
       <div
-        className={`mt-3 overflow-hidden transition-all duration-300 ease-in-out ${ isExpanded ? 'opacity-100' : 'opacity-0' }`}
+        className={`mt-3 overflow-hidden transition-all duration-300 ease-in-out ${ isExpanded ? 'opacity-100' : 'opacity-0' } relative`}
         style={{ height: height ? `${ height }px` : '0px' }}
       >
         <div
@@ -166,36 +121,36 @@ export default function PrivacyPolicy({ onCheckChange, isChecked }: PrivacyPolic
             </p>
 
             <h3 className="text-base font-semibold mt-4 mb-2">{'1. 수집하는 개인정보 항목 및 수집 방법'}</h3>
-            <p className="pl-3">{'당사는 GitHub 계정 연동을 통해 다음과 같은 개인정보를 수집합니다.'}</p>
+            <p className="pl-3">{'Diki는 GitHub 계정 연동을 통해 다음과 같은 개인정보를 수집합니다.'}</p>
 
             <p className="font-semibold mt-3 mb-1 pl-3">{'1) 수집 항목'}</p>
             <div className="pl-6 md:pl-12 space-y-3">
               <div>
-                <p className="font-medium mb-1">{'기본 사용자 정보'}</p>
+                <p className="font-medium mb-1">{'(1) 기본 사용자 정보'}</p>
                 <ul className="list-disc pl-6 space-y-1">
-                  <li>{'GitHub 사용자명 (username)'}</li>
-                  <li>{'사용자 이름 (name)'}</li>
-                  <li>{'프로필 이미지 URL (avatar_url)'}</li>
+                  <li>{'GitHub 사용자명(username)'}</li>
+                  <li>{'사용자 이름(name)'}</li>
+                  <li>{'프로필 이미지 URL(avatar_url)'}</li>
                 </ul>
               </div>
 
               <div>
-                <p className="font-medium mb-1">{'이메일 정보'}</p>
+                <p className="font-medium mb-1">{'(2) 이메일 정보'}</p>
                 <ul className="list-disc pl-6 space-y-1">
-                  <li>{'이메일 주소 (email)'}</li>
+                  <li>{'이메일 주소(email)'}</li>
                   <li>{'이메일 상태'}</li>
-                  <ul className="list-circle pl-6 space-y-1">
-                    <li>{'기본 이메일 여부 (primary)'}</li>
-                    <li>{'인증 여부 (verified)'}</li>
-                    <li>{'공개 여부 (visibility)'}</li>
+                  <ul className="pl-3 space-y-1">
+                    <li>{'- 기본 이메일 여부(primary)'}</li>
+                    <li>{'- 인증 여부(verified)'}</li>
+                    <li>{'- 공개 여부(visibility)'}</li>
                   </ul>
                 </ul>
               </div>
 
               <div>
-                <p className="font-medium mb-1">{'계정 관련 정보'}</p>
+                <p className="font-medium mb-1">{'(3) 계정 관련 정보'}</p>
                 <ul className="list-disc pl-6">
-                  <li>{'GitHub 액세스 토큰 (access token)'}</li>
+                  <li>{'GitHub 액세스 토큰(access token)'}</li>
                 </ul>
               </div>
             </div>
@@ -204,10 +159,10 @@ export default function PrivacyPolicy({ onCheckChange, isChecked }: PrivacyPolic
             <div className="pl-6 md:pl-12">
               <p className="mb-2">{'OAuth 2.0 기반의 GitHub 로그인 연동을 통해 사용자의 명시적 동의를 받은 후, 아래 정보를 수집합니다:'}</p>
               <ul className="list-disc pl-6 space-y-1 mb-3">
-                <li>{'GitHub 사용자명 (username)'}</li>
-                <li>{'사용자 이름 (name)'}</li>
-                <li>{'프로필 이미지 URL (avatar_url)'}</li>
-                <li>{'이메일 주소 및 상태 (email, primary, verified, visibility)'}</li>
+                <li>{'GitHub 사용자명(username)'}</li>
+                <li>{'사용자 이름(name)'}</li>
+                <li>{'프로필 이미지 URL(avatar_url)'}</li>
+                <li>{'이메일 주소 및 상태(email, primary, verified, visibility)'}</li>
               </ul>
               <p>{'GitHub 액세스 토큰은 사용자 인증 처리에 일시적으로만 사용되며, 인증이 완료된 후 즉시 파기됩니다.'}</p>
             </div>
@@ -225,13 +180,13 @@ export default function PrivacyPolicy({ onCheckChange, isChecked }: PrivacyPolic
             <p className="pl-3">{'단, 관계 법령에 따라 보존이 필요한 경우 해당 기간 동안 보관 후 즉시 파기합니다.'}</p>
 
             <h3 className="text-base font-semibold mt-4 mb-2">{'4. 개인정보 제3자 제공'}</h3>
-            <p className="mb-1 pl-3">{'당사는 이용자의 개인정보를 원칙적으로 외부에 제공하지 않습니다.'}</p>
+            <p className="mb-1 pl-3">{'Diki는 이용자의 개인정보를 원칙적으로 외부에 제공하지 않습니다.'}</p>
             <p className="pl-3">{'단, 법령에 특별한 규정이 있는 경우는 예외로 합니다.'}</p>
 
             <h3 className="text-base font-semibold mt-4 mb-2">{'5. 개인정보의 파기 절차 및 방법'}</h3>
             <p className="mb-1 pl-3">{'회원 탈퇴 또는 서비스 목적 달성 시 수집된 개인정보는 지체 없이 파기되며, 전자적 파일 형태는 복구 불가능한 기술적 방법으로 안전하게 삭제합니다.'}</p>
             <p className="mb-1 pl-3">{'단, GitHub OAuth의 정책상 연동된 Authorized OAuth App은 사용자가 직접 GitHub 계정 설정에서 해제(revoke)해야 합니다.'}</p>
-            <p className="pl-3 text-level-5">{'이 경우, [개인 프로필] - [Settings] - [Applications] - [Authorized OAuth Apps] 에서 해제할 수 있습니다.'}</p>
+            <p className="pl-3 text-level-5">{'[개인 프로필] - [Settings] - [Applications] - [Authorized OAuth Apps] 에서 해제할 수 있습니다.'}</p>
 
             <h3 className="text-base font-semibold mt-4 mb-2">{'6. 이용자의 권리와 행사 방법'}</h3>
             <p className="mb-1 pl-3">{'이용자는 언제든지 다음과 같은 권리를 행사할 수 있습니다:'}</p>
@@ -241,14 +196,19 @@ export default function PrivacyPolicy({ onCheckChange, isChecked }: PrivacyPolic
               <li className="mb-1">{'삭제 및 처리 정지 요청'}</li>
             </ul>
             <p className="pl-3">{'요청은 서비스 내 문의 채널 또는 이메일(dxwiki.team@gmail.com)을 통해 가능합니다.'}</p>
-
-            <div className="mt-6 mb-2 text-center">
-              {hasScrolledToBottom && (
-                <p className="text-primary text-sm mt-1">{'스크롤을 완료하셨습니다. 자동으로 동의 처리됩니다.'}</p>
-              )}
-            </div>
           </div>
         </div>
+
+        {/* 스크롤 유도 화살표 */}
+        {isExpanded && !hasScrolledToBottom && (
+          <div className="absolute bottom-4 inset-x-0 flex flex-col items-center justify-center pointer-events-none">
+            <div className="absolute bg-background-secondary px-3 pt-0.5 pb-2 rounded-full opacity-70 z-0 w-12 h-10" />
+            <div className="flex flex-col items-center justify-center px-3 pt-0.5 pb-2 z-10">
+              <ChevronDown className="text-primary animate-bounceArrow1" size={20} />
+              <ChevronDown className="text-primary animate-bounceArrow2 -mt-3" size={20} />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
