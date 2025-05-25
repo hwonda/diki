@@ -139,10 +139,10 @@ export default function PrivacyPolicy({ onCheckChange, isChecked, onScrolledToBo
                 <ul className="list-disc pl-6 space-y-1">
                   <li>{'이메일 주소(email)'}</li>
                   <li>{'이메일 상태'}</li>
-                  <ul className="pl-3 space-y-1">
-                    <li>{'- 기본 이메일 여부(primary)'}</li>
-                    <li>{'- 인증 여부(verified)'}</li>
-                    <li>{'- 공개 여부(visibility)'}</li>
+                  <ul className="list-[revert] pl-6 space-y-1">
+                    <li>{'기본 이메일 여부(primary)'}</li>
+                    <li>{'인증 여부(verified)'}</li>
+                    <li>{'공개 여부(visibility)'}</li>
                   </ul>
                 </ul>
               </div>
@@ -186,7 +186,9 @@ export default function PrivacyPolicy({ onCheckChange, isChecked, onScrolledToBo
             <h3 className="text-base font-semibold mt-4 mb-2">{'5. 개인정보의 파기 절차 및 방법'}</h3>
             <p className="mb-1 pl-3">{'회원 탈퇴 또는 서비스 목적 달성 시 수집된 개인정보는 지체 없이 파기되며, 전자적 파일 형태는 복구 불가능한 기술적 방법으로 안전하게 삭제합니다.'}</p>
             <p className="mb-1 pl-3">{'단, GitHub OAuth의 정책상 연동된 Authorized OAuth App은 사용자가 직접 GitHub 계정 설정에서 해제(revoke)해야 합니다.'}</p>
-            <p className="pl-3 text-level-5">{'[개인 프로필] - [Settings] - [Applications] - [Authorized OAuth Apps] 에서 해제할 수 있습니다.'}</p>
+            <ul className="list-disc pl-6 md:pl-8">
+              <li className="text-level-5">{'[개인 프로필] - [Settings] - [Applications] - [Authorized OAuth Apps] 에서 해제할 수 있습니다.'}</li>
+            </ul>
 
             <h3 className="text-base font-semibold mt-4 mb-2">{'6. 이용자의 권리와 행사 방법'}</h3>
             <p className="mb-1 pl-3">{'이용자는 언제든지 다음과 같은 권리를 행사할 수 있습니다:'}</p>
