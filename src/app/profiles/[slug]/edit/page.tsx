@@ -374,7 +374,7 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
           >
             {submitting ? '제출 중...' : '회원 탈퇴'}
           </button>
-          <div>
+          <div className="flex gap-4">
             <button
               type="button"
               onClick={() => setIsCancelModalOpen(true)}
@@ -421,10 +421,11 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDeleteAccount}
         title="회원 탈퇴"
-        message="정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없으며, 작성하신 글은 비공개 처리됩니다."
+        message="정말 탈퇴하시겠습니까?"
+        submessage="이 작업은 되돌릴 수 없으며, 작성하신 글은 비공개 처리됩니다."
         confirmText="탈퇴하기"
         cancelText="취소"
-        confirmButtonClass="text-red-500 hover:bg-red-100 dark:hover:bg-red-900 hover:text-red-100"
+        confirmButtonClass="px-4 py-2 text-level-5 hover:bg-red-700 dark:hover:bg-red-900 hover:text-white rounded-lg"
       />
 
       <div className="sm:hidden mt-8">
