@@ -77,7 +77,6 @@ export async function GET(request: NextRequest) {
     // 기존 프로필 데이터에서 사용자 확인
     let existingProfile: Profile | undefined;
     let profiles: Profile[] = [];
-    let newId = 1;
 
     try {
       const profilesFilePath = path.join(process.cwd(), 'src', 'data', 'profiles.json');
@@ -90,8 +89,6 @@ export async function GET(request: NextRequest) {
       console.error('Error reading profiles data:', error);
     }
 
-    let firestoreMaxId = 0;
-
     const profilesSnapshot = await firestore.collection('profiles').get();
     const userDoc = profilesSnapshot.docs.find((doc) => doc.id === username);
 
@@ -100,28 +97,13 @@ export async function GET(request: NextRequest) {
       // 회원가입 시도했는데 이미 사용자가 존재하는 경우
       return NextResponse.redirect(new URL('/login?error=user_already_exists', process.env.NEXT_PUBLIC_BASE_URL || ''));
     } else if (!isSignupFlow && !userDoc && !existingProfile) {
-      // 로그인 시도했는데 사용자가 존재하지 않는 경우
+      // 로그인 시도했는데 사용자가 존재하지 않는 경우 - 회원가입으로 리다이렉트하고 OAuth 연결 중단
       return NextResponse.redirect(new URL('/signup?error=user_not_found', process.env.NEXT_PUBLIC_BASE_URL || ''));
-    }
-
-    if (!existingProfile && !userDoc) {
-      try {
-        if (!profilesSnapshot.empty) {
-          profilesSnapshot.forEach((doc) => {
-            const profileData = doc.data();
-            if (profileData.id && typeof profileData.id === 'number') {
-              firestoreMaxId = Math.max(firestoreMaxId, profileData.id);
-            }
-          });
-          newId = Math.max(newId, firestoreMaxId + 1);
-        }
-      } catch (error) {
-        console.error('Error getting profiles from Firestore:', error);
-      }
     }
 
     let firestoreData;
     let cookieUserInfo;
+    let newId = 1;
 
     if (existingProfile || userDoc) {
       // 기존 사용자 정보 업데이트
@@ -141,14 +123,27 @@ export async function GET(request: NextRequest) {
           linkedin: username,
         },
       };
-    } else {
-      // 신규 사용자 정보 생성
+    } else if (isSignupFlow) {
+      // 회원가입 플로우에서만 신규 사용자 정보 생성
+
+      // 신규 사용자 ID 계산
+      let firestoreMaxId = 0;
+      if (!profilesSnapshot.empty) {
+        profilesSnapshot.forEach((doc) => {
+          const profileData = doc.data();
+          if (profileData.id && typeof profileData.id === 'number') {
+            firestoreMaxId = Math.max(firestoreMaxId, profileData.id);
+          }
+        });
+        newId = Math.max(newId, firestoreMaxId + 1);
+      }
+
       firestoreData = {
         id: newId,
         email: primaryEmail,
         username: username,
         name: userData.name || userData.login,
-        role: 'contributor', // 기본 역할
+        role: 'contributor',
         social: {
           github: username,
           linkedin: username,
@@ -168,22 +163,30 @@ export async function GET(request: NextRequest) {
           linkedin: username,
         },
       };
+    } else {
+      // 로그인 플로우인데 여기까지 왔다면 오류 (이미 위에서 처리했지만 안전장치)
+      return NextResponse.redirect(new URL('/signup?error=user_not_found', process.env.NEXT_PUBLIC_BASE_URL || ''));
     }
 
     // Firestore에 사용자 정보 저장 또는 업데이트
-    if (!userDoc) {
-      // 새 사용자 추가
-      await firestore.collection('profiles').doc(username).set(firestoreData);
-    } else {
-      if (existingProfile) {
-        await userDoc.ref.update(firestoreData);
+    if (existingProfile || userDoc) {
+      // 기존 사용자 업데이트
+      if (!userDoc) {
+        await firestore.collection('profiles').doc(username).set(firestoreData);
       } else {
-        const existingData = userDoc.data();
-        await userDoc.ref.update({
-          ...firestoreData,
-          id: existingData.id || newId,
-        });
+        if (existingProfile) {
+          await userDoc.ref.update(firestoreData);
+        } else {
+          const existingData = userDoc.data();
+          await userDoc.ref.update({
+            ...firestoreData,
+            id: existingData.id || newId,
+          });
+        }
       }
+    } else if (isSignupFlow) {
+      // 회원가입 플로우에서만 새 사용자 추가
+      await firestore.collection('profiles').doc(username).set(firestoreData);
     }
 
     // 쿠키에 사용자 정보 저장 (7일 유효)
