@@ -279,13 +279,14 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
 
   return (
     <>
-      <div className="w-full mb-2 md:mb-4">
-        <h1 className="text-lg md:text-xl lg:text-2xl font-bold text-main">{'프로필 편집'}</h1>
+      <div className="w-full mt-10 mb-2 md:mb-4">
+        <h1 className="text-xl lg:text-2xl font-bold text-main">{'프로필 편집'}</h1>
+        <p className="text-gray2">{'실제 데이터는 매일 자정(00:00)에 업데이트됩니다. 자정 이전에 수정된 내용은 반영되지 않을 수 있습니다.'}</p>
       </div>
 
       <form onSubmit={handleSubmit} noValidate>
-        <div className="bg-background border border-gray4 rounded-xl">
-          <div className="flex flex-col gap-6 h-[60vh] overflow-y-auto overflow-x-hidden p-6 md:p-8">
+        <div className="bg-background sm:border sm:border-gray4 rounded-xl">
+          <div className="flex flex-col gap-4 sm:gap-6 sm:h-[60vh] sm:overflow-y-auto overflow-x-hidden mt-10 sm:mt-0 p-1.5 sm:p-6 md:p-8">
             <div>
               <label className="block text-primary font-medium mb-2">
                 {'이름(한글)'}
@@ -315,7 +316,7 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
                   className="w-full px-4 py-3 border border-gray3 rounded-lg bg-gray4 text-gray2 cursor-not-allowed"
                   disabled
                 />
-                <p className="text-gray2 text-sm p-1">{'github 내 닉네임으로 설정되며, 수정하실 수 없습니다.'}</p>
+                <p className="text-gray2 text-sm p-1">{'github 닉네임으로 설정되며, 수정하실 수 없습니다.'}</p>
               </div>
 
               <div>
@@ -329,7 +330,7 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
                   className="w-full px-4 py-3 border border-gray3 rounded-lg bg-gray4 text-gray2 cursor-not-allowed"
                   disabled
                 />
-                <p className="text-gray2 text-sm p-1">{'github 내 이메일로 설정되며, 수정하실 수 없습니다.'}</p>
+                <p className="text-gray2 text-sm p-1">{'github 이메일로 설정되며, 수정하실 수 없습니다.'}</p>
               </div>
             </div>
 
@@ -352,7 +353,7 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
                       placeholder="username"
                     />
                   </div>
-                  <p className="text-gray2 text-sm p-1">{'github 내 닉네임으로 초기값이 설정됩니다.'}</p>
+                  <p className="text-gray2 text-sm p-1">{'github 닉네임으로 초기값이 설정됩니다.'}</p>
                 </div>
 
                 <div>
@@ -372,7 +373,7 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
                       placeholder="username"
                     />
                   </div>
-                  <p className="text-gray2 text-sm p-1">{'linkedin 내 닉네임으로 초기값이 설정됩니다.'}</p>
+                  <p className="text-gray2 text-sm p-1">{'github 닉네임으로 초기값이 설정됩니다.'}</p>
                 </div>
               </div>
             </div>
@@ -385,7 +386,7 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
           </div>
         )}
 
-        <div className="flex justify-between space-x-4 py-6">
+        <div className="flex justify-between space-x-2 sm:space-x-4 mt-10 sm:mt-0 py-6">
           <button
             type="button"
             onClick={() => setIsDeleteModalOpen(true)}
@@ -393,7 +394,7 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
           >
             {submitting ? '제출 중...' : '회원 탈퇴'}
           </button>
-          <div className="flex gap-4">
+          <div className="flex gap-2 sm:gap-4">
             <button
               type="button"
               onClick={() => setIsCancelModalOpen(true)}
