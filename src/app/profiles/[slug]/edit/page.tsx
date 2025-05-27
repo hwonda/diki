@@ -77,6 +77,7 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [nameError, setNameError] = useState(false);
 
   // 프로필 데이터 가져오기 및 사용자 인증 확인
   useEffect(() => {
@@ -147,6 +148,10 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
 
+    if (name === 'name' && value.trim() !== '') {
+      setNameError(false);
+    }
+
     if (name.includes('.')) {
       const parts = name.split('.');
       if (parts.length === 2) {
@@ -166,6 +171,13 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 이름 필드 유효성 검사
+    if (!formData.name.trim()) {
+      setNameError(true);
+      return;
+    }
+
     setIsConfirmModalOpen(true); // 모달 열기
   };
 
@@ -283,10 +295,13 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background transition-all duration-200"
+                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background transition-all duration-200 ${ nameError ? 'border-level-5' : 'border-gray3' }`}
                 required
                 placeholder="이름을 입력해주세요"
               />
+              <p className={`text-sm p-1 ${ nameError ? 'text-level-5' : 'text-gray2' }`}>
+                {nameError ? '이름은 필수 입력값입니다.' : '포스트 작성 및 다른 포스트에 기여 시 표시되는 이름입니다.'}
+              </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -300,6 +315,7 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
                   className="w-full px-4 py-3 border border-gray3 rounded-lg bg-gray4 text-gray2 cursor-not-allowed"
                   disabled
                 />
+                <p className="text-gray2 text-sm p-1">{'github 내 닉네임으로 설정되며, 수정하실 수 없습니다.'}</p>
               </div>
 
               <div>
@@ -313,6 +329,7 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
                   className="w-full px-4 py-3 border border-gray3 rounded-lg bg-gray4 text-gray2 cursor-not-allowed"
                   disabled
                 />
+                <p className="text-gray2 text-sm p-1">{'github 내 이메일로 설정되며, 수정하실 수 없습니다.'}</p>
               </div>
             </div>
 
@@ -335,6 +352,7 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
                       placeholder="username"
                     />
                   </div>
+                  <p className="text-gray2 text-sm p-1">{'github 내 닉네임으로 초기값이 설정됩니다.'}</p>
                 </div>
 
                 <div>
@@ -354,6 +372,7 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
                       placeholder="username"
                     />
                   </div>
+                  <p className="text-gray2 text-sm p-1">{'linkedin 내 닉네임으로 초기값이 설정됩니다.'}</p>
                 </div>
               </div>
             </div>
