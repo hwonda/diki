@@ -7,7 +7,7 @@ interface DescriptionSectionProps {
 
 const DescriptionSection = ({ description }: DescriptionSectionProps) => {
   return (
-    <section className='group mt-10'>
+    <section className='group'>
       <h2 className='flex items-center'>
         <span className="text-primary sm:ml-[-20px] mr-2.5 sm:opacity-0 group-hover:opacity-100 transition-opacity">{'#'}</span>
         {'개념'}
@@ -17,7 +17,7 @@ const DescriptionSection = ({ description }: DescriptionSectionProps) => {
           <MarkdownContent content={description} />
         </MathJaxProvider>
       ) : (
-        <p className="text-sub italic">{'내용이 없습니다.'}</p>
+        <p className="text-sub">{'내용이 없습니다.'}</p>
       )}
     </section>
   );

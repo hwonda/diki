@@ -23,11 +23,7 @@ const TagsSection = ({ formData, setFormData }: TagsSectionProps) => {
   };
 
   return (
-    <div className="p-2 md:p-6 border-b border-gray3">
-      <h2 className="flex items-center text-xl font-semibold mb-2">
-        <span className="text-primary mr-1">{'#'}</span>
-        {'관련 포스트 (선택)'}
-      </h2>
+    <div className="p-2">
       <div className="flex flex-wrap gap-2 my-2">
         {formData.tags?.map((tag, index) => (
           <div key={index} className="bg-gray5 border border-gray4 rounded-lg px-3 py-1 flex flex-col items-center mb-2">

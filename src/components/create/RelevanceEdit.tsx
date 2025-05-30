@@ -83,12 +83,7 @@ const RelevanceSection = ({ formData, handleChange, handleCustomChange, validati
   }, [formData.relevance?.analyst?.score, formData.relevance?.engineer?.score, formData.relevance?.scientist?.score]);
 
   return (
-    <div className="p-2 md:p-6 border-b border-gray3">
-      <h2 className="flex items-center text-xl font-semibold mb-6">
-        <span className="text-primary mr-1">{'#'}</span>
-        {'직무 연관도'}
-      </h2>
-
+    <div className="p-2">
       {/* sm 이상에서는 3열 그리드, 그 이하에서는 세로 배치 */}
       <div className="flex flex-col sm:grid sm:grid-cols-3 sm:gap-6">
         {/* 데이터 분석가 (DA) */}
@@ -113,7 +108,7 @@ const RelevanceSection = ({ formData, handleChange, handleCustomChange, validati
                 e.target.style.height = 'auto';
                 e.target.style.height = `calc(${ e.target.scrollHeight }px + 1rem)`;
               }}
-              className={getInputClassName(formData.relevance?.analyst?.description, 'w-full min-h-[120px] p-2 border rounded-md')}
+              className={getInputClassName(formData.relevance?.analyst?.description, 'w-full min-h-[120px] p-2 border rounded-md text-main')}
               placeholder="데이터 분석가 직무와의 연관성에 대한 설명"
               required
             />
@@ -147,7 +142,7 @@ const RelevanceSection = ({ formData, handleChange, handleCustomChange, validati
                 e.target.style.height = 'auto';
                 e.target.style.height = `calc(${ e.target.scrollHeight }px + 1rem)`;
               }}
-              className={getInputClassName(formData.relevance?.scientist?.description, 'w-full min-h-[120px] p-2 border rounded-md')}
+              className={getInputClassName(formData.relevance?.scientist?.description, 'w-full min-h-[120px] p-2 border rounded-md text-main')}
               placeholder="데이터 과학자 직무와의 연관성에 대한 설명"
               required
             />
@@ -181,7 +176,7 @@ const RelevanceSection = ({ formData, handleChange, handleCustomChange, validati
                 e.target.style.height = 'auto';
                 e.target.style.height = `calc(${ e.target.scrollHeight }px + 1rem)`;
               }}
-              className={getInputClassName(formData.relevance?.engineer?.description, 'w-full min-h-[120px] p-2 border rounded-md')}
+              className={getInputClassName(formData.relevance?.engineer?.description, 'w-full min-h-[120px] p-2 border rounded-md text-main')}
               placeholder="데이터 엔지니어 직무와의 연관성에 대한 설명"
               required
             />
