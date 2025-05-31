@@ -9,7 +9,7 @@ import ReferencesSection from '../posts/sections/ReferencesSection';
 import { X } from 'lucide-react';
 import Level from '@/components/ui/Level';
 import { formatDate } from '@/utils/filters';
-import React, { useEffect, useRef, ReactElement, useState } from 'react';
+import React, { useEffect, useRef, ReactElement, useState, useCallback } from 'react';
 import TableOfContents from '@/components/common/TableOfContents';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
@@ -106,25 +106,25 @@ const PostPreview = ({
   }, [profiles, term.metadata?.authors]);
 
   // 섹션 클릭 핸들러
-  const handleSectionClick = (section: string, e: React.MouseEvent) => {
+  const handleSectionClick = useCallback((section: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
     if (onSectionClick) {
       onSectionClick(section);
     }
-  };
+  }, [onSectionClick]);
 
   // X 버튼 클릭 핸들러
-  const handleCloseSection = (section: string) => {
-    setSectionErrors({ ...sectionErrors, [section]: [] });
+  const handleCloseSection = useCallback((section: string) => {
+    setSectionErrors((prev) => ({ ...prev, [section]: [] }));
     if (onSectionClick) {
       onSectionClick(section);
     }
-  };
+  }, [onSectionClick]);
 
   // 섹션별 에러 메시지 렌더링
-  const renderSectionErrors = (section: string): React.ReactNode => {
+  const renderSectionErrors = useCallback((section: string): React.ReactNode => {
     const errors = sectionErrors[section];
     if (!errors || errors.length === 0) return null;
 
@@ -137,10 +137,10 @@ const PostPreview = ({
         ))}
       </div>
     );
-  };
+  }, [sectionErrors]);
 
   // 섹션 hover 스타일 클래스 생성
-  const getSectionClassName = (section: string, baseClass: string = '') => {
+  const getSectionClassName = useCallback((section: string, baseClass: string = '') => {
     const isEditing = editingSections && editingSections[section as keyof EditingSectionState];
 
     // 미리보기 모드이면 모든 스타일 적용 안함
@@ -175,6 +175,20 @@ const PostPreview = ({
             break;
           case 'usecase':
             if (!term.usecase?.description || !term.usecase?.example) return 'error';
+            break;
+          case 'tags':
+            if (!Array.isArray(term.tags) || term.tags.length === 0) return 'error';
+            break;
+          case 'terms':
+            if (!Array.isArray(term.terms) || term.terms.length === 0) return 'error';
+            break;
+          case 'references':
+            const hasTutorials = Array.isArray(term.references?.tutorials) && term.references.tutorials.length > 0;
+            const hasBooks = Array.isArray(term.references?.books) && term.references.books.length > 0;
+            const hasAcademic = Array.isArray(term.references?.academic) && term.references.academic.length > 0;
+            const hasOpensource = Array.isArray(term.references?.opensource) && term.references.opensource.length > 0;
+
+            if (!(hasTutorials || hasBooks || hasAcademic || hasOpensource)) return 'error';
             break;
         }
       }
@@ -215,30 +229,25 @@ const PostPreview = ({
 
     // 편집 중인 경우
     if (isEditing) {
-      // 한글/영문 제목은 모달 스타일 유지
-      if (section === 'koTitle' || section === 'enTitle') {
-        return `${ baseClass } outline outline-1 outline-primary rounded-lg`;
-      }
-      return `${ baseClass } outline outline-1 outline-primary`;
+      return `${ baseClass } outline outline-2 outline-primary`;
     }
 
     // 상태에 따른 스타일 적용
     switch (status) {
       case 'error':
-        return `${ baseClass } outline outline-1 outline-dashed outline-level-5 hover:outline-primary hover:outline-2 hover:bg-background-secondary`;
+        return `${ baseClass } outline outline-1 outline-dashed outline-level-5 bg-gray5 hover:outline-primary hover:outline-2 hover:bg-background-secondary`;
       case 'empty':
-        return `${ baseClass } outline outline-1 outline-dashed outline-gray3 hover:outline-primary hover:outline-2 hover:bg-background-secondary`;
+        return `${ baseClass } outline outline-1 outline-dashed outline-gray3 bg-gray5 hover:outline-primary hover:outline-2 hover:bg-background-secondary`;
       case 'filled':
-        return `${ baseClass } hover:outline hover:outline-1 hover:outline-dashed hover:outline-primary hover:outline-2 hover:bg-background-secondary`;
+        return `${ baseClass } outline outline-1 outline-dashed outline-gray3 hover:outline-primary hover:outline-2 hover:bg-background-secondary`;
     }
-  };
+  }, [editingSections, formSubmitted, isPreview, term, validateSection]);
 
   // 섹션 내부에 편집 폼 렌더링
-  const renderInlineEditForm = (section: keyof EditingSectionState) => {
+  const renderInlineEditForm = useCallback((section: keyof EditingSectionState) => {
     if (!editingSections || !formComponents) return null;
     if (!editingSections[section]) return null;
 
-    // 닫기 버튼
     const closeButton = (
       <div className="flex justify-end">
         <button
@@ -276,7 +285,7 @@ const PostPreview = ({
         {closeButton}
       </div>
     );
-  };
+  }, [editingSections, formComponents, handleCloseSection, renderKoreanTitleForm, renderEnglishTitleForm, renderShortDescriptionForm, renderSectionErrors]);
 
   return (
     <div className="prose h-[68vh] sm:h-[calc(100vh-280px)] overflow-y-auto overflow-x-hidden block md:grid md:grid-cols-[minmax(0,176px)_5fr] bg-background rounded-lg p-2 sm:p-4 border border-gray4" ref={postPreviewRef}>
@@ -294,7 +303,7 @@ const PostPreview = ({
         {/* 데스크톱 태그 편집 (사이드바) */}
         {editingSections?.tags && (
           <div className="hidden md:block absolute top-[336px] left-[196px] min-w-[54vw] z-20 shadow-lg">
-            <div className="outline outline-1 outline-primary rounded-lg bg-background p-2">
+            <div className="outline outline-2 outline-primary rounded-lg bg-background p-2">
               {renderInlineEditForm('tags')}
             </div>
           </div>
@@ -329,14 +338,14 @@ const PostPreview = ({
 
           {/* 한글 제목 편집 폼 */}
           {editingSections?.koTitle && (
-            <div className="relative outline outline-1 outline-primary rounded-lg">
+            <div className="relative outline outline-2 outline-primary rounded-lg">
               {renderInlineEditForm('koTitle')}
             </div>
           )}
 
           {/* 영문 제목 편집 폼 */}
           {editingSections?.enTitle && (
-            <div className="relative outline outline-1 outline-primary rounded-lg">
+            <div className="relative outline outline-2 outline-primary rounded-lg">
               {renderInlineEditForm('enTitle')}
             </div>
           )}
@@ -372,7 +381,7 @@ const PostPreview = ({
                 <div className='flex items-center gap-2' onClick={(e: React.MouseEvent) => handleSectionClick('shortDesc', e)}>
                   <Level level={0} />
                   <div className='text-main'>
-                    {term.description?.short || '짧은 설명 없음'}
+                    {term.description?.short || '짧은 설명을 입력하세요.'}
                   </div>
                 </div>
                 {editingSections?.shortDesc && renderInlineEditForm('shortDesc')}
@@ -387,7 +396,7 @@ const PostPreview = ({
               <div className='flex items-center gap-2' onClick={(e: React.MouseEvent) => handleSectionClick('difficulty', e)}>
                 <Level level={Number(term.difficulty?.level)} />
                 <div className='my-0.5 text-main'>
-                  {term.difficulty?.description || '난이도 설명 없음'}
+                  {term.difficulty?.description || '난이도 설명을 입력하세요.'}
                 </div>
               </div>
               {editingSections?.difficulty && renderInlineEditForm('difficulty')}
@@ -417,7 +426,7 @@ const PostPreview = ({
                 >
                   <div className="cursor-pointer" onClick={(e: React.MouseEvent) => handleSectionClick('terms', e)}>
                     <RelatedTermsSection
-                      terms={term.terms?.length === 0 ? [{ term: '용어없음', description: '용어를 추가해주세요.', internal_link: '' }] : term.terms || []}
+                      terms={term.terms?.length === 0 ? [{ term: '용어없음', description: '용어를 추가하세요.', internal_link: '' }] : term.terms || []}
                     />
                   </div>
                   {editingSections?.terms && renderInlineEditForm('terms')}
@@ -450,7 +459,7 @@ const PostPreview = ({
                       </div>
                     ) : (
                       <div className="relative group/tags inline-block">
-                        <p className="text-sub">{'관련 포스트를 추가해주세요.'}</p>
+                        <p className="text-sub">{'관련 포스트를 추가하세요.'}</p>
                       </div>
                     )}
                   </div>
@@ -469,15 +478,15 @@ const PostPreview = ({
                     <RelevanceSection
                       analyst={{
                         score: term.relevance?.analyst?.score ?? 1,
-                        description: term.relevance?.analyst?.description || '데이터 분석가를 위한 설명을 입력하세요',
+                        description: term.relevance?.analyst?.description || '데이터 분석가를 위한 설명을 입력하세요.',
                       }}
                       engineer={{
                         score: term.relevance?.engineer?.score ?? 1,
-                        description: term.relevance?.engineer?.description || '데이터 엔지니어를 위한 설명을 입력하세요',
+                        description: term.relevance?.engineer?.description || '데이터 엔지니어를 위한 설명을 입력하세요.',
                       }}
                       scientist={{
                         score: term.relevance?.scientist?.score ?? 1,
-                        description: term.relevance?.scientist?.description || '데이터 과학자를 위한 설명을 입력하세요',
+                        description: term.relevance?.scientist?.description || '데이터 과학자를 위한 설명을 입력하세요.',
                       }}
                     />
                   </div>
@@ -494,8 +503,8 @@ const PostPreview = ({
                     <UsecaseSection
                       usecase={{
                         industries: term.usecase?.industries || [],
-                        example: term.usecase?.example || '클릭하여 내용을 입력하세요.',
-                        description: term.usecase?.description || '클릭하여 내용을 입력하세요.',
+                        example: term.usecase?.example || '사용 사례를 입력하세요.',
+                        description: term.usecase?.description || '사용 사례에 대한 개요를 입력하세요.',
                       }}
                     />
                   </div>
@@ -504,7 +513,7 @@ const PostPreview = ({
               </div>
 
               {/* 참고자료 섹션 */}
-              <div id="references-section" className="relative">
+              <div id="references-section" className="relative mb-16">
                 <div
                   className={getSectionClassName('references', 'flex flex-col p-1 my-3 prose-section rounded')}
                 >
@@ -524,7 +533,7 @@ const PostPreview = ({
                     ) : (
                       <div className="relative group/references inline-block">
                         <p className="text-sub">
-                          {'내용이 없습니다.'}
+                          {'참고 자료를 1개 이상 추가하세요.'}
                         </p>
                       </div>
                     )}
