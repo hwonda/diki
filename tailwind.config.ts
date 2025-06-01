@@ -230,10 +230,6 @@ const config: Config = {
               border: '0',
               fontWeight: '600',
             },
-            '.list': {
-              marginLeft: '1.5rem',
-              marginBottom: '0.5rem',
-            },
           },
         },
       },
@@ -260,10 +256,6 @@ const config: Config = {
     'markdown-math-block',
     'markdown-math-inline',
     'br-gap',
-    'list',
-    'list-disc',
-    'list-decimal',
   ],
-
 };
 export default config;

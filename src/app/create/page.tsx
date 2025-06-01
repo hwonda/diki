@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { TermData } from '@/types/database';
 import BasicInfoEdit from '@/components/create/BasicInfoEdit';
@@ -15,6 +15,7 @@ import EditPreview from '@/components/create/EditPreview';
 import { ConfirmModal } from '@/components/ui/Modal';
 import Footer from '@/components/common/Footer';
 import { useToast } from '@/layouts/ToastProvider';
+import { X, Save, Upload } from 'lucide-react';
 
 interface EditingSectionState {
   basicInfo: boolean;
@@ -28,6 +29,7 @@ interface EditingSectionState {
   koTitle: boolean;
   enTitle: boolean;
   shortDesc: boolean;
+  etcTitle: boolean;
 }
 
 export default function CreatePage() {
@@ -39,9 +41,11 @@ export default function CreatePage() {
   const [error, setError] = useState<string | null>(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [isLoadModalOpen, setIsLoadModalOpen] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
+  const [newEtcKeyword, setNewEtcKeyword] = useState('');
 
   // 각 섹션의 편집 상태를 관리하는 상태
   const [editingSections, setEditingSections] = useState<EditingSectionState>({
@@ -56,6 +60,7 @@ export default function CreatePage() {
     koTitle: false,
     enTitle: false,
     shortDesc: false,
+    etcTitle: false,
   });
 
   const [formData, setFormData] = useState<TermData>({
@@ -88,6 +93,52 @@ export default function CreatePage() {
     },
     publish: false,
   });
+
+  // 로컬 스토리지에 폼 데이터 저장
+  const saveFormData = useCallback(() => {
+    try {
+      localStorage.setItem('diki-create-form-data', JSON.stringify(formData));
+      showToast('작성 중인 내용이 브라우저에 저장되었습니다.', 'info');
+    } catch (error) {
+      console.error('로컬 스토리지 저장 오류:', error);
+      showToast('저장 중 오류가 발생했습니다.');
+    }
+  }, [formData, showToast]);
+
+  // 로컬 스토리지에서 폼 데이터 불러오기
+  const loadFormData = useCallback(() => {
+    try {
+      const savedData = localStorage.getItem('diki-create-form-data');
+      if (savedData) {
+        const parsedData = JSON.parse(savedData) as TermData;
+        setFormData(parsedData);
+        setIsLoadModalOpen(false);
+        showToast('마지막으로 작성한 내용을 불러왔습니다.', 'success');
+      } else {
+        showToast('저장된 내용이 없습니다.');
+      }
+    } catch (error) {
+      console.error('로컬 스토리지 불러오기 오류:', error);
+      showToast('불러오기 중 오류가 발생했습니다.');
+    }
+  }, [showToast]);
+
+  // 자동 저장 기능 구현
+  useEffect(() => {
+    const autoSaveInterval = setInterval(() => {
+      if (isLoggedIn && !formSubmitted) {
+        try {
+          localStorage.setItem('diki-create-form-data', JSON.stringify(formData));
+          showToast('작성 중인 내용이 자동으로 브라우저에 저장되었습니다.', 'info');
+        } catch (error) {
+          console.error('로컬 스토리지 저장 오류:', error);
+          showToast('저장 중 오류가 발생했습니다.');
+        }
+      }
+    }, 180000); // 3분마다 자동 저장
+
+    return () => clearInterval(autoSaveInterval);
+  }, [formData, isLoggedIn, formSubmitted, showToast]);
 
   // 로그인 확인 로직
   useEffect(() => {
@@ -162,7 +213,7 @@ export default function CreatePage() {
 
   // 섹션 토글 함수
   const toggleSection = (section: string) => {
-    console.log('섹션 토글 함수 호출됨:', section);
+    // console.log('섹션 토글 함수 호출됨:', section);
 
     // section이 문자열이 아닌 경우 처리
     if (typeof section !== 'string') {
@@ -199,6 +250,7 @@ export default function CreatePage() {
         'references-section': 'references',
         'koTitle': 'koTitle',
         'enTitle': 'enTitle',
+        'etcTitle': 'etcTitle',
         'shortDesc': 'shortDesc',
         'difficulty': 'difficulty',
       };
@@ -268,7 +320,7 @@ export default function CreatePage() {
     koTitle: '한글 제목을 입력하세요.',
     enTitle: '영문 제목을 입력하세요.',
     shortDesc: '짧은 설명을 입력하세요.',
-    difficulty: '난이도 설명을 입력하세요.',
+    difficulty: '난이도에 대한 설명을 입력하세요.',
     description: '전체 설명을 입력하세요.',
     relevance: [
       '데이터 분석가 직무 연관성 설명을 입력하세요.',
@@ -363,6 +415,9 @@ export default function CreatePage() {
 
       const result = await response.json();
       alert('문서가 성공적으로 GitHub 이슈로 등록되었습니다!');
+
+      // 제출 성공 시 로컬 스토리지에서 데이터 삭제
+      localStorage.removeItem('diki-create-form-data');
       router.push(`/thank-you?issue=${ result.issue_number }`);
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : '문서 제출 중 오류가 발생했습니다.');
@@ -431,7 +486,7 @@ export default function CreatePage() {
           }}
           className="w-full p-2 border border-gray4 text-main rounded-md resize-none overflow-hidden focus:border-primary focus:ring-1 focus:ring-primary"
           required
-          placeholder="포스트에 대한 1~2줄 짧은 설명 (100자 이내)"
+          placeholder="포스트에 대한 간단한 설명을 작성하세요."
           maxLength={100}
           rows={2}
           style={{ minHeight: '60px' }}
@@ -446,10 +501,111 @@ export default function CreatePage() {
     </div>
   );
 
+  // ETC 제목 폼 렌더링
+  const renderEtcTitleForm = () => {
+    const currentEtcArray = Array.isArray(formData.title?.etc) ? formData.title.etc : [];
+
+    const handleAddKeyword = () => {
+      if (newEtcKeyword.trim()) {
+        setFormData((prev) => ({
+          ...prev,
+          title: {
+            ...prev.title,
+            etc: [...(prev.title?.etc || []), newEtcKeyword.trim()],
+          },
+        }));
+        setNewEtcKeyword('');
+      }
+    };
+
+    const handleRemoveKeyword = (index: number) => {
+      setFormData((prev) => ({
+        ...prev,
+        title: {
+          ...prev.title,
+          etc: (prev.title?.etc || []).filter((_, i) => i !== index),
+        },
+      }));
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.nativeEvent.isComposing) return;
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleAddKeyword();
+      }
+    };
+
+    return (
+      <div className="p-2">
+        <label className="block text-sm font-medium mb-1 text-gray0">
+          {'검색 키워드'}
+        </label>
+        <div className="flex items-end space-x-2 mb-2">
+          <div className="flex-1">
+            <input
+              type="text"
+              value={newEtcKeyword}
+              onChange={(e) => setNewEtcKeyword(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="w-full p-2 border border-gray4 rounded-md text-main"
+              placeholder="검색 결과의 정확도를 높이기 위해 주제를 잘 나타내는 키워드를 작성하세요."
+            />
+          </div>
+          <button
+            type="button"
+            onClick={handleAddKeyword}
+            className="px-4 py-2 text-main border border-gray4 bg-gray4 hover:text-white hover:bg-gray3 rounded-md"
+          >
+            {'추가'}
+          </button>
+        </div>
+        <p className="text-sm text-gray2 mb-2">
+          {'Enter 키 또는 [추가] 버튼을 눌러 키워드를 추가할 수 있습니다. 이 키워드들은 포스트에 표시되지 않지만 검색에 사용됩니다.'}
+        </p>
+
+        <div className="flex flex-wrap gap-2 mt-4">
+          {currentEtcArray.map((keyword, index) => (
+            <div key={index} className="bg-gray5 border border-gray4 rounded-lg px-3 py-1 flex items-center text-main">
+              <span>{keyword}</span>
+              <button
+                type="button"
+                onClick={() => handleRemoveKeyword(index)}
+                className="ml-2 text-level-5"
+              >
+                <X className="size-5" />
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="container mx-auto">
       <div className="w-full flex justify-between items-center mb-4">
         <div className="flex items-center text-lg md:text-xl lg:text-2xl font-bold">{'새 포스트 작성'}</div>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={saveFormData}
+            className="flex items-center px-3 py-1.5 rounded-md hover:bg-gray4 text-sm text-gray0"
+            title="현재 작성 중인 내용을 브라우저에 임시저장합니다"
+          >
+            <Save size={16} className="mr-1" />
+            {'임시저장'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsLoadModalOpen(true)}
+            className="flex items-center px-3 py-1.5 rounded-md bg-gray3 hover:bg-gray2 text-sm text-white"
+            title="브라우저에 마지막으로 임시저장한 내용을 불러옵니다"
+          >
+            <Upload size={16} className="mr-1" />
+            {'불러오기'}
+          </button>
+        </div>
       </div>
 
       <form id="createForm" onSubmit={handleSubmit} noValidate>
@@ -462,7 +618,7 @@ export default function CreatePage() {
             formComponents={{
               basicInfo: <BasicInfoEdit formData={formData} handleChange={handleChange} validationErrors={validationErrors} />,
               difficulty: <DifficultyEdit formData={formData} handleChange={handleChange} validationErrors={validationErrors} />,
-              description: <DescriptionEdit formData={formData} handleChange={handleChange} validationErrors={validationErrors} />,
+              description: <DescriptionEdit formData={formData} handleChange={handleChange} />,
               terms: <TermsEdit formData={formData} setFormData={setFormData} />,
               tags: <TagsEdit formData={formData} setFormData={setFormData} />,
               relevance: <RelevanceEdit formData={formData} handleChange={handleChange} validationErrors={validationErrors} />,
@@ -472,6 +628,7 @@ export default function CreatePage() {
             renderKoreanTitleForm={renderKoreanTitleForm}
             renderEnglishTitleForm={renderEnglishTitleForm}
             renderShortDescriptionForm={renderShortDescriptionForm}
+            renderEtcTitleForm={renderEtcTitleForm}
             validateSection={validateSection}
             formSubmitted={formSubmitted}
             isPreview={isPreview}
@@ -500,8 +657,8 @@ export default function CreatePage() {
             type="button"
             onClick={togglePreviewMode}
             className={`px-4 py-2 rounded-md ${ isPreview
-              ? 'text-primary hover:text-accent'
-              : 'text-gray2 hover:text-main' }`}
+              ? 'text-primary hover:bg-gray4'
+              : 'text-gray0 hover:bg-gray4' }`}
           >
             {isPreview ? '편집하기' : '미리보기'}
           </button>
@@ -531,10 +688,34 @@ export default function CreatePage() {
       <ConfirmModal
         isOpen={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}
-        onConfirm={() => router.push('/')}
+        onConfirm={() => {
+          localStorage.removeItem('diki-create-form-data');
+          router.push('/');
+        }}
         title="작성 취소"
-        message="정말 작성을 취소하시겠습니까?"
+        message="정말 작성을 취소하시겠습니까? 저장된 내용도 삭제됩니다."
         confirmText="확인"
+        cancelText="취소"
+      />
+
+      {/* 불러오기 확인 모달 */}
+      <ConfirmModal
+        isOpen={isLoadModalOpen}
+        onClose={() => setIsLoadModalOpen(false)}
+        onConfirm={loadFormData}
+        title="저장된 내용 불러오기"
+        message="이전에 저장한 내용을 불러오시겠습니까? 현재 작성 중인 내용은 사라집니다."
+        submessage={(
+          <div>
+            <p className="text-sm text-gray2 mt-2">
+              {'- 저장된 내용은 현재 사용 중인 기기와 브라우저에서만 불러올 수 있습니다.'}
+            </p>
+            <p className="text-sm text-gray2">
+              {'- 다른 컴퓨터나 모바일 기기에서 저장한 내용은 여기서 볼 수 없습니다.'}
+            </p>
+          </div>
+        )}
+        confirmText="불러오기"
         cancelText="취소"
       />
 

@@ -26,6 +26,7 @@ interface EditingSectionState {
   koTitle: boolean;
   enTitle: boolean;
   shortDesc: boolean;
+  etcTitle: boolean;
 }
 
 interface FormComponents {
@@ -47,6 +48,7 @@ interface PostPreviewProps {
   renderKoreanTitleForm?: ()=> React.ReactNode;
   renderEnglishTitleForm?: ()=> React.ReactNode;
   renderShortDescriptionForm?: ()=> React.ReactNode;
+  renderEtcTitleForm?: ()=> React.ReactNode;
   validateSection?: (section: string)=> boolean;
   formSubmitted?: boolean;
   isPreview?: boolean;
@@ -60,6 +62,7 @@ const PostPreview = ({
   renderKoreanTitleForm,
   renderEnglishTitleForm,
   renderShortDescriptionForm,
+  renderEtcTitleForm,
   validateSection,
   formSubmitted = false,
   isPreview = false,
@@ -69,6 +72,22 @@ const PostPreview = ({
   const profiles = useSelector((state: RootState) => state.profiles.profiles);
   const [authorNames, setAuthorNames] = useState<{ [key: string]: string }>({});
   const [sectionErrors, setSectionErrors] = useState<{ [key: string]: string[] }>({});
+
+  // 각 섹션별 폼 참조 객체 생성
+  const sectionRefs = useRef<{ [key: string]: HTMLElement | null }>({
+    koTitle: null,
+    enTitle: null,
+    etcTitle: null,
+    shortDesc: null,
+    difficulty: null,
+    description: null,
+    tags: null,
+    terms: null,
+    relevance: null,
+    usecase: null,
+    references: null,
+    basicInfo: null,
+  });
 
   // 각 섹션별 데이터가 유효한지 체크하는 helper 함수
   const hasData = {
@@ -88,9 +107,9 @@ const PostPreview = ({
       || (Array.isArray(term.references?.opensource) && term.references.opensource.length > 0),
   };
 
-  useEffect(() => {
-    console.log(term);
-  }, [term]);
+  // useEffect(() => {
+  //   console.log(term);
+  // }, [term]);
 
   useEffect(() => {
     if (profiles.length > 0 && term.metadata?.authors) {
@@ -104,6 +123,31 @@ const PostPreview = ({
       setAuthorNames(names);
     }
   }, [profiles, term.metadata?.authors]);
+
+  // 섹션이 열릴 때 자동으로 첫번째 input이나 textarea에 포커스
+  useEffect(() => {
+    if (!editingSections) return;
+
+    Object.keys(editingSections).forEach((section) => {
+      if (editingSections[section as keyof EditingSectionState]) {
+        setTimeout(() => {
+          const sectionDiv = sectionRefs.current[section];
+          if (sectionDiv) {
+            const searchInput = sectionDiv.querySelector('[data-search-input]') as HTMLElement;
+
+            if (searchInput) {
+              searchInput.focus();
+            } else {
+              const inputElement = sectionDiv.querySelector('input, textarea') as HTMLElement;
+              if (inputElement) {
+                inputElement.focus();
+              }
+            }
+          }
+        }, 50);
+      }
+    });
+  }, [editingSections]);
 
   // 섹션 클릭 핸들러
   const handleSectionClick = useCallback((section: string, e: React.MouseEvent) => {
@@ -122,6 +166,29 @@ const PostPreview = ({
       onSectionClick(section);
     }
   }, [onSectionClick]);
+
+  // ESC 키 이벤트 핸들러 추가
+  useEffect(() => {
+    if (!editingSections) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        const openSection = Object.keys(editingSections).find(
+          (section) => editingSections[section as keyof EditingSectionState]
+        );
+
+        if (openSection && onSectionClick) {
+          onSectionClick(openSection);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [editingSections, onSectionClick]);
 
   // 섹션별 에러 메시지 렌더링
   const renderSectionErrors = useCallback((section: string): React.ReactNode => {
@@ -199,6 +266,8 @@ const PostPreview = ({
           return term.title?.ko && term.title.ko.trim() !== '' ? 'filled' : 'empty';
         case 'enTitle':
           return term.title?.en && term.title.en.trim() !== '' ? 'filled' : 'empty';
+        case 'etcTitle':
+          return Array.isArray(term.title?.etc) && term.title.etc.length > 0 ? 'filled' : 'empty';
         case 'shortDesc':
           return term.description?.short && term.description.short.trim() !== '' ? 'filled' : 'empty';
         case 'difficulty':
@@ -270,6 +339,9 @@ const PostPreview = ({
         case 'enTitle':
           return renderEnglishTitleForm ? renderEnglishTitleForm()
             : (formComponents.basicInfo && React.cloneElement(formComponents.basicInfo as React.ReactElement, { isModal: true }));
+        case 'etcTitle':
+          return renderEtcTitleForm ? renderEtcTitleForm()
+            : (formComponents.basicInfo && React.cloneElement(formComponents.basicInfo as React.ReactElement, { isModal: true }));
         case 'shortDesc':
           return renderShortDescriptionForm ? renderShortDescriptionForm()
             : (formComponents.basicInfo && React.cloneElement(formComponents.basicInfo as React.ReactElement, { isModal: true }));
@@ -279,13 +351,16 @@ const PostPreview = ({
     };
 
     return (
-      <div className={`m-1 p-1 mt-2 animate-slideDown ${ section === 'koTitle' || section === 'enTitle' ? '' : 'border-t border-primary border-dashed' } ${ section === 'tags' ? 'border-t border-primary border-dashed sm:border-t-0' : '' }`}>
+      <div
+        ref={(el) => { sectionRefs.current[section] = el; }}
+        className={`m-1 p-1 mt-2 animate-slideDown ${ section === 'koTitle' || section === 'enTitle' || section === 'etcTitle' ? '' : 'border-t border-primary border-dashed' } ${ section === 'tags' ? 'border-t border-primary border-dashed sm:border-t-0' : '' }`}
+      >
         {renderContent()}
         {renderSectionErrors(section)}
         {closeButton}
       </div>
     );
-  }, [editingSections, formComponents, handleCloseSection, renderKoreanTitleForm, renderEnglishTitleForm, renderShortDescriptionForm, renderSectionErrors]);
+  }, [editingSections, formComponents, handleCloseSection, renderKoreanTitleForm, renderEnglishTitleForm, renderEtcTitleForm, renderShortDescriptionForm, renderSectionErrors]);
 
   return (
     <div className="prose h-[68vh] sm:h-[calc(100vh-280px)] overflow-y-auto overflow-x-hidden block md:grid md:grid-cols-[minmax(0,176px)_5fr] bg-background rounded-lg p-2 sm:p-4 border border-gray4" ref={postPreviewRef}>
@@ -332,6 +407,19 @@ const PostPreview = ({
               >
                 {'('}{term.title?.en === '' ? '영문 제목' : term.title?.en}{')'}
               </span>
+              {!isPreview && (
+                <button
+                  className={`${ getSectionClassName('etcTitle', 'inline-flex items-center px-2 py-1 text-xs rounded-lg transition-colors') } border-t-0`}
+                  onClick={(e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    handleSectionClick('etcTitle', e);
+                  }}
+                >
+                  {Array.isArray(term.title?.etc) && term.title.etc.length > 0
+                    ? `검색 키워드 (${ term.title.etc.length })`
+                    : '검색 키워드'}
+                </button>
+              )}
               <span className='inline-flex items-center' />
             </span>
           </div>
@@ -347,6 +435,13 @@ const PostPreview = ({
           {editingSections?.enTitle && (
             <div className="relative outline outline-2 outline-primary rounded-lg">
               {renderInlineEditForm('enTitle')}
+            </div>
+          )}
+
+          {/* Etc 제목 편집 폼 */}
+          {editingSections?.etcTitle && (
+            <div className="relative outline outline-2 outline-primary rounded-lg">
+              {renderInlineEditForm('etcTitle')}
             </div>
           )}
 
@@ -381,7 +476,7 @@ const PostPreview = ({
                 <div className='flex items-center gap-2' onClick={(e: React.MouseEvent) => handleSectionClick('shortDesc', e)}>
                   <Level level={0} />
                   <div className='text-main'>
-                    {term.description?.short || '짧은 설명을 입력하세요.'}
+                    {term.description?.short || '포스트의 요약을 작성하세요.'}
                   </div>
                 </div>
                 {editingSections?.shortDesc && renderInlineEditForm('shortDesc')}
@@ -396,7 +491,7 @@ const PostPreview = ({
               <div className='flex items-center gap-2' onClick={(e: React.MouseEvent) => handleSectionClick('difficulty', e)}>
                 <Level level={Number(term.difficulty?.level)} />
                 <div className='my-0.5 text-main'>
-                  {term.difficulty?.description || '난이도 설명을 입력하세요.'}
+                  {term.difficulty?.description || '난이도에 대한 설명을 작성하세요.'}
                 </div>
               </div>
               {editingSections?.difficulty && renderInlineEditForm('difficulty')}
@@ -426,7 +521,7 @@ const PostPreview = ({
                 >
                   <div className="cursor-pointer" onClick={(e: React.MouseEvent) => handleSectionClick('terms', e)}>
                     <RelatedTermsSection
-                      terms={term.terms?.length === 0 ? [{ term: '용어없음', description: '용어를 추가하세요.', internal_link: '' }] : term.terms || []}
+                      terms={term.terms?.length === 0 ? [{ term: '용어없음', description: '포스트와 관련된 용어를 작성하세요.', internal_link: '' }] : term.terms || []}
                     />
                   </div>
                   {editingSections?.terms && renderInlineEditForm('terms')}
@@ -478,15 +573,15 @@ const PostPreview = ({
                     <RelevanceSection
                       analyst={{
                         score: term.relevance?.analyst?.score ?? 1,
-                        description: term.relevance?.analyst?.description || '데이터 분석가를 위한 설명을 입력하세요.',
+                        description: term.relevance?.analyst?.description || '데이터 분석가와 관련된 내용을 작성하세요.',
                       }}
                       engineer={{
                         score: term.relevance?.engineer?.score ?? 1,
-                        description: term.relevance?.engineer?.description || '데이터 엔지니어를 위한 설명을 입력하세요.',
+                        description: term.relevance?.engineer?.description || '데이터 엔지니어와 관련된 내용을 작성하세요.',
                       }}
                       scientist={{
                         score: term.relevance?.scientist?.score ?? 1,
-                        description: term.relevance?.scientist?.description || '데이터 과학자를 위한 설명을 입력하세요.',
+                        description: term.relevance?.scientist?.description || '데이터 과학자와 관련된 내용을 작성하세요.',
                       }}
                     />
                   </div>
@@ -503,8 +598,8 @@ const PostPreview = ({
                     <UsecaseSection
                       usecase={{
                         industries: term.usecase?.industries || [],
-                        example: term.usecase?.example || '사용 사례를 입력하세요.',
-                        description: term.usecase?.description || '사용 사례에 대한 개요를 입력하세요.',
+                        example: term.usecase?.example || '구체적인 사용 사례를 작성하세요.',
+                        description: term.usecase?.description || '사용 사례에 대한 개요를 작성하세요.',
                       }}
                     />
                   </div>
@@ -533,7 +628,7 @@ const PostPreview = ({
                     ) : (
                       <div className="relative group/references inline-block">
                         <p className="text-sub">
-                          {'참고 자료를 1개 이상 추가하세요.'}
+                          {'참고 자료를 1개 이상 작성하세요.'}
                         </p>
                       </div>
                     )}
