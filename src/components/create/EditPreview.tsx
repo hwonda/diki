@@ -377,8 +377,8 @@ const PostPreview = ({
 
         {/* 데스크톱 태그 편집 (사이드바) */}
         {editingSections?.tags && (
-          <div className="hidden md:block absolute top-[336px] left-[196px] min-w-[54vw] z-20 shadow-lg">
-            <div className="outline outline-2 outline-primary rounded-lg bg-background p-2">
+          <div className="hidden md:block absolute top-[336px] left-[196px] w-[54vw] z-20">
+            <div className="max-w-[720px] outline outline-2 outline-primary rounded-lg bg-background p-2">
               {renderInlineEditForm('tags')}
             </div>
           </div>
