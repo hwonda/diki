@@ -82,6 +82,7 @@ body {
     /* firefox */
     scrollbar-width: thin;
     scrollbar-color: var(--scrollbar-color) transparent;
+    scrollbar-gutter: stable;
   }
 
   ::-webkit-scrollbar {

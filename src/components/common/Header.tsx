@@ -71,7 +71,7 @@ const Header = () => {
                 </Link>
               )}
             </div>
-            <div className={`flex items-center gap-1 ${ isHomePage || isContactPage ? 'windows:pr-[5px]' : '' }`}>
+            <div className="flex items-center gap-1">
               <TooltipButton
                 isLink={true}
                 href='/posts'
