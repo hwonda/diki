@@ -14,6 +14,8 @@ import { dikiMetadata } from '../src/constants';
                  + 'Disallow: /thank-you/\n'
                  + 'Disallow: /profiles/*/posts/\n'
                  + 'Disallow: /profiles/*/contributes/\n'
+                 + 'Disallow: /profiles/\n'
+                 + 'Disallow: /api/*\n'
                  + `Sitemap: ${ siteUrl }/sitemap.xml\n`;
 
     return text;
