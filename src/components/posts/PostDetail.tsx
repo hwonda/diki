@@ -45,6 +45,8 @@ const PostDetail = async ({ term, slug, lastTermId }: Props) => {
         format="auto"
         className="w-full h-[160px]"
       /> */}
+      <div className='hidden sm:block h-[80px]' />
+
       <div className='block sm:hidden'>
         <Footer />
       </div>
