@@ -73,6 +73,7 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
   });
 
   const [submitting, setSubmitting] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
@@ -210,14 +211,14 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || '프로필 수정 중 오류가 발생했습니다.');
+        throw new Error(errorData.message || '프로필 수정 중 오류가 발생했습니다. 다시 시도해주세요.');
       }
 
       await response.json();
       showToast('프로필이 성공적으로 수정되었습니다!', 'success', 5000);
       router.push(`/profiles/${ params.slug }`);
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : '프로필 수정 중 오류가 발생했습니다.');
+      setError(error instanceof Error ? error.message : '프로필 수정 중 오류가 발생했습니다. 다시 시도해주세요.');
     } finally {
       setSubmitting(false);
     }
@@ -229,7 +230,7 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
   };
 
   const handleDeleteAccount = async () => {
-    setSubmitting(true);
+    setDeletingAccount(true);
     setError(null);
 
     try {
@@ -247,14 +248,14 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || '회원탈퇴 중 오류가 발생했습니다.');
+        throw new Error(errorData.message || '회원탈퇴 중 오류가 발생했습니다. 다시 시도해주세요.');
       }
 
       await response.json();
       router.push('/good-bye');
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : '회원탈퇴 중 오류가 발생했습니다.');
-      setSubmitting(false);
+      setError(error instanceof Error ? error.message : '회원탈퇴 중 오류가 발생했습니다. 다시 시도해주세요.');
+      setDeletingAccount(false);
     }
   };
 
@@ -391,8 +392,9 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
             type="button"
             onClick={() => setIsDeleteModalOpen(true)}
             className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base text-level-5 hover:bg-red-700 dark:hover:bg-red-900 hover:text-white rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={deletingAccount}
           >
-            {submitting ? '제출 중...' : '회원 탈퇴'}
+            {deletingAccount ? '탈퇴 처리 중...' : '회원 탈퇴'}
           </button>
           <div className="flex gap-2 sm:gap-4">
             <button
@@ -444,7 +446,7 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
         message="정말 탈퇴하시겠습니까?"
         submessage={(
           <p className="text-level-5">
-            {'이 작업은 되돌릴 수 없으며, 작성하신 글은 비공개 처리됩니다.'}
+            {'이 작업은 되돌릴 수 없으며, 작성하신 글은 자정(00:00)에 비공개 처리됩니다.'}
           </p>
         )}
         confirmText="탈퇴하기"
