@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 import ProfilePostCard from '@/components/profiles/ProfilePostCard';
 import { TermData, Profile } from '@/types';
-import ContactButtonWrapper from './ContactButtonWrapper';
+// import ContactButtonWrapper from './ContactButtonWrapper';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 interface ProfileClientProps {
@@ -131,11 +131,11 @@ const ProfileClient = ({
                 {'프로필 편집'}
               </Link>
             )}
-            <ContactButtonWrapper
+            {/* <ContactButtonWrapper
               email={profile.email}
               github={profile.social.github}
               linkedin={profile.social.linkedin}
-            />
+            /> */}
           </div>
         </div>
 
