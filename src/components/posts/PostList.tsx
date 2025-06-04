@@ -34,6 +34,10 @@ const PostList = ({ itemsPerPage }: PaginationProps) => {
   }, [terms.length]);
 
   useEffect(() => {
+    dispatch(setCurrentPage(1));
+  }, [searchParams, dispatch]);
+
+  useEffect(() => {
     if (!terms.length) return;
 
     setLocalLoading(true);
