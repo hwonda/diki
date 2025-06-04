@@ -281,7 +281,7 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
     <>
       <div className="w-full mt-10 mb-2 md:mb-4">
         <h1 className="text-xl lg:text-2xl font-bold text-main">{'프로필 편집'}</h1>
-        <p className="text-gray2">{'실제 데이터는 매일 자정(00:00)에 업데이트됩니다. 자정 이전에 수정된 내용은 반영되지 않을 수 있습니다.'}</p>
+        <p className="text-gray2">{'프로필은 매일 자정(00:00)에 업데이트됩니다. 자정 이전에 수정된 내용은 반영되지 않을 수 있습니다.'}</p>
       </div>
 
       <form onSubmit={handleSubmit} noValidate>
@@ -301,7 +301,7 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
                 placeholder="이름을 입력해주세요"
               />
               <p className={`text-sm p-1 ${ nameError ? 'text-level-5' : 'text-gray2' }`}>
-                {nameError ? '이름은 필수 입력값입니다.' : '포스트 작성 및 다른 포스트에 기여 시 표시되는 이름입니다.'}
+                {nameError ? '이름은 필수 입력값입니다.' : '포스트에 표시되는 이름입니다.'}
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -316,7 +316,7 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
                   className="w-full px-4 py-3 border border-gray4 rounded-lg !bg-gray4 text-gray2 cursor-not-allowed"
                   disabled
                 />
-                <p className="text-gray2 text-sm p-1">{'github 닉네임으로 설정되며, 수정하실 수 없습니다.'}</p>
+                <p className="text-gray2 text-sm p-1">{'Github 닉네임으로 설정되므로 수정할 수 없습니다.'}</p>
               </div>
 
               <div>
@@ -330,7 +330,7 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
                   className="w-full px-4 py-3 border border-gray4 rounded-lg !bg-gray4 text-gray2 cursor-not-allowed"
                   disabled
                 />
-                <p className="text-gray2 text-sm p-1">{'github 이메일로 설정되며, 수정하실 수 없습니다.'}</p>
+                <p className="text-gray2 text-sm p-1">{'Github 이메일로 설정되므로 수정할 수 없습니다.'}</p>
               </div>
             </div>
 
@@ -353,7 +353,7 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
                       placeholder="username"
                     />
                   </div>
-                  <p className="text-gray2 text-sm p-1">{'github 닉네임으로 기본값이 설정됩니다.'}</p>
+                  <p className="text-gray2 text-sm p-1">{'Github 닉네임으로 기본값이 설정됩니다.'}</p>
                 </div>
 
                 <div>
@@ -373,7 +373,7 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
                       placeholder="username"
                     />
                   </div>
-                  <p className="text-gray2 text-sm p-1">{'github 닉네임으로 기본값이 설정됩니다.'}</p>
+                  <p className="text-gray2 text-sm p-1">{'Github 닉네임으로 기본값이 설정됩니다.'}</p>
                 </div>
               </div>
             </div>
