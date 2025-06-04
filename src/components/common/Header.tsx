@@ -17,7 +17,6 @@ import AuthStatus from '@/components/auth/AuthStatus';
 const Header = () => {
   const pathname = usePathname();
   const isHomePage = pathname === '/';
-  const isContactPage = pathname === '/contact';
   const dispatch = useDispatch();
   const { theme, resolvedTheme } = useTheme();
   const [isThemeChanging, setIsThemeChanging] = useState(false);
@@ -54,9 +53,9 @@ const Header = () => {
             <Link
               href={isLoggedIn ? '/create' : '/login'}
               className='rounded-full px-3 py-1 border border-gray3 sm:border-none text-main hover:text-primary hover:bg-gray4 transition-all duration-300'
-              aria-label='기여하기(새 포스트 작성)'
+              aria-label={isLoggedIn ? '기여하기(새 포스트 작성)' : '로그인'}
             >
-              {'기여하기\r'}
+              {isLoggedIn ? '기여하기' : '로그인'}
             </Link>
           </div>
 
