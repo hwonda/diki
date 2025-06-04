@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Stars from '@/components/ui/Stars';
 import { TermData } from '@/types';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Clock } from 'lucide-react';
 import { getReadingTime } from '@/utils/metaData';
 import { SortType } from '@/types';
 import { formatDate } from '@/utils/filters';
@@ -98,8 +98,9 @@ const PostCard = ({ term, size = 'flex', sortType }: PostCardProps) => {
         {sortType ? getSortData(sortType) : <span className={sortTagStyle}>{formatDate(term.metadata?.created_at || '')}</span>}
         <div className="flex gap-0 md:gap-1 items-center">
           <span
-            className="text-sub text-sm sm:opacity-0 -translate-x-4 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0"
+            className="flex items-center gap-1 text-sub text-sm sm:opacity-0 -translate-x-4 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0"
           >
+            <Clock className="size-4" />
             {getReadingTime(term)}
           </span>
           <ChevronRight className="size-5 text-light group-hover:text-sub" />
