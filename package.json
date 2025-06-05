@@ -43,7 +43,7 @@
     "@types/rss": "^0.0.32",
     "@typescript-eslint/eslint-plugin": "^8.0.1",
     "@typescript-eslint/parser": "^8.0.1",
-    "better-react-mathjax": "^2.0.4-beta1",
+    "better-react-mathjax": "^2.3.0",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",
     "eslint": "^8",
