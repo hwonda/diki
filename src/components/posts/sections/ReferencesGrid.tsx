@@ -198,7 +198,7 @@ const ReferencesGrid = ({ references, colorConfig = defaultColorConfig }: Refere
 
               {activeTooltip === tooltipId && item.details && (
                 <div
-                  className={`animate-slideDown absolute w-[calc(100%+2px)] -left-px border ${ colors.border }
+                  className={`animate-fadeIn absolute w-[calc(100%+2px)] -left-px border ${ colors.border }
                   bg-gray5 text-main p-2 shadow-md z-50`}
                   onMouseEnter={() => setActiveTooltip(null)}
                 >
