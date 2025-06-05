@@ -2,7 +2,7 @@
   "name": "diki",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://diki.kr/",
+  "homepage": "https://www.diki.kr/",
   "scripts": {
     "dev": "next dev",
     "devbuild": "next build",
