@@ -68,10 +68,10 @@ function parseMarkdownSegment(segment: string) {
   return html;
 }
 
-// 수식/텍스트 분리 함수
+// 수식/텍스트 분리 함수 - 더 정확한 정규식 사용
 function splitContentIntoSegments(text: string) {
-  const regex = /(\${2}[\s\S]+?\${2}|\$[\s\S]+?\$)/g;
-  const segments = text.split(regex).filter((segment) => segment.trim() !== '');
+  const regex = /(\$\$[\s\S]*?\$\$|\$(?!\$)[\s\S]*?(?<!\$)\$(?!\$))/g;
+  const segments = text.split(regex).filter((segment) => segment !== '');
   return segments;
 }
 
@@ -83,26 +83,26 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
   const segments = splitContentIntoSegments(content);
 
   return (
-    <div>
-      {/* 수식 처리 */}
-      {segments.map((segment, i) => {
-        const isMathBlock = segment.startsWith('$$') && segment.endsWith('$$');
-        const isMathInline = segment.startsWith('$') && segment.endsWith('$');
+    <MathJaxProvider>
+      <div>
+        {/* 수식 처리 */}
+        {segments.map((segment, i) => {
+          const isMathBlock = segment.startsWith('$$') && segment.endsWith('$$');
+          const isMathInline = segment.startsWith('$') && segment.endsWith('$') && !isMathBlock;
 
-        if (isMathBlock || isMathInline) {
-          return (
-            <MathJaxProvider key={i}>
-              <MathJax inline={!isMathBlock} className={`${ isMathBlock ? 'markdown-math-block' : 'markdown-math-inline' }`}>
+          if (isMathBlock || isMathInline) {
+            return (
+              <MathJax key={i} inline={!isMathBlock} className={`${ isMathBlock ? 'markdown-math-block' : 'markdown-math-inline' }`}>
                 {segment}
               </MathJax>
-            </MathJaxProvider>
-          );
-        }
+            );
+          }
 
-        // 일반 텍스트 처리
-        const html = parseMarkdownSegment(segment);
-        return <span key={i} dangerouslySetInnerHTML={{ __html: html }} className="break-all" />;
-      })}
-    </div>
+          // 일반 텍스트 처리
+          const html = parseMarkdownSegment(segment);
+          return <span key={i} dangerouslySetInnerHTML={{ __html: html }} className="break-all" />;
+        })}
+      </div>
+    </MathJaxProvider>
   );
 }

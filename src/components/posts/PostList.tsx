@@ -43,7 +43,7 @@ const PostList = ({ itemsPerPage }: PaginationProps) => {
       prevSearchParamsRef.current = getSearchParamsString(searchParams);
       isFirstRenderRef.current = false;
     }
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
     setIsClient(true);
@@ -57,9 +57,9 @@ const PostList = ({ itemsPerPage }: PaginationProps) => {
     if (isFirstRenderRef.current) {
       return;
     }
-    
+
     const currentSearchParams = getSearchParamsString(searchParams);
-    
+
     if (currentSearchParams !== prevSearchParamsRef.current) {
       dispatch(setCurrentPage(1));
       prevSearchParamsRef.current = currentSearchParams;

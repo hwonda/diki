@@ -13,7 +13,6 @@ import React, { useEffect, useRef, ReactElement, useState, useCallback } from 'r
 import TableOfContents from '@/components/common/TableOfContents';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
-import { MathJaxProvider } from '../posts/MathJaxProvider';
 
 interface EditingSectionState {
   basicInfo: boolean;
@@ -506,11 +505,9 @@ const PostPreview = ({
                   className={getSectionClassName('description', 'flex flex-col p-1 my-3 prose-section rounded')}
                 >
                   <div className="cursor-pointer" onClick={(e: React.MouseEvent) => handleSectionClick('description', e)}>
-                    <MathJaxProvider>
-                      <DescriptionSection
-                        description={term.description?.full || ''}
-                      />
-                    </MathJaxProvider>
+                    <DescriptionSection
+                      description={term.description?.full || ''}
+                    />
                   </div>
                   {editingSections?.description && renderInlineEditForm('description')}
                 </div>
