@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { MathJax } from 'better-react-mathjax';
 import { MathJaxProvider } from './MathJaxProvider';
 
@@ -62,15 +62,12 @@ function parseMarkdownSegment(segment: string) {
   html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
   html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
 
-  // 리터럴 달러 기호 처리 (텍스트에서 달러 기호를 표시하기 위한 처리)
-  // html = html.replace(/\\\\?\$/g, '&#36;');
-
   return html;
 }
 
-// 수식/텍스트 분리 함수 - 더 정확한 정규식 사용
+// 수식/텍스트 분리
 function splitContentIntoSegments(text: string) {
-  const regex = /(\$\$[\s\S]*?\$\$|\$[^$\n]*\$)/g;
+  const regex = /(\$\$[\s\S]*?\$\$|\$(?!\$)[\s\S]*?(?<!\$)\$(?!\$))/g;
   const segments = text.split(regex).filter((segment) => segment !== '');
   return segments;
 }
@@ -80,17 +77,15 @@ interface MarkdownContentProps {
 }
 
 export default function MarkdownContent({ content }: MarkdownContentProps) {
-  const [renderKey, setRenderKey] = useState(0);
-
-  useEffect(() => {
-    setRenderKey((prev) => prev + 1);
+  const contentId = React.useMemo(() => {
+    const contentPreview = content.slice(0, 50).replace(/\W/g, '');
+    return `markdown-${ contentPreview }`;
   }, [content]);
-
   const segments = splitContentIntoSegments(content);
 
   return (
-    <MathJaxProvider key={renderKey}>
-      <div>
+    <MathJaxProvider>
+      <div id={contentId}>
         {/* 수식 처리 */}
         {segments.map((segment, i) => {
           const isMathBlock = segment.startsWith('$$') && segment.endsWith('$$');
@@ -98,7 +93,7 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
 
           if (isMathBlock || isMathInline) {
             return (
-              <MathJax key={`${ renderKey }-${ i }`} inline={!isMathBlock} className={`${ isMathBlock ? 'markdown-math-block' : 'markdown-math-inline' }`}>
+              <MathJax key={`math-${ i }`} inline={!isMathBlock} className={`${ isMathBlock ? 'markdown-math-block' : 'markdown-math-inline' }`}>
                 {segment}
               </MathJax>
             );
@@ -106,7 +101,7 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
 
           // 일반 텍스트 처리
           const html = parseMarkdownSegment(segment);
-          return <span key={`${ renderKey }-${ i }`} dangerouslySetInnerHTML={{ __html: html }} className="break-all" />;
+          return <span key={`text-${ i }`} dangerouslySetInnerHTML={{ __html: html }} className="break-all" />;
         })}
       </div>
     </MathJaxProvider>
