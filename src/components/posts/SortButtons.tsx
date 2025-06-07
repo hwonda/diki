@@ -39,7 +39,7 @@ const SortButtons = () => {
   const renderSortButton = (type: SortType) => (
     <button
       onClick={() => handleSortChange(type)}
-      className={`group shrink-0 flex items-center text-sm gap-0.5 
+      className={`group shrink-0 flex items-center text-sm gap-0.5 mr-px
         ${ sortType === type ? 'text-primary' : 'text-gray1' }
         ${ type === 'relevance' && sortType === 'relevance' ? 'pointer-events-none' : '' }
       `}
@@ -87,9 +87,9 @@ const SortButtons = () => {
                 onClick={() => {
                   handleSortMobile(item.type, item.direction);
                 }}
-                className={sortType === item.type && sortDirection === item.direction ? 'text-primary' : ''}
+                className={sortType === item.type && sortDirection === item.direction ? 'bg-background-secondary' : ''}
               >
-                <div className="flex items-center justify-between w-full">
+                <div className="flex items-center justify-between w-full p-2">
                   <span>{item.label}</span>
                   <span>{sortType === item.type && sortDirection === item.direction ? '•' : ''}</span>
                 </div>
