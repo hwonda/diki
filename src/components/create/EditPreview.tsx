@@ -1,5 +1,6 @@
 'use client';
 
+import React, { useEffect, useRef, ReactElement, useState, useCallback } from 'react';
 import { TermData } from '@/types/database';
 import DescriptionSection from '../posts/sections/DescriptionSection';
 import RelevanceSection from '../posts/sections/RelevanceSection';
@@ -9,13 +10,15 @@ import ReferencesSection from '../posts/sections/ReferencesSection';
 import { X } from 'lucide-react';
 import Level from '@/components/ui/Level';
 import { formatDate } from '@/utils/filters';
-import React, { useEffect, useRef, ReactElement, useState, useCallback } from 'react';
 import TableOfContents from '@/components/common/TableOfContents';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 
 interface EditingSectionState {
-  basicInfo: boolean;
+  koTitle: boolean;
+  enTitle: boolean;
+  shortDesc: boolean;
+  etcTitle: boolean;
   difficulty: boolean;
   description: boolean;
   tags: boolean;
@@ -23,14 +26,13 @@ interface EditingSectionState {
   relevance: boolean;
   usecase: boolean;
   references: boolean;
-  koTitle: boolean;
-  enTitle: boolean;
-  shortDesc: boolean;
-  etcTitle: boolean;
 }
 
 interface FormComponents {
-  basicInfo: ReactElement;
+  koTitle: ReactElement;
+  enTitle: ReactElement;
+  shortDesc: ReactElement;
+  etcTitle: ReactElement;
   difficulty: ReactElement;
   description: ReactElement;
   tags: ReactElement;
@@ -45,13 +47,8 @@ interface PostPreviewProps {
   onSectionClick?: (section: string)=> void;
   editingSections?: EditingSectionState;
   formComponents?: FormComponents;
-  renderKoreanTitleForm?: ()=> React.ReactNode;
-  renderEnglishTitleForm?: ()=> React.ReactNode;
-  renderShortDescriptionForm?: ()=> React.ReactNode;
-  renderEtcTitleForm?: ()=> React.ReactNode;
-  validateSection?: (section: string)=> boolean;
-  formSubmitted?: boolean;
   isPreview?: boolean;
+  invalidSections?: string[];
 }
 
 const PostPreview = ({
@@ -59,19 +56,13 @@ const PostPreview = ({
   onSectionClick,
   editingSections,
   formComponents,
-  renderKoreanTitleForm,
-  renderEnglishTitleForm,
-  renderShortDescriptionForm,
-  renderEtcTitleForm,
-  validateSection,
-  formSubmitted = false,
   isPreview = false,
+  invalidSections = [],
 }: PostPreviewProps) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const postPreviewRef = useRef<HTMLDivElement>(null);
   const profiles = useSelector((state: RootState) => state.profiles.profiles);
   const [authorNames, setAuthorNames] = useState<{ [key: string]: string }>({});
-  const [sectionErrors, setSectionErrors] = useState<{ [key: string]: string[] }>({});
 
   // 각 섹션별 폼 참조 객체 생성
   const sectionRefs = useRef<{ [key: string]: HTMLElement | null }>({
@@ -107,9 +98,9 @@ const PostPreview = ({
       || (Array.isArray(term.references?.opensource) && term.references.opensource.length > 0),
   };
 
-  // useEffect(() => {
-  //   console.log(term);
-  // }, [term]);
+  useEffect(() => {
+    console.log(term);
+  }, [term]);
 
   useEffect(() => {
     if (profiles.length > 0 && term.metadata?.authors) {
@@ -161,7 +152,6 @@ const PostPreview = ({
 
   // X 버튼 클릭 핸들러
   const handleCloseSection = useCallback((section: string) => {
-    setSectionErrors((prev) => ({ ...prev, [section]: [] }));
     if (onSectionClick) {
       onSectionClick(section);
     }
@@ -190,76 +180,18 @@ const PostPreview = ({
     };
   }, [editingSections, onSectionClick]);
 
-  // 섹션별 에러 메시지 렌더링
-  const renderSectionErrors = useCallback((section: string): React.ReactNode => {
-    const errors = sectionErrors[section];
-    if (!errors || errors.length === 0) return null;
-
-    return (
-      <div className="px-4 pb-2">
-        {errors.map((error, index) => (
-          <p key={index} className="text-level-5 text-sm mt-1">
-            {error}
-          </p>
-        ))}
-      </div>
-    );
-  }, [sectionErrors]);
-
   // 섹션 hover 스타일 클래스 생성
   const getSectionClassName = useCallback((section: string, baseClass: string = '') => {
     const isEditing = editingSections && editingSections[section as keyof EditingSectionState];
+    const isInvalid = invalidSections.includes(section);
 
     // 미리보기 모드이면 모든 스타일 적용 안함
     if (isPreview) {
       return baseClass;
     }
 
-    // 섹션의 상태 확인 (비어있음, 에러, 콘텐츠 있음)
-    const getSectionStatus = (): 'empty' | 'error' | 'filled' => {
-      // 폼 제출 시에만 에러 확인
-      if (formSubmitted && validateSection) {
-        switch (section) {
-          case 'koTitle':
-            if (!term.title?.ko || term.title.ko.trim() === '') return 'error';
-            break;
-          case 'enTitle':
-            if (!term.title?.en || term.title.en.trim() === '') return 'error';
-            break;
-          case 'shortDesc':
-            if (!term.description?.short || term.description.short.trim() === '') return 'error';
-            break;
-          case 'difficulty':
-            if (!term.difficulty?.description || term.difficulty.description.trim() === '') return 'error';
-            break;
-          case 'description':
-            if (!term.description?.full || term.description.full.trim() === '') return 'error';
-            break;
-          case 'relevance':
-            if (!term.relevance?.analyst?.description
-                || !term.relevance?.scientist?.description
-                || !term.relevance?.engineer?.description) return 'error';
-            break;
-          case 'usecase':
-            if (!term.usecase?.description || !term.usecase?.example) return 'error';
-            break;
-          case 'tags':
-            if (!Array.isArray(term.tags) || term.tags.length === 0) return 'error';
-            break;
-          case 'terms':
-            if (!Array.isArray(term.terms) || term.terms.length === 0) return 'error';
-            break;
-          case 'references':
-            const hasTutorials = Array.isArray(term.references?.tutorials) && term.references.tutorials.length > 0;
-            const hasBooks = Array.isArray(term.references?.books) && term.references.books.length > 0;
-            const hasAcademic = Array.isArray(term.references?.academic) && term.references.academic.length > 0;
-            const hasOpensource = Array.isArray(term.references?.opensource) && term.references.opensource.length > 0;
-
-            if (!(hasTutorials || hasBooks || hasAcademic || hasOpensource)) return 'error';
-            break;
-        }
-      }
-
+    // 섹션의 상태 확인 (비어있음, 콘텐츠 있음)
+    const getSectionStatus = (): 'empty' | 'filled' => {
       // 섹션에 내용이 있는지 확인
       switch (section) {
         case 'koTitle':
@@ -301,19 +233,25 @@ const PostPreview = ({
       return `${ baseClass } outline outline-2 outline-primary`;
     }
 
+    // 유효성 검사 실패 섹션인 경우
+    if (isInvalid) {
+      if (status === 'filled') {
+        return `${ baseClass } outline outline-1 outline-dashed outline-gray3 hover:outline-primary hover:outline-2 hover:bg-background-secondary`;
+      }
+      return `${ baseClass } outline outline-2 outline-dashed outline-level-5 bg-gray5`;
+    }
+
     // 상태에 따른 스타일 적용
     switch (status) {
-      case 'error':
-        return `${ baseClass } outline outline-1 outline-dashed outline-level-5 bg-gray5 hover:outline-primary hover:outline-2 hover:bg-background-secondary`;
       case 'empty':
         return `${ baseClass } outline outline-1 outline-dashed outline-gray3 bg-gray5 hover:outline-primary hover:outline-2 hover:bg-background-secondary`;
       case 'filled':
         return `${ baseClass } outline outline-1 outline-dashed outline-gray3 hover:outline-primary hover:outline-2 hover:bg-background-secondary`;
     }
-  }, [editingSections, formSubmitted, isPreview, term, validateSection]);
+  }, [editingSections, isPreview, invalidSections, term]);
 
   // 섹션 내부에 편집 폼 렌더링
-  const renderInlineEditForm = useCallback((section: keyof EditingSectionState) => {
+  const renderInlineEditForm = useCallback((section: keyof EditingSectionState & keyof FormComponents) => {
     if (!editingSections || !formComponents) return null;
     if (!editingSections[section]) return null;
 
@@ -330,37 +268,17 @@ const PostPreview = ({
       </div>
     );
 
-    // 특정 섹션에 대한 컨텐츠 렌더링
-    const renderContent = () => {
-      switch (section) {
-        case 'koTitle':
-          return renderKoreanTitleForm ? renderKoreanTitleForm()
-            : (formComponents.basicInfo && React.cloneElement(formComponents.basicInfo as React.ReactElement, { isModal: true }));
-        case 'enTitle':
-          return renderEnglishTitleForm ? renderEnglishTitleForm()
-            : (formComponents.basicInfo && React.cloneElement(formComponents.basicInfo as React.ReactElement, { isModal: true }));
-        case 'etcTitle':
-          return renderEtcTitleForm ? renderEtcTitleForm()
-            : (formComponents.basicInfo && React.cloneElement(formComponents.basicInfo as React.ReactElement, { isModal: true }));
-        case 'shortDesc':
-          return renderShortDescriptionForm ? renderShortDescriptionForm()
-            : (formComponents.basicInfo && React.cloneElement(formComponents.basicInfo as React.ReactElement, { isModal: true }));
-        default:
-          return formComponents[section as keyof FormComponents];
-      }
-    };
-
+    // 각 섹션에 맞는 컴포넌트 반환
     return (
       <div
         ref={(el) => { sectionRefs.current[section] = el; }}
         className={`m-1 p-1 mt-2 animate-slideDown ${ section === 'koTitle' || section === 'enTitle' || section === 'etcTitle' ? '' : 'border-t border-primary border-dashed' } ${ section === 'tags' ? 'border-t border-primary border-dashed md:border-t-0' : '' }`}
       >
-        {renderContent()}
-        {renderSectionErrors(section)}
+        {formComponents[section]}
         {closeButton}
       </div>
     );
-  }, [editingSections, formComponents, handleCloseSection, renderKoreanTitleForm, renderEnglishTitleForm, renderEtcTitleForm, renderShortDescriptionForm, renderSectionErrors]);
+  }, [editingSections, formComponents, handleCloseSection]);
 
   return (
     <div className="prose h-[68vh] sm:h-[calc(100vh-280px)] overflow-y-auto overflow-x-hidden block md:grid md:grid-cols-[minmax(0,176px)_5fr] bg-background rounded-lg p-2 sm:p-4 border border-gray4" ref={postPreviewRef}>
@@ -516,7 +434,7 @@ const PostPreview = ({
               {/* 관련 용어 섹션 */}
               <div id="terms-section" className="relative">
                 <div
-                  className={getSectionClassName('terms', 'flex flex-col p-1 my-3 prose-section rounded')}
+                  className={getSectionClassName('terms', 'flex flex-col p-1 my-3 prose-section rounded gap-2')}
                 >
                   <div className="cursor-pointer" onClick={(e: React.MouseEvent) => handleSectionClick('terms', e)}>
                     <RelatedTermsSection
@@ -566,7 +484,7 @@ const PostPreview = ({
               {/* 직무 연관도 섹션 */}
               <div id="relevance-section" className="relative">
                 <div
-                  className={getSectionClassName('relevance', 'flex flex-col p-1 my-3 bg-cover bg-center prose-section rounded')}
+                  className={getSectionClassName('relevance', 'flex flex-col p-1 my-3 bg-cover bg-center prose-section rounded gap-2')}
                 >
                   <div className="cursor-pointer" onClick={(e: React.MouseEvent) => handleSectionClick('relevance', e)}>
                     <RelevanceSection
@@ -591,7 +509,7 @@ const PostPreview = ({
               {/* 사용 사례 섹션 */}
               <div id="usecase-section" className="relative">
                 <div
-                  className={getSectionClassName('usecase', 'flex flex-col p-1 my-3 prose-section rounded')}
+                  className={getSectionClassName('usecase', 'flex flex-col p-1 my-3 prose-section rounded gap-2')}
                 >
                   <div className="cursor-pointer" onClick={(e: React.MouseEvent) => handleSectionClick('usecase', e)}>
                     <UsecaseSection
@@ -609,7 +527,7 @@ const PostPreview = ({
               {/* 참고자료 섹션 */}
               <div id="references-section" className="relative mb-16">
                 <div
-                  className={getSectionClassName('references', 'flex flex-col p-1 my-3 prose-section rounded')}
+                  className={getSectionClassName('references', 'flex flex-col p-1 my-3 prose-section rounded gap-2')}
                 >
                   <div className="cursor-pointer" onClick={(e: React.MouseEvent) => handleSectionClick('references', e)}>
                     {!hasData.references && (

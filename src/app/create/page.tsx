@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { TermData } from '@/types/database';
-import BasicInfoEdit from '@/components/create/BasicInfoEdit';
 import DescriptionEdit from '@/components/create/DescriptionEdit';
 import TagsEdit from '@/components/create/TagsEdit';
 import TermsEdit from '@/components/create/TermsEdit';
@@ -11,14 +10,21 @@ import DifficultyEdit from '@/components/create/DifficultyEdit';
 import RelevanceEdit from '@/components/create/RelevanceEdit';
 import UsecaseEdit from '@/components/create/UsecaseEdit';
 import ReferencesEdit from '@/components/create/ReferencesEdit';
+import KoreanTitleEdit from '@/components/create/KoreanTitleEdit';
+import EnglishTitleEdit from '@/components/create/EnglishTitleEdit';
+import ShortDescriptionEdit from '@/components/create/ShortDescriptionEdit';
+import EtcTitleEdit from '@/components/create/EtcTitleEdit';
 import EditPreview from '@/components/create/EditPreview';
 import { ConfirmModal } from '@/components/ui/Modal';
 import Footer from '@/components/common/Footer';
 import { useToast } from '@/layouts/ToastProvider';
-import { X, Save, Upload } from 'lucide-react';
+import { Save, Upload } from 'lucide-react';
 
 interface EditingSectionState {
-  basicInfo: boolean;
+  koTitle: boolean;
+  enTitle: boolean;
+  shortDesc: boolean;
+  etcTitle: boolean;
   difficulty: boolean;
   description: boolean;
   tags: boolean;
@@ -26,10 +32,6 @@ interface EditingSectionState {
   relevance: boolean;
   usecase: boolean;
   references: boolean;
-  koTitle: boolean;
-  enTitle: boolean;
-  shortDesc: boolean;
-  etcTitle: boolean;
 }
 
 export default function CreatePage() {
@@ -38,18 +40,18 @@ export default function CreatePage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isLoadModalOpen, setIsLoadModalOpen] = useState(false);
-  const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const [formSubmitted, setFormSubmitted] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
-  const [newEtcKeyword, setNewEtcKeyword] = useState('');
+  const [invalidSections, setInvalidSections] = useState<string[]>([]);
 
   // 각 섹션의 편집 상태를 관리하는 상태
   const [editingSections, setEditingSections] = useState<EditingSectionState>({
-    basicInfo: false,
+    koTitle: false,
+    enTitle: false,
+    shortDesc: false,
+    etcTitle: false,
     difficulty: false,
     description: false,
     tags: false,
@@ -57,10 +59,6 @@ export default function CreatePage() {
     relevance: false,
     usecase: false,
     references: false,
-    koTitle: false,
-    enTitle: false,
-    shortDesc: false,
-    etcTitle: false,
   });
 
   const [formData, setFormData] = useState<TermData>({
@@ -126,7 +124,7 @@ export default function CreatePage() {
   // 자동 저장 기능 구현
   useEffect(() => {
     const autoSaveInterval = setInterval(() => {
-      if (isLoggedIn && !formSubmitted) {
+      if (isLoggedIn) {
         try {
           localStorage.setItem('diki-create-form-data', JSON.stringify(formData));
           showToast('작성 중인 내용이 자동으로 브라우저에 저장되었습니다.', 'info');
@@ -138,7 +136,7 @@ export default function CreatePage() {
     }, 180000); // 3분마다 자동 저장
 
     return () => clearInterval(autoSaveInterval);
-  }, [formData, isLoggedIn, formSubmitted, showToast]);
+  }, [formData, isLoggedIn, showToast]);
 
   // 로그인 확인 로직
   useEffect(() => {
@@ -288,115 +286,57 @@ export default function CreatePage() {
         });
         return newState;
       });
-    }
-  };
 
-  // 폼 필드 유효성 검사 조건을 하나의 객체로 정의
-  const validationRules = {
-    koTitle: (data: TermData) => !data.title?.ko || data.title.ko.trim() === '',
-    enTitle: (data: TermData) => !data.title?.en || data.title.en.trim() === '',
-    shortDesc: (data: TermData) => !data.description?.short || data.description.short.trim() === '',
-    difficulty: (data: TermData) => !data.difficulty?.description || data.difficulty.description.trim() === '',
-    description: (data: TermData) => !data.description?.full || data.description.full.trim() === '',
-    relevance: (data: TermData) => (
-      !data.relevance?.analyst?.description
-      || !data.relevance?.scientist?.description
-      || !data.relevance?.engineer?.description
-    ),
-    usecase: (data: TermData) => !data.usecase?.description || !data.usecase?.example,
-    tags: (data: TermData) => !Array.isArray(data.tags) || data.tags.length === 0,
-    terms: (data: TermData) => !Array.isArray(data.terms) || data.terms.length === 0,
-    references: (data: TermData) => {
-      const hasTutorials = Array.isArray(data.references?.tutorials) && data.references.tutorials.length > 0;
-      const hasBooks = Array.isArray(data.references?.books) && data.references.books.length > 0;
-      const hasAcademic = Array.isArray(data.references?.academic) && data.references.academic.length > 0;
-      const hasOpensource = Array.isArray(data.references?.opensource) && data.references.opensource.length > 0;
-      return !(hasTutorials || hasBooks || hasAcademic || hasOpensource);
-    },
-  };
-
-  // 에러 메시지 맵
-  const errorMessages = {
-    koTitle: '한글 제목을 입력하세요.',
-    enTitle: '영문 제목을 입력하세요.',
-    shortDesc: '짧은 설명을 입력하세요.',
-    difficulty: '난이도에 대한 설명을 입력하세요.',
-    description: '전체 설명을 입력하세요.',
-    relevance: [
-      '데이터 분석가 직무 연관성 설명을 입력하세요.',
-      '데이터 과학자 직무 연관성 설명을 입력하세요.',
-      '데이터 엔지니어 직무 연관성 설명을 입력하세요.',
-    ],
-    usecase: [
-      '사용 사례 개요를 입력하세요.',
-      '구체적인 사용 사례를 입력하세요.',
-    ],
-    tags: '관련 포스트를 하나 이상 추가하세요.',
-    terms: '관련 용어를 하나 이상 추가하세요.',
-    references: '참고 자료를 하나 이상 추가하세요.',
-  };
-
-  // 섹션 유효성 검사 함수
-  const validateSection = (section: string): boolean => {
-    const errors = getSectionValidationErrors(section);
-    setValidationErrors(errors);
-    return errors.length === 0;
-  };
-
-  // 섹션별 유효성 검사 에러 가져오기
-  const getSectionValidationErrors = (section: string): string[] => {
-    const errors: string[] = [];
-
-    // 유효성 검사 규칙이 있고 해당 섹션이 유효하지 않은 경우
-    if (section in validationRules && validationRules[section as keyof typeof validationRules](formData)) {
-      const errorMessage = errorMessages[section as keyof typeof errorMessages];
-
-      // 에러 메시지가 배열인 경우 (relevance, usecase)
-      if (Array.isArray(errorMessage)) {
-        errors.push(...errorMessage);
-      } else if (errorMessage) {
-        errors.push(errorMessage);
+      // 미리보기 모드 진입 시 무효 섹션 표시 초기화
+      if (invalidSections.length > 0) {
+        setInvalidSections([]);
       }
     }
-
-    return errors;
-  };
-
-  // 폼 유효성 검사
-  const validateForm = (): boolean => {
-    const errors: string[] = [];
-
-    // 모든 필수 섹션에 대해 유효성 검사 수행
-    Object.keys(validationRules).forEach((section) => {
-      const sectionErrors = getSectionValidationErrors(section);
-      if (sectionErrors.length > 0) {
-        errors.push(...sectionErrors);
-      }
-    });
-
-    setValidationErrors(errors);
-    return errors.length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 폼 제출 상태 설정
-    setFormSubmitted(true);
+    // 폼 유효성 검사
+    const newInvalidSections: string[] = [];
 
-    if (!validateForm()) {
-      setError('붉은 점선으로 된 항목을 모두 채워주세요.');
-      showToast('붉은 점선으로 된 항목을 모두 채워주세요.', 'error');
+    if (!formData.title?.ko || formData.title.ko.trim() === '') newInvalidSections.push('koTitle');
+    if (!formData.title?.en || formData.title.en.trim() === '') newInvalidSections.push('enTitle');
+    if (!formData.description?.short || formData.description.short.trim() === '') newInvalidSections.push('shortDesc');
+    if (!formData.difficulty?.description || formData.difficulty.description.trim() === '') newInvalidSections.push('difficulty');
+    if (!formData.description?.full || formData.description.full.trim() === '') newInvalidSections.push('description');
+    if (!Array.isArray(formData.terms) || formData.terms.length === 0) newInvalidSections.push('terms');
+    if (!Array.isArray(formData.tags) || formData.tags.length === 0) newInvalidSections.push('tags');
+    if (!formData.relevance?.analyst?.description
+        || !formData.relevance.scientist?.description
+        || !formData.relevance.engineer?.description) {
+      newInvalidSections.push('relevance');
+    }
+    if (!formData.usecase?.description || !formData.usecase?.example) {
+      newInvalidSections.push('usecase');
+    }
+    const hasReferences
+      = (Array.isArray(formData.references?.tutorials) && formData.references.tutorials.length > 0)
+      || (Array.isArray(formData.references?.books) && formData.references.books.length > 0)
+      || (Array.isArray(formData.references?.academic) && formData.references.academic.length > 0)
+      || (Array.isArray(formData.references?.opensource) && formData.references.opensource.length > 0);
+    if (!hasReferences) newInvalidSections.push('references');
+    if (newInvalidSections.length > 0) {
+      const errorMessage = `필수 항목을 모두 입력해주세요: ${ newInvalidSections.length }개 항목이 누락되었습니다.`;
+      showToast(errorMessage, 'error', 10000); // 10초 동안 표시
+      setInvalidSections(newInvalidSections);
       return;
     }
 
-    // 모달 열기
+    // 모든 유효성 검사를 통과한 경우
+    setInvalidSections([]);
+
+    // 등록하기 모달 열기
     setIsConfirmModalOpen(true);
   };
 
   const submitToGithub = async () => {
     setSubmitting(true);
-    setError(null);
 
     try {
       // GitHub 이슈 생성 API 호출
@@ -414,13 +354,13 @@ export default function CreatePage() {
       }
 
       const result = await response.json();
-      alert('문서가 성공적으로 GitHub 이슈로 등록되었습니다!');
+      showToast('문서가 성공적으로 GitHub 이슈로 등록되었습니다!', 'success');
 
       // 제출 성공 시 로컬 스토리지에서 데이터 삭제
       localStorage.removeItem('diki-create-form-data');
       router.push(`/thank-you?issue=${ result.issue_number }`);
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : '문서 제출 중 오류가 발생했습니다.');
+      showToast(error instanceof Error ? error.message : '문서 제출 중 오류가 발생했습니다.', 'error');
     } finally {
       setSubmitting(false);
     }
@@ -433,175 +373,6 @@ export default function CreatePage() {
   if (!isLoggedIn) {
     return null; // useEffect에서 리다이렉트 처리
   }
-
-  // 모달용 컴포넌트 생성
-  const renderKoreanTitleForm = () => (
-    <div className="p-2">
-      <label className="block text-sm font-medium mb-1 text-gray0">{'한글 제목'}</label>
-      <input
-        type="text"
-        name="title.ko"
-        value={formData.title?.ko || ''}
-        onChange={handleChange}
-        onKeyDown={(e) => {
-          if (e.nativeEvent.isComposing) return;
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            toggleSection('enTitle');
-          }
-        }}
-        className="w-full p-2 border border-gray4 text-main rounded-md focus:border-primary focus:ring-1 focus:ring-primary"
-        placeholder="포스트 한글 제목 (ex. 인공지능)"
-        required
-      />
-      {validationErrors.find((err) => err.includes('한글 제목')) && (
-        <p className="text-level-5 text-sm mt-1">{'한글 제목을 입력하세요.'}</p>
-      )}
-    </div>
-  );
-
-  const renderEnglishTitleForm = () => (
-    <div className="p-2">
-      <label className="block text-sm font-medium mb-1 text-gray0">{'영문 제목'}</label>
-      <input
-        type="text"
-        name="title.en"
-        value={formData.title?.en || ''}
-        onChange={handleChange}
-        onKeyDown={(e) => {
-          if (e.nativeEvent.isComposing) return;
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            toggleSection('shortDesc');
-          }
-        }}
-        className="w-full p-2 border border-gray4 text-main rounded-md focus:border-primary focus:ring-1 focus:ring-primary"
-        placeholder="포스트 영문 제목 (ex. Artificial Intelligence)"
-        required
-      />
-      {validationErrors.find((err) => err.includes('영문 제목')) && (
-        <p className="text-level-5 text-sm mt-1">{'영문 제목을 입력하세요.'}</p>
-      )}
-    </div>
-  );
-
-  const renderShortDescriptionForm = () => (
-    <div className="p-2">
-      <label className="block text-sm font-medium mb-1 text-gray0">{'짧은 설명'}</label>
-      <div className="relative">
-        <textarea
-          name="description.short"
-          value={formData.description?.short || ''}
-          onChange={(e) => {
-            handleChange(e);
-            // 높이 자동 조절
-            e.target.style.height = 'auto';
-            e.target.style.height = e.target.scrollHeight + 'px';
-          }}
-          onKeyDown={(e) => {
-            if (e.nativeEvent.isComposing) return;
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault();
-              toggleSection('difficulty');
-            }
-          }}
-          className="w-full p-2 border border-gray4 text-main rounded-md resize-none overflow-hidden focus:border-primary focus:ring-1 focus:ring-primary"
-          required
-          placeholder="포스트에 대한 간단한 설명을 작성하세요."
-          maxLength={100}
-          rows={2}
-          style={{ minHeight: '60px' }}
-        />
-        <div className="absolute right-2 bottom-2 text-xs text-gray2">
-          {`${ formData.description?.short?.length || 0 }/100`}
-        </div>
-      </div>
-      {validationErrors.find((err) => err.includes('짧은 설명')) && (
-        <p className="text-level-5 text-sm mt-1">{'짧은 설명을 입력하세요.'}</p>
-      )}
-    </div>
-  );
-
-  // ETC 제목 폼 렌더링
-  const renderEtcTitleForm = () => {
-    const currentEtcArray = Array.isArray(formData.title?.etc) ? formData.title.etc : [];
-
-    const handleAddKeyword = () => {
-      if (newEtcKeyword.trim()) {
-        setFormData((prev) => ({
-          ...prev,
-          title: {
-            ...prev.title,
-            etc: [...(prev.title?.etc || []), newEtcKeyword.trim()],
-          },
-        }));
-        setNewEtcKeyword('');
-      }
-    };
-
-    const handleRemoveKeyword = (index: number) => {
-      setFormData((prev) => ({
-        ...prev,
-        title: {
-          ...prev.title,
-          etc: (prev.title?.etc || []).filter((_, i) => i !== index),
-        },
-      }));
-    };
-
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.nativeEvent.isComposing) return;
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        handleAddKeyword();
-      }
-    };
-
-    return (
-      <div className="p-2">
-        <label className="block text-sm font-medium mb-1 text-gray0">
-          {'검색 키워드'}
-        </label>
-        <div className="flex items-end space-x-2 mb-2">
-          <div className="flex-1">
-            <input
-              type="text"
-              value={newEtcKeyword}
-              onChange={(e) => setNewEtcKeyword(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="w-full p-2 border border-gray4 rounded-md text-main"
-              placeholder="검색 결과의 정확도를 높이기 위해 주제를 잘 나타내는 키워드를 작성하세요."
-            />
-          </div>
-          <button
-            type="button"
-            onClick={handleAddKeyword}
-            className="px-4 py-2 text-main border border-gray4 bg-gray4 hover:text-white hover:bg-gray3 rounded-md"
-          >
-            {'추가'}
-          </button>
-        </div>
-        <p className="text-sm text-gray2 mb-2">
-          {'Enter 키 또는 [추가] 버튼을 눌러 키워드를 추가할 수 있습니다. 이 키워드들은 포스트에 표시되지 않지만 검색에 사용됩니다.'}
-        </p>
-
-        <div className="flex flex-wrap gap-2 mt-4">
-          {currentEtcArray.map((keyword, index) => (
-            <div key={index} className="bg-gray5 border border-gray4 rounded-lg px-3 py-1 flex items-center text-main">
-              <span>{keyword}</span>
-              <button
-                type="button"
-                onClick={() => handleRemoveKeyword(index)}
-                className="ml-2 text-level-5"
-              >
-                <X className="size-5" />
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
 
   return (
     <div className="container mx-auto">
@@ -631,36 +402,27 @@ export default function CreatePage() {
 
       <form id="createForm" onSubmit={handleSubmit} noValidate>
         <div className="relative">
-          {/* EditPreview 컴포넌트가 섹션 클릭 이벤트를 받을 수 있도록 toggleSection 함수 전달 */}
           <EditPreview
             term={formData}
             onSectionClick={isPreview ? undefined : toggleSection}
             editingSections={editingSections}
             formComponents={{
-              basicInfo: <BasicInfoEdit formData={formData} handleChange={handleChange} validationErrors={validationErrors} />,
-              difficulty: <DifficultyEdit formData={formData} handleChange={handleChange} validationErrors={validationErrors} />,
+              koTitle: <KoreanTitleEdit formData={formData} handleChange={handleChange} onEnterPress={() => toggleSection('enTitle')} />,
+              enTitle: <EnglishTitleEdit formData={formData} handleChange={handleChange} onEnterPress={() => toggleSection('shortDesc')} />,
+              shortDesc: <ShortDescriptionEdit formData={formData} handleChange={handleChange} onEnterPress={() => toggleSection('difficulty')} />,
+              etcTitle: <EtcTitleEdit formData={formData} handleChange={handleChange} />,
+              difficulty: <DifficultyEdit formData={formData} handleChange={handleChange} />,
               description: <DescriptionEdit formData={formData} handleChange={handleChange} />,
               terms: <TermsEdit formData={formData} setFormData={setFormData} />,
               tags: <TagsEdit formData={formData} setFormData={setFormData} />,
-              relevance: <RelevanceEdit formData={formData} handleChange={handleChange} validationErrors={validationErrors} />,
-              usecase: <UsecaseEdit formData={formData} setFormData={setFormData} handleChange={handleChange} validationErrors={validationErrors} />,
+              relevance: <RelevanceEdit formData={formData} handleChange={handleChange} />,
+              usecase: <UsecaseEdit formData={formData} setFormData={setFormData} handleChange={handleChange} />,
               references: <ReferencesEdit formData={formData} setFormData={setFormData} />,
             }}
-            renderKoreanTitleForm={renderKoreanTitleForm}
-            renderEnglishTitleForm={renderEnglishTitleForm}
-            renderShortDescriptionForm={renderShortDescriptionForm}
-            renderEtcTitleForm={renderEtcTitleForm}
-            validateSection={validateSection}
-            formSubmitted={formSubmitted}
             isPreview={isPreview}
+            invalidSections={invalidSections}
           />
         </div>
-
-        {error && validationErrors.length === 0 && (
-          <div className="text-end text-level-5 rounded-lg">
-            {error}
-          </div>
-        )}
       </form>
 
       <div className="flex justify-between items-center space-x-2 sm:space-x-4 space-y-2 sm:space-y-4">

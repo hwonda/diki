@@ -1,6 +1,5 @@
 import { TermData } from '@/types/database';
 import React, { useState, useRef, useEffect } from 'react';
-import { useFormValidation, InputFeedback } from './ValidatedInput';
 import MarkdownContent from '../posts/MarkdownContent';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
@@ -10,10 +9,10 @@ interface DescriptionSectionProps {
 }
 
 const DescriptionSection = ({ formData, handleChange }: DescriptionSectionProps) => {
-  const { getInputClassName, showValidation } = useFormValidation();
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const guideContentRef = useRef<HTMLDivElement>(null);
   const [contentHeight, setContentHeight] = useState<number | null>(null);
+  const [showDescGuidance, setShowDescGuidance] = useState<boolean>(true);
 
   useEffect(() => {
     if (guideContentRef.current) {
@@ -21,12 +20,26 @@ const DescriptionSection = ({ formData, handleChange }: DescriptionSectionProps)
     }
   }, [isGuideOpen]);
 
+  useEffect(() => {
+    if (formData.description?.full && formData.description.full.trim() !== '') {
+      setShowDescGuidance(false);
+    } else {
+      setShowDescGuidance(true);
+    }
+  }, [formData.description?.full]);
+
   const toggleGuide = () => {
     setIsGuideOpen(!isGuideOpen);
   };
 
   const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     handleChange(e);
+
+    if (e.target.value.trim() !== '') {
+      setShowDescGuidance(false);
+    } else {
+      setShowDescGuidance(true);
+    }
 
     e.target.style.height = 'auto';
     e.target.style.height = `calc(${ e.target.scrollHeight }px)`;
@@ -136,16 +149,13 @@ const DescriptionSection = ({ formData, handleChange }: DescriptionSectionProps)
         name="description.full"
         value={formData.description?.full || ''}
         onChange={handleDescriptionChange}
-        className={getInputClassName(formData.description?.full)}
-        placeholder="마크다운 형식으로 작성하세요."
-        required
+        className="w-full p-2 border border-gray4 text-main rounded-md"
+        placeholder="포스트에 대한 개념을 마크다운 형식으로 작성하세요."
         rows={6}
       />
-      <InputFeedback
-        value={formData.description?.full}
-        errorMessage="본문을 입력하세요."
-        showValidation={showValidation}
-      />
+      {showDescGuidance && (
+        <p className="text-sm text-level-5 ml-1 mb-2">{'본문을 작성해주세요.'}</p>
+      )}
       {tips()}
     </div>
   );
