@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import ProfilePostCard from '@/components/profiles/ProfilePostCard';
 import { TermData, Profile } from '@/types';
 // import ContactButtonWrapper from './ContactButtonWrapper';
@@ -25,7 +25,7 @@ const ProfileClient = ({
   allTermsData,
 }: ProfileClientProps) => {
   const [activeTab, setActiveTab] = useState<'all' | 'posts' | 'contributes'>('all');
-  const [terms, setTerms] = useState<TermData[]>(allTermsData);
+  const [terms, setTerms] = useState<TermData[]>([]);
   const [visibleTerms, setVisibleTerms] = useState<TermData[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -34,6 +34,28 @@ const ProfileClient = ({
   const [isCurrentUser, setIsCurrentUser] = useState(isOwnProfile);
 
   const { user } = useSelector((state: RootState) => state.auth);
+
+  const sortByUpdatedAt = useCallback((data: TermData[]): TermData[] => {
+    return [...data].sort((a, b) => {
+      const dateA = a.metadata?.updated_at ? new Date(a.metadata.updated_at).getTime() : 0;
+      const dateB = b.metadata?.updated_at ? new Date(b.metadata.updated_at).getTime() : 0;
+      return dateB - dateA;
+    });
+  }, []);
+
+  const sortedAllTermsData = useMemo(() => sortByUpdatedAt(allTermsData), [allTermsData, sortByUpdatedAt]);
+  const sortedPostsData = useMemo(() => sortByUpdatedAt(postsData), [postsData, sortByUpdatedAt]);
+  const sortedContributesData = useMemo(() => sortByUpdatedAt(contributesData), [contributesData, sortByUpdatedAt]);
+
+  useEffect(() => {
+    if (activeTab === 'all') {
+      setTerms(sortedAllTermsData);
+    } else if (activeTab === 'posts') {
+      setTerms(sortedPostsData);
+    } else {
+      setTerms(sortedContributesData);
+    }
+  }, [activeTab, sortedAllTermsData, sortedPostsData, sortedContributesData]);
 
   useEffect(() => {
     // 초기 로딩 시 첫 페이지 표시
@@ -96,14 +118,6 @@ const ProfileClient = ({
 
   const handleTabChange = (tab: 'all' | 'posts' | 'contributes') => {
     setActiveTab(tab);
-
-    if (tab === 'all') {
-      setTerms(allTermsData);
-    } else if (tab === 'posts') {
-      setTerms(postsData);
-    } else {
-      setTerms(contributesData);
-    }
   };
 
   const postsCount = postsData.length;
