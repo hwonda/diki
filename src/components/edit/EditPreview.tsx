@@ -99,10 +99,6 @@ const PostPreview = ({
   };
 
   useEffect(() => {
-    console.log(term);
-  }, [term]);
-
-  useEffect(() => {
     if (profiles.length > 0 && term.metadata?.authors) {
       const names: { [key: string]: string } = {};
 
