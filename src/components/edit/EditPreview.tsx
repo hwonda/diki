@@ -228,14 +228,14 @@ const PostPreview = ({
     if (isEditing) {
       return `${ baseClass } outline outline-2 outline-primary`;
     }
+    if (status === 'filled') {
+      return `${ baseClass } outline outline-1 outline-dashed outline-gray3 hover:outline-primary hover:outline-2 hover:bg-background-secondary`;
+    }
     if (isInvalid) {
       return `${ baseClass } outline outline-2 outline-dashed outline-level-5 bg-gray5 hover:outline-primary hover:outline-2 hover:bg-background-secondary`;
     }
     if (status === 'empty') {
       return `${ baseClass } outline outline-1 outline-dashed outline-gray3 bg-gray5 hover:outline-primary hover:outline-2 hover:bg-background-secondary`;
-    }
-    if (status === 'filled') {
-      return `${ baseClass } outline outline-1 outline-dashed outline-gray3 hover:outline-primary hover:outline-2 hover:bg-background-secondary`;
     }
   }, [editingSections, isPreview, invalidSections, term]);
 
