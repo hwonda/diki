@@ -18,6 +18,7 @@ const ReferencesSection = ({ formData, setFormData }: ReferencesSectionProps) =>
   const [yearError, setYearError] = useState<string | null>(null);
   const [isbnError, setIsbnError] = useState<string | null>(null);
   const [doiError, setDoiError] = useState<string | null>(null);
+  const [titleError, setTitleError] = useState<{ [key in ReferenceTab]?: string | null }>({});
 
   const tutorialCallbackRef = useRef(false);
   const bookCallbackRef = useRef(false);
@@ -154,44 +155,81 @@ const ReferencesSection = ({ formData, setFormData }: ReferencesSectionProps) =>
     return link.startsWith('https://');
   };
 
+  // 필수 입력 필드 검증을 위한 공통 함수
+  const validateRequiredFields = (type: ReferenceTab, titleValue?: string, linkValue?: string): boolean => {
+    let isValid = true;
+
+    // 제목/이름 필수값 체크
+    if (!titleValue?.trim()) {
+      const errorMessages = {
+        tutorial: '튜토리얼을 추가하려면 반드시 제목을 작성해야 합니다.',
+        book: '참고서적을 추가하려면 반드시 제목을 작성해야 합니다.',
+        academic: '연구논문을 추가하려면 반드시 제목을 작성해야 합니다.',
+        opensource: '오픈소스 프로젝트를 추가하려면 반드시 이름을 작성해야 합니다.',
+      };
+      setTitleError({ ...titleError, [type]: errorMessages[type] });
+      isValid = false;
+    } else {
+      setTitleError({ ...titleError, [type]: null });
+    }
+
+    // 링크 필수값 체크
+    if (!linkValue?.trim()) {
+      const errorMessages = {
+        tutorial: '튜토리얼을 추가하려면 반드시 링크를 작성해야 합니다.',
+        book: '참고서적을 추가하려면 반드시 링크를 작성해야 합니다.',
+        academic: '연구논문을 추가하려면 반드시 링크를 작성해야 합니다.',
+        opensource: '오픈소스 프로젝트를 추가하려면 반드시 링크를 작성해야 합니다.',
+      };
+      setLinkError(errorMessages[type]);
+      isValid = false;
+    } else if (!isValidLink(linkValue)) {
+      setLinkError('링크는 https://로 시작되어야 합니다.');
+      isValid = false;
+    } else {
+      setLinkError(null);
+    }
+
+    return isValid;
+  };
+
   const handleAddTutorial = (e: React.MouseEvent) => {
     e.preventDefault();
 
-    if (!isValidLink(tutorial.external_link)) {
-      setLinkError('링크는 https://로 시작되어야 합니다.');
+    // 필수값 검증
+    if (!validateRequiredFields('tutorial', tutorial.title, tutorial.external_link)) {
       return;
     }
 
-    if (tutorial.title?.trim() && tutorial.external_link?.trim()) {
-      const newTutorial = { ...tutorial };
-      tutorialCallbackRef.current = false;
+    const newTutorial = { ...tutorial };
+    tutorialCallbackRef.current = false;
 
-      setFormData((prev) => {
-        if (tutorialCallbackRef.current) return prev;
-        tutorialCallbackRef.current = true;
+    setFormData((prev) => {
+      if (tutorialCallbackRef.current) return prev;
+      tutorialCallbackRef.current = true;
 
-        const currentReferences = prev.references || createEmptyReferences();
-        const updatedTutorials = [...(currentReferences.tutorials || []), newTutorial];
+      const currentReferences = prev.references || createEmptyReferences();
+      const updatedTutorials = [...(currentReferences.tutorials || []), newTutorial];
 
-        return {
-          ...prev,
-          references: {
-            ...currentReferences,
-            tutorials: updatedTutorials,
-          },
-        };
-      });
+      return {
+        ...prev,
+        references: {
+          ...currentReferences,
+          tutorials: updatedTutorials,
+        },
+      };
+    });
 
-      setTutorial({ title: '', platform: '', external_link: '' });
-      setLinkError(null);
-    }
+    setTutorial({ title: '', platform: '', external_link: '' });
+    setLinkError(null);
+    setTitleError({ ...titleError, tutorial: null });
   };
 
   const handleAddBook = (e: React.MouseEvent) => {
     e.preventDefault();
 
-    if (!isValidLink(book.external_link)) {
-      setLinkError('링크는 https://로 시작되어야 합니다.');
+    // 필수값 검증
+    if (!validateRequiredFields('book', book.title, book.external_link)) {
       return;
     }
 
@@ -207,38 +245,37 @@ const ReferencesSection = ({ formData, setFormData }: ReferencesSectionProps) =>
       return;
     }
 
-    if (book.title?.trim() && book.external_link?.trim()) {
-      const newBook = { ...book };
-      bookCallbackRef.current = false;
+    const newBook = { ...book };
+    bookCallbackRef.current = false;
 
-      setFormData((prev) => {
-        if (bookCallbackRef.current) return prev;
-        bookCallbackRef.current = true;
+    setFormData((prev) => {
+      if (bookCallbackRef.current) return prev;
+      bookCallbackRef.current = true;
 
-        const currentReferences = prev.references || createEmptyReferences();
-        const updatedBooks = [...(currentReferences.books || []), newBook];
+      const currentReferences = prev.references || createEmptyReferences();
+      const updatedBooks = [...(currentReferences.books || []), newBook];
 
-        return {
-          ...prev,
-          references: {
-            ...currentReferences,
-            books: updatedBooks,
-          },
-        };
-      });
+      return {
+        ...prev,
+        references: {
+          ...currentReferences,
+          books: updatedBooks,
+        },
+      };
+    });
 
-      setBook({ title: '', authors: [], publisher: '', year: '', isbn: '', external_link: '', authorsText: '' });
-      setLinkError(null);
-      setYearError(null);
-      setIsbnError(null);
-    }
+    setBook({ title: '', authors: [], publisher: '', year: '', isbn: '', external_link: '', authorsText: '' });
+    setLinkError(null);
+    setYearError(null);
+    setIsbnError(null);
+    setTitleError({ ...titleError, book: null });
   };
 
   const handleAddAcademic = (e: React.MouseEvent) => {
     e.preventDefault();
 
-    if (!isValidLink(academic.external_link)) {
-      setLinkError('링크는 https://로 시작되어야 합니다.');
+    // 필수값 검증
+    if (!validateRequiredFields('academic', academic.title, academic.external_link)) {
       return;
     }
 
@@ -254,109 +291,15 @@ const ReferencesSection = ({ formData, setFormData }: ReferencesSectionProps) =>
       return;
     }
 
-    if (academic.title?.trim() && academic.external_link?.trim()) {
-      const newAcademic = { ...academic };
-      academicCallbackRef.current = false;
+    const newAcademic = { ...academic };
+    academicCallbackRef.current = false;
 
-      setFormData((prev) => {
-        if (academicCallbackRef.current) return prev;
-        academicCallbackRef.current = true;
-
-        const currentReferences = prev.references || createEmptyReferences();
-        const updatedAcademic = [...(currentReferences.academic || []), newAcademic];
-
-        return {
-          ...prev,
-          references: {
-            ...currentReferences,
-            academic: updatedAcademic,
-          },
-        };
-      });
-
-      setAcademic({ title: '', authors: [], year: '', doi: '', external_link: '', authorsText: '' });
-      setLinkError(null);
-      setYearError(null);
-      setDoiError(null);
-    }
-  };
-
-  const handleAddOpensource = (e: React.MouseEvent) => {
-    e.preventDefault();
-
-    if (!isValidLink(opensource.external_link)) {
-      setLinkError('링크는 https://로 시작되어야 합니다.');
-      return;
-    }
-
-    if (opensource.name?.trim() && opensource.external_link?.trim()) {
-      const newOpensource = { ...opensource };
-      opensourceCallbackRef.current = false;
-
-      setFormData((prev) => {
-        if (opensourceCallbackRef.current) return prev;
-        opensourceCallbackRef.current = true;
-
-        const currentReferences = prev.references || createEmptyReferences();
-        const updatedOpensource = [...(currentReferences.opensource || []), newOpensource];
-
-        return {
-          ...prev,
-          references: {
-            ...currentReferences,
-            opensource: updatedOpensource,
-          },
-        };
-      });
-
-      setOpensource({ name: '', license: '', description: '', external_link: '' });
-      setLinkError(null);
-    }
-  };
-
-  const handleRemoveTutorial = (index: number, e: React.MouseEvent) => {
-    e.preventDefault();
     setFormData((prev) => {
-      if (!prev.references?.tutorials) return prev;
+      if (academicCallbackRef.current) return prev;
+      academicCallbackRef.current = true;
 
-      const currentReferences = { ...prev.references };
-      const updatedTutorials = (currentReferences.tutorials || []).filter((_, i) => i !== index);
-
-      return {
-        ...prev,
-        references: {
-          ...currentReferences,
-          tutorials: updatedTutorials,
-        },
-      };
-    });
-  };
-
-  const handleRemoveBook = (index: number, e: React.MouseEvent) => {
-    e.preventDefault();
-    setFormData((prev) => {
-      if (!prev.references?.books) return prev;
-
-      const currentReferences = { ...prev.references };
-      const updatedBooks = (currentReferences.books || []).filter((_, i) => i !== index);
-
-      return {
-        ...prev,
-        references: {
-          ...currentReferences,
-          books: updatedBooks,
-        },
-      };
-    });
-  };
-
-  const handleRemoveAcademic = (index: number, e: React.MouseEvent) => {
-    e.preventDefault();
-    setFormData((prev) => {
-      if (!prev.references?.academic) return prev;
-
-      const currentReferences = { ...prev.references };
-      const updatedAcademic = (currentReferences.academic || []).filter((_, i) => i !== index);
+      const currentReferences = prev.references || createEmptyReferences();
+      const updatedAcademic = [...(currentReferences.academic || []), newAcademic];
 
       return {
         ...prev,
@@ -366,15 +309,31 @@ const ReferencesSection = ({ formData, setFormData }: ReferencesSectionProps) =>
         },
       };
     });
+
+    setAcademic({ title: '', authors: [], year: '', doi: '', external_link: '', authorsText: '' });
+    setLinkError(null);
+    setYearError(null);
+    setDoiError(null);
+    setTitleError({ ...titleError, academic: null });
   };
 
-  const handleRemoveOpensource = (index: number, e: React.MouseEvent) => {
+  const handleAddOpensource = (e: React.MouseEvent) => {
     e.preventDefault();
-    setFormData((prev) => {
-      if (!prev.references?.opensource) return prev;
 
-      const currentReferences = { ...prev.references };
-      const updatedOpensource = (currentReferences.opensource || []).filter((_, i) => i !== index);
+    // 필수값 검증
+    if (!validateRequiredFields('opensource', opensource.name, opensource.external_link)) {
+      return;
+    }
+
+    const newOpensource = { ...opensource };
+    opensourceCallbackRef.current = false;
+
+    setFormData((prev) => {
+      if (opensourceCallbackRef.current) return prev;
+      opensourceCallbackRef.current = true;
+
+      const currentReferences = prev.references || createEmptyReferences();
+      const updatedOpensource = [...(currentReferences.opensource || []), newOpensource];
 
       return {
         ...prev,
@@ -384,6 +343,60 @@ const ReferencesSection = ({ formData, setFormData }: ReferencesSectionProps) =>
         },
       };
     });
+
+    setOpensource({ name: '', license: '', description: '', external_link: '' });
+    setLinkError(null);
+    setTitleError({ ...titleError, opensource: null });
+  };
+
+  // 참고자료 제거를 위한 공통 함수
+  const handleRemoveReference = (type: ReferenceTab, index: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    setFormData((prev) => {
+      if (!prev.references) return prev;
+
+      const currentReferences = { ...prev.references };
+
+      switch(type) {
+        case 'tutorial':
+          if (!currentReferences.tutorials) return prev;
+          currentReferences.tutorials = currentReferences.tutorials.filter((_, i) => i !== index);
+          break;
+        case 'book':
+          if (!currentReferences.books) return prev;
+          currentReferences.books = currentReferences.books.filter((_, i) => i !== index);
+          break;
+        case 'academic':
+          if (!currentReferences.academic) return prev;
+          currentReferences.academic = currentReferences.academic.filter((_, i) => i !== index);
+          break;
+        case 'opensource':
+          if (!currentReferences.opensource) return prev;
+          currentReferences.opensource = currentReferences.opensource.filter((_, i) => i !== index);
+          break;
+      }
+
+      return {
+        ...prev,
+        references: currentReferences,
+      };
+    });
+  };
+
+  const handleRemoveTutorial = (index: number, e: React.MouseEvent) => {
+    handleRemoveReference('tutorial', index, e);
+  };
+
+  const handleRemoveBook = (index: number, e: React.MouseEvent) => {
+    handleRemoveReference('book', index, e);
+  };
+
+  const handleRemoveAcademic = (index: number, e: React.MouseEvent) => {
+    handleRemoveReference('academic', index, e);
+  };
+
+  const handleRemoveOpensource = (index: number, e: React.MouseEvent) => {
+    handleRemoveReference('opensource', index, e);
   };
 
   const handleTabChange = (e: React.MouseEvent, tab: ReferenceTab) => {
@@ -394,6 +407,7 @@ const ReferencesSection = ({ formData, setFormData }: ReferencesSectionProps) =>
     setYearError(null);
     setIsbnError(null);
     setDoiError(null);
+    setTitleError({});
   };
 
   useEffect(() => {
@@ -430,45 +444,85 @@ const ReferencesSection = ({ formData, setFormData }: ReferencesSectionProps) =>
     return () => clearTimeout(timer);
   }, [activeTab]);
 
-  // 링크 input 값 변경 핸들러 추가
-  const handleTutorialLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setTutorial({ ...tutorial, external_link: value });
+  // 타이틀/이름 변경 핸들러를 위한 공통 함수
+  const handleTitleChange = (type: ReferenceTab, value: string) => {
+    switch(type) {
+      case 'tutorial':
+        setTutorial({ ...tutorial, title: value });
+        break;
+      case 'book':
+        setBook({ ...book, title: value });
+        break;
+      case 'academic':
+        setAcademic({ ...academic, title: value });
+        break;
+      case 'opensource':
+        setOpensource({ ...opensource, name: value });
+        break;
+    }
+
+    if (value.trim()) {
+      setTitleError({ ...titleError, [type]: null });
+    }
+  };
+
+  const handleTutorialTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleTitleChange('tutorial', e.target.value);
+  };
+
+  const handleBookTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleTitleChange('book', e.target.value);
+  };
+
+  const handleAcademicTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleTitleChange('academic', e.target.value);
+  };
+
+  const handleOpensourceNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleTitleChange('opensource', e.target.value);
+  };
+
+  // 링크 변경 핸들러를 위한 공통 함수
+  const handleLinkChange = (type: ReferenceTab, value: string) => {
+    switch(type) {
+      case 'tutorial':
+        setTutorial({ ...tutorial, external_link: value });
+        break;
+      case 'book':
+        setBook({ ...book, external_link: value });
+        break;
+      case 'academic':
+        setAcademic({ ...academic, external_link: value });
+        break;
+      case 'opensource':
+        setOpensource({ ...opensource, external_link: value });
+        break;
+    }
+
+    if (value.trim()) {
+      setLinkError(null);
+    }
 
     // 값이 없거나 https://로 시작하면 에러 메시지 초기화
     if (!value || value.startsWith('https://')) {
       setLinkError(null);
     }
+  };
+
+  const handleTutorialLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleLinkChange('tutorial', e.target.value);
   };
 
   const handleBookLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setBook({ ...book, external_link: value });
-
-    // 값이 없거나 https://로 시작하면 에러 메시지 초기화
-    if (!value || value.startsWith('https://')) {
-      setLinkError(null);
-    }
+    handleLinkChange('book', e.target.value);
   };
 
   const handleAcademicLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setAcademic({ ...academic, external_link: value });
-
-    // 값이 없거나 https://로 시작하면 에러 메시지 초기화
-    if (!value || value.startsWith('https://')) {
-      setLinkError(null);
-    }
+    handleLinkChange('academic', e.target.value);
   };
 
   const handleOpensourceLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setOpensource({ ...opensource, external_link: value });
-
-    // 값이 없거나 https://로 시작하면 에러 메시지 초기화
-    if (!value || value.startsWith('https://')) {
-      setLinkError(null);
-    }
+    handleLinkChange('opensource', e.target.value);
   };
 
   // 저자 입력 관련 함수 수정
@@ -545,11 +599,14 @@ const ReferencesSection = ({ formData, setFormData }: ReferencesSectionProps) =>
     return /^\d{4}$/.test(year);
   };
 
-  const handleBookYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-
+  // 연도 입력 핸들러를 위한 공통 함수
+  const handleYearChange = (type: 'book' | 'academic', value: string) => {
     if (value === '' || /^\d{0,4}$/.test(value)) {
-      setBook({ ...book, year: value });
+      if (type === 'book') {
+        setBook({ ...book, year: value });
+      } else {
+        setAcademic({ ...academic, year: value });
+      }
       setYearError(null);
     }
 
@@ -560,19 +617,12 @@ const ReferencesSection = ({ formData, setFormData }: ReferencesSectionProps) =>
     }
   };
 
+  const handleBookYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleYearChange('book', e.target.value);
+  };
+
   const handleAcademicYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-
-    if (value === '' || /^\d{0,4}$/.test(value)) {
-      setAcademic({ ...academic, year: value });
-      setYearError(null);
-    }
-
-    if (value !== '' && !/^\d{0,4}$/.test(value)) {
-      setYearError('숫자 4개만 입력 가능합니다.');
-    } else {
-      setYearError(null);
-    }
+    handleYearChange('academic', e.target.value);
   };
 
   // ISBN 유효성 검사 함수
@@ -698,10 +748,12 @@ const ReferencesSection = ({ formData, setFormData }: ReferencesSectionProps) =>
                       placeholder="튜토리얼 제목"
                       className="w-full p-2 border border-gray4 rounded-md text-main"
                       value={tutorial.title || ''}
-                      onChange={(e) => setTutorial({ ...tutorial, title: e.target.value })}
+                      onChange={handleTutorialTitleChange}
                       onKeyDown={(e) => handleInputKeyDown(e, tutorialPlatformRef)}
                     />
-                    <p className="text-sm text-primary ml-1 mt-1">{'튜토리얼을 추가하려면 반드시 제목을 작성해야 합니다.'}</p>
+                    <p className={`text-sm ml-1 mt-1 ${ titleError.tutorial ? 'text-level-5' : 'text-primary' }`}>
+                      {titleError.tutorial || '튜토리얼을 추가하려면 반드시 제목을 작성해야 합니다.'}
+                    </p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1 text-gray0">{'플랫폼'}</label>
@@ -794,10 +846,12 @@ const ReferencesSection = ({ formData, setFormData }: ReferencesSectionProps) =>
                       placeholder="서적 제목"
                       className="w-full p-2 border border-gray4 rounded-md text-main"
                       value={book.title || ''}
-                      onChange={(e) => setBook({ ...book, title: e.target.value })}
+                      onChange={handleBookTitleChange}
                       onKeyDown={(e) => handleInputKeyDown(e, bookAuthorsRef)}
                     />
-                    <p className="text-sm text-primary ml-1 mt-1">{'참고서적을 추가하려면 반드시 제목을 작성해야 합니다.'}</p>
+                    <p className={`text-sm ml-1 mt-1 ${ titleError.book ? 'text-level-5' : 'text-primary' }`}>
+                      {titleError.book || '참고서적을 추가하려면 반드시 제목을 작성해야 합니다.'}
+                    </p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1 text-gray0">{'저자'}</label>
@@ -931,10 +985,12 @@ const ReferencesSection = ({ formData, setFormData }: ReferencesSectionProps) =>
                       placeholder="논문 제목"
                       className="w-full p-2 border border-gray4 rounded-md text-main"
                       value={academic.title || ''}
-                      onChange={(e) => setAcademic({ ...academic, title: e.target.value })}
+                      onChange={handleAcademicTitleChange}
                       onKeyDown={(e) => handleInputKeyDown(e, academicAuthorsRef)}
                     />
-                    <p className="text-sm text-primary ml-1 mt-1">{'연구논문을 추가하려면 반드시 제목을 작성해야 합니다.'}</p>
+                    <p className={`text-sm ml-1 mt-1 ${ titleError.academic ? 'text-level-5' : 'text-primary' }`}>
+                      {titleError.academic || '연구논문을 추가하려면 반드시 제목을 작성해야 합니다.'}
+                    </p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1 text-gray0">{'저자'}</label>
@@ -1055,10 +1111,12 @@ const ReferencesSection = ({ formData, setFormData }: ReferencesSectionProps) =>
                       placeholder="오픈소스 프로젝트 이름"
                       className="w-full p-2 border border-gray4 rounded-md text-main"
                       value={opensource.name || ''}
-                      onChange={(e) => setOpensource({ ...opensource, name: e.target.value })}
+                      onChange={handleOpensourceNameChange}
                       onKeyDown={(e) => handleInputKeyDown(e, opensourceLicenseRef)}
                     />
-                    <p className="text-sm text-primary ml-1 mt-1">{'오픈소스 프로젝트를 추가하려면 반드시 이름을 작성해야 합니다.'}</p>
+                    <p className={`text-sm ml-1 mt-1 ${ titleError.opensource ? 'text-level-5' : 'text-primary' }`}>
+                      {titleError.opensource || '오픈소스 프로젝트를 추가하려면 반드시 이름을 작성해야 합니다.'}
+                    </p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1 text-gray0">{'라이센스'}</label>
