@@ -220,6 +220,31 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
       }
 
       await response.json();
+
+      // 쿠키 업데이트를 위한 코드 추가
+      try {
+        const userInfoCookie = document.cookie
+          .split('; ')
+          .find((row) => row.startsWith('user-info='));
+
+        if (userInfoCookie) {
+          const userInfo = JSON.parse(decodeURIComponent(userInfoCookie.split('=')[1]));
+
+          const updatedUserInfo = {
+            ...userInfo,
+            name: formData.name,
+            intro: formData.intro,
+            social: formData.social,
+          };
+
+          const updatedCookie = encodeURIComponent(JSON.stringify(updatedUserInfo));
+          const cookieOptions = '; path=/; max-age=2592000'; // 30일 유효기간
+          document.cookie = `user-info=${ updatedCookie }${ cookieOptions }`;
+        }
+      } catch (cookieError) {
+        console.error('쿠키 업데이트 중 오류:', cookieError);
+      }
+
       showToast('프로필이 성공적으로 수정되었습니다!', 'success', 5000);
       router.push(`/profiles/${ params.slug }`);
     } catch (error: unknown) {
@@ -287,7 +312,7 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
     <>
       <div className="w-full mt-10 mb-2 md:mb-4">
         <h1 className="text-xl lg:text-2xl font-bold text-main">{'프로필 편집'}</h1>
-        <p className="text-gray2">{'프로필은 매일 자정(00:00)에 업데이트됩니다. 자정 이전에 수정된 내용은 반영되지 않을 수 있습니다.'}</p>
+        <p className="text-gray2">{'프로필 정보는 수정 후 즉시 반영됩니다.'}</p>
       </div>
 
       <form onSubmit={handleSubmit} noValidate>
