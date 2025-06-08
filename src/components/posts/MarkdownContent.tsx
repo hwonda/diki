@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MathJax } from 'better-react-mathjax';
 import { MathJaxProvider } from './MathJaxProvider';
 
@@ -95,15 +95,16 @@ interface MarkdownContentProps {
 }
 
 export default function MarkdownContent({ content }: MarkdownContentProps) {
-  const contentKey = useMemo(() => {
-    // 간단한 해시 함수 - 새 포스트 작성 시, 실시간 rerender가 되도록 하는 것인데, 더 좋은 방법이 있을 수 있음
-    return `${ content.slice(0, 20) }`;
+  const [renderKey, setRenderKey] = useState(0);
+
+  useEffect(() => {
+    setRenderKey((prev) => prev + 1);
   }, [content]);
 
   const segments = splitContentIntoSegments(content);
 
   return (
-    <MathJaxProvider key={contentKey}>
+    <MathJaxProvider key={renderKey}>
       <div>
         {/* 수식 처리 */}
         {segments.map((segment, i) => {
@@ -112,7 +113,7 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
 
           if (isMathBlock || isMathInline) {
             return (
-              <MathJax key={`math-${ i }`} inline={!isMathBlock} className={`${ isMathBlock ? 'markdown-math-block' : 'markdown-math-inline' }`}>
+              <MathJax key={`${ renderKey }-${ i }`} inline={!isMathBlock} className={`${ isMathBlock ? 'markdown-math-block' : 'markdown-math-inline' }`}>
                 {segment}
               </MathJax>
             );
