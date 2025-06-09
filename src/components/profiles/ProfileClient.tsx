@@ -143,17 +143,27 @@ const ProfileClient = ({
                     {'('}{profile.username}{') 님'}
                   </span>
                 </h1>
-                {profile.rank !== undefined && (
+                {profile.rank !== undefined ? (
                   <div className="flex flex-col">
                     <span className={`px-2 py-0.5 text-sm rounded-full text-white bg-level-${ profile.rank.current }`}>
                       {'Lv.'}{profile.rank.current}
                     </span>
                   </div>
+                ) : (
+                  <div className="flex flex-col">
+                    <span className='px-2 py-0.5 text-sm rounded-full text-white bg-level-0'>
+                      {'Lv.0'}
+                    </span>
+                  </div>
                 )}
                 {
-                  profile.role === 'owner' && (
+                  profile.role === 'owner' ? (
                     <span className='px-2 py-0.5 text-sm rounded-full text-white bg-primary dark:bg-secondary'>
                       {'Owner'}
+                    </span>
+                  ) : (
+                    <span className='px-2 py-0.5 text-sm rounded-full text-white bg-gray2'>
+                      {'Contributor'}
                     </span>
                   )
                 }
