@@ -221,31 +221,7 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
 
       await response.json();
 
-      // 쿠키 업데이트를 위한 코드 추가
-      try {
-        const userInfoCookie = document.cookie
-          .split('; ')
-          .find((row) => row.startsWith('user-info='));
-
-        if (userInfoCookie) {
-          const userInfo = JSON.parse(decodeURIComponent(userInfoCookie.split('=')[1]));
-
-          const updatedUserInfo = {
-            ...userInfo,
-            name: formData.name,
-            intro: formData.intro,
-            social: formData.social,
-          };
-
-          const updatedCookie = encodeURIComponent(JSON.stringify(updatedUserInfo));
-          const cookieOptions = '; path=/; max-age=2592000'; // 30일 유효기간
-          document.cookie = `user-info=${ updatedCookie }${ cookieOptions }`;
-        }
-      } catch (cookieError) {
-        console.error('쿠키 업데이트 중 오류:', cookieError);
-      }
-
-      showToast('프로필이 성공적으로 수정되었습니다!', 'success', 5000);
+      showToast('프로필 수정 요청이 접수되었습니다.', 'success', 5000);
       router.push(`/profiles/${ params.slug }`);
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : '프로필 수정 중 오류가 발생했습니다. 다시 시도해주세요.');
@@ -312,7 +288,7 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
     <>
       <div className="w-full mt-10 mb-2 md:mb-4">
         <h1 className="text-xl lg:text-2xl font-bold text-main">{'프로필 편집'}</h1>
-        <p className="text-gray2">{'프로필 정보는 수정 후 즉시 반영됩니다.'}</p>
+        <p className="text-gray2">{'프로필은 매일 자정(00:00)에 업데이트됩니다. 자정 이전에 수정된 내용은 반영되지 않을 수 있습니다.'}</p>
       </div>
 
       <form onSubmit={handleSubmit} noValidate>
@@ -468,6 +444,11 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
         onConfirm={updateProfile}
         title="프로필 수정"
         message="프로필 정보를 수정하시겠습니까?"
+        submessage={(
+          <p className="text-gray1 mt-1">
+            {'프로필은 매일 자정(00:00)에 업데이트되므로 자정 이전에 수정된 내용은 반영되지 않습니다.'}
+          </p>
+        )}
         confirmText="수정하기"
         cancelText="취소"
       />
