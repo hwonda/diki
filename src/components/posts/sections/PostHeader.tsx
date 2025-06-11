@@ -52,11 +52,11 @@ const PostHeader = ({ term, onShare }: PostHeaderProps) => {
     <div className='animate-intro sm:ml-5'>
       <div className='mt-10 sm:mt-32'>
         <div className="flex">
-          <span className="flex flex-wrap items-center text-3xl font-bold mb-0">
-            <span className='text-main'>{term.title?.ko}</span>
+          <span className="flex flex-wrap items-center font-bold">
+            <h1 className='text-main text-3xl mb-0'>{term.title?.ko}</h1>
             {
               term.title?.en && (
-                <span className='text-main break-all'>
+                <h1 className='text-main text-3xl mb-0 break-all'>
                   {'('}{term.title.en}{')'}
                   <div className='relative top-[2px] inline-block'>
                     <TooltipButton
@@ -67,7 +67,7 @@ const PostHeader = ({ term, onShare }: PostHeaderProps) => {
                       <Share2 className='size-6' />
                     </TooltipButton>
                   </div>
-                </span>
+                </h1>
               )
             }
             <span className='inline-flex items-center' />
