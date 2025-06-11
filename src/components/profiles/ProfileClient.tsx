@@ -7,6 +7,8 @@ import { TermData, Profile } from '@/types';
 import ContactButtonWrapper from './ContactButtonWrapper';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
+import TooltipButton from '@/components/ui/TooltipButton';
+
 interface ProfileClientProps {
   username: string;
   profile: Profile;
@@ -145,15 +147,21 @@ const ProfileClient = ({
                 </h1>
                 {profile.rank !== undefined ? (
                   <div className="flex flex-col">
-                    <span className={`px-2 py-0.5 text-sm rounded-full text-white bg-level-${ profile.rank.current }`}>
+                    <TooltipButton
+                      tooltip={`다음 레벨(Lv.${ profile.rank.current + 1 })까지 포스트 ${ profile.rank.remainingForNextRank }개 남았습니다.`}
+                      className={`px-2 py-0.5 text-sm rounded-full text-white bg-level-${ profile.rank.current }`}
+                    >
                       {'Lv.'}{profile.rank.current}
-                    </span>
+                    </TooltipButton>
                   </div>
                 ) : (
                   <div className="flex flex-col">
-                    <span className='px-2 py-0.5 text-sm rounded-full text-white bg-level-0'>
+                    <TooltipButton
+                      tooltip="다음 레벨(Lv.1)까지 포스트 1개 남았습니다."
+                      className="px-2 py-0.5 text-sm rounded-full text-white bg-level-0"
+                    >
                       {'Lv.0'}
-                    </span>
+                    </TooltipButton>
                   </div>
                 )}
                 {
