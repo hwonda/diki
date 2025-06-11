@@ -51,40 +51,55 @@ const EmailPopover = ({ email }: { email: string }) => {
 
   return (
     <div className="relative">
-      <TooltipButton
-        ref={buttonRef}
-        tooltip="이메일"
-        onClick={() => setShowPopover(!showPopover)}
-        aria-label="이메일"
-        className={`p-2 border border-light rounded-md shrink-0 hover:border-primary hover:bg-background-secondary ${
-          showPopover ? 'border-primary bg-background-secondary' : ''
-        }`}
-        newWindow={true}
-      >
-        <Mail className='size-4' />
-      </TooltipButton>
-
-      {showPopover && (
-        <div
-          ref={popoverRef}
-          className="animate-slideDown absolute left-[-90px] top-[42px] z-50 w-full min-w-52 p-2
-            flex justify-between items-center rounded-lg bg-background border border-primary shadow-lg
-            before:content-[''] before:absolute before:top-[-8px] before:left-[98px]
-            before:size-0 before:border-x-8 before:border-x-transparent before:border-b-8
-            before:border-b-primary"
+      <div className="hidden md:block">
+        <TooltipButton
+          ref={buttonRef}
+          tooltip="이메일"
+          onClick={() => setShowPopover(!showPopover)}
+          aria-label="이메일 확인 팝오버"
+          className={`p-2 border border-light rounded-md shrink-0 hover:border-primary hover:bg-background-secondary ${
+            showPopover ? 'border-primary bg-background-secondary' : ''
+          }`}
+          newWindow={true}
         >
-          <p className="p-1 rounded-l-md text-sm font-medium text-main truncate">{email}</p>
-          <button
-            onClick={handleCopyEmail}
-            className={`p-1.5 flex items-center justify-center text-xs rounded-r-md ${
-              copySuccess ? 'text-level-3' : 'text-gray1 hover:text-primary'
-            }`}
-            disabled={copySuccess}
+          <Mail className='size-4' />
+        </TooltipButton>
+
+        {showPopover && (
+          <div
+            ref={popoverRef}
+            className="animate-slideDown absolute left-[-90px] top-[42px] z-50 w-full min-w-52 p-2
+        flex justify-between items-center rounded-lg bg-background border border-primary shadow-lg
+        before:content-[''] before:absolute before:top-[-8px] before:left-[98px]
+        before:size-0 before:border-x-8 before:border-x-transparent before:border-b-8
+        before:border-b-primary"
           >
-            {copySuccess ? <Check className="size-4" /> : <p className="text-gray1 hover:text-primary">{'copy'}</p>}
-          </button>
-        </div>
-      )}
+            <p className="p-1 rounded-l-md text-sm font-medium text-main truncate">{email}</p>
+            <button
+              onClick={handleCopyEmail}
+              className={`p-1.5 flex items-center justify-center text-xs rounded-r-md ${
+                copySuccess ? 'text-level-3' : 'text-gray1 hover:text-primary'
+              }`}
+              disabled={copySuccess}
+            >
+              {copySuccess ? <Check className="size-4" /> : <p className="text-gray1 hover:text-primary">{'copy'}</p>}
+            </button>
+          </div>
+        )}
+      </div>
+      <div className="block md:hidden">
+        <TooltipButton
+          tooltip="이메일 전송"
+          aria-label="이메일 전송"
+          onClick={() => {
+            window.open(`mailto:${ email }`, '_blank');
+          }}
+          className="p-2 border border-light rounded-md shrink-0 hover:border-primary hover:bg-background-secondary"
+          newWindow={true}
+        >
+          <Mail className='size-4' />
+        </TooltipButton>
+      </div>
     </div>
   );
 };
