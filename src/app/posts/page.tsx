@@ -5,6 +5,7 @@ import Footer from '@/components/common/Footer';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { dikiMetadata } from '@/constants';
 import { Metadata } from 'next';
+import JsonLdSchema, { generateCollectionPageSchema } from '@/components/meta/JsonLdSchema';
 
 export function generateMetadata(): Metadata {
   return {
@@ -13,7 +14,6 @@ export function generateMetadata(): Metadata {
     alternates: {
       canonical: `${ dikiMetadata.url }/posts`,
     },
-    keywords: ['디키', 'Diki', '데이터사전', '데이터용어', '포스트목록', '용어사전'],
     openGraph: {
       title: '포스트 목록',
       description: '모든 용어와 포스트를 확인할 수 있는 페이지입니다.',
@@ -46,6 +46,14 @@ export function generateStaticParams() {
 export default async function PostsPage() {
   return (
     <div className="relative">
+      <JsonLdSchema
+        id="collection-page-schema"
+        schema={generateCollectionPageSchema(
+          '포스트 목록',
+          '모든 용어와 포스트를 확인할 수 있는 페이지입니다.',
+          `${ dikiMetadata.url }/posts`
+        )}
+      />
       <Suspense fallback={<LoadingSpinner />}>
         <div className='animate-intro relative z-20'>
           <SearchDetailInput />
