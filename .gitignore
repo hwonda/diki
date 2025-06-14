@@ -229,3 +229,5 @@ service-account.json
 
 # output
 /src/data
+
+.cursor
