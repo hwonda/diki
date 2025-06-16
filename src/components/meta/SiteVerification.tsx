@@ -1,5 +1,5 @@
 const GoogleVerification = () => {
-  const siteVerificationId = 'nKKjpnhW--8f7QArj2n_an37HrsOZNHmbFV0HWXDM04';
+  const siteVerificationId = 'ZrRqbDQ_hD1sYIWulMtDDszH4eakdZ2x68H-h2d11HI';
 
   return(
     <>
