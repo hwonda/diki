@@ -153,7 +153,7 @@ const config: Config = {
             '.prose .tag-button, .tag-button-no-link': {
               color: 'var(--text-secondary)',
               border: '1px solid var(--border)',
-              padding: '2px 7px 3px 8px',
+              padding: '3px 7px 3px 8px',
               borderRadius: '0.5rem',
               fontSize: '1rem',
               marginRight: '0.25rem',
