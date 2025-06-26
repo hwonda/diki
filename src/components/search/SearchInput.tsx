@@ -137,7 +137,7 @@ const SearchInput = () => {
     dispatch(setSearchQuery(query));
     dispatch(setSearchedTerms([term]));
     setIsModalOpen(false);
-    router.push(term.url ?? '/not-found');
+    router.push(`/posts?q=${ query.trim().split(' ').join('+') }`);
   };
 
   return (
