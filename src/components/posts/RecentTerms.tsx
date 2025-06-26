@@ -7,13 +7,11 @@ import { TermData } from '@/types';
 import { useEffect, useRef, useState } from 'react';
 import { Rocket } from 'lucide-react';
 
-const skeleton_count = 5;
-const skeleton_width = 110;
+const skeleton_count = 6;
 
 const SkeletonItem = () => (
   <div
-    style={{ width: `${ skeleton_width }px` }}
-    className="h-[32px] py-1.5 px-2.5 flex justify-center items-center rounded-lg border border-light shrink-0 bg-gray5 animate-pulse"
+    className="min-w-[121px] h-[34px] flex justify-center items-center rounded-lg border border-light shrink-0 bg-gray5 animate-pulse"
   />
 );
 
@@ -74,7 +72,7 @@ export default function RecentTerms() {
         <Rocket className='size-4' />
         <span className='text-base text-sub font-semibold'>{'최신 포스트'}</span>
       </div>
-      <div ref={containerRef} className='flex justify-between gap-2 overflow-hidden'>
+      <div ref={containerRef} className='flex justify-between overflow-hidden gap-2'>
         {isLocalLoading ? (
           Array(skeleton_count).fill(0).map((_, index) => (
             <SkeletonItem key={`skeleton-${ index }`} />
