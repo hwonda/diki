@@ -21,6 +21,11 @@ const Header = () => {
   const { theme, resolvedTheme } = useTheme();
   const [isThemeChanging, setIsThemeChanging] = useState(false);
   const { isLoggedIn } = useSelector((state: RootState) => state.auth);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleThemeChange = () => {
@@ -50,13 +55,24 @@ const Header = () => {
         <div className='flex justify-between items-center max-w-6xl mx-auto px-4 py-3 md:px-6 lg:px-8'>
           <div className='flex items-center gap-3'>
             <AuthStatus />
-            <Link
-              href={isLoggedIn ? '/create' : '/login'}
-              className='rounded-full px-3 py-1 border border-gray3 sm:border-none text-main hover:text-primary hover:bg-gray4 transition-all duration-300'
-              aria-label={isLoggedIn ? '기여하기(새 포스트 작성)' : '로그인'}
-            >
-              {isLoggedIn ? '기여하기' : '로그인'}
-            </Link>
+            {!mounted ? (
+              <div className="h-8 w-[76px] flex items-center justify-center">
+                <div className="relative size-5">
+                  <div className="absolute inset-0 rounded-full border-2 border-t-primary border-x-transparent border-b-secondary animate-spin" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="size-2 rounded-full bg-primary animate-pulse" />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <Link
+                href={isLoggedIn ? '/create' : '/login'}
+                className='rounded-full px-3 py-1 border border-gray3 sm:border-none text-main hover:text-primary hover:bg-gray4 transition-all duration-300'
+                aria-label={isLoggedIn ? '기여하기(새 포스트 작성)' : '로그인'}
+              >
+                {isLoggedIn ? '기여하기' : '로그인'}
+              </Link>
+            )}
           </div>
 
           <div className='flex items-center gap-3'>

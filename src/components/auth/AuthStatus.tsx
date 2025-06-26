@@ -35,11 +35,7 @@ export default function AuthStatus() {
     }
   };
 
-  if (loading) {
-    return <div className="w-[80px] h-[36px]" />; // 로딩 중에는 같은 크기의 빈 공간 유지
-  }
-
-  if (!isLoggedIn || !user) {
+  if (loading || !isLoggedIn || !user) {
     return null;
   }
 

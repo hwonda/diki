@@ -25,7 +25,16 @@ const ThemeSwitch = () => {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted) return (
+    <div className="size-[32px] flex items-center justify-center">
+      <div className="relative size-5">
+        <div className="absolute inset-0 rounded-full border-2 border-t-primary border-x-transparent border-b-secondary animate-spin" />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="size-2 rounded-full bg-primary animate-pulse" />
+        </div>
+      </div>
+    </div>
+  );
 
   const ThemeItem = ({ newTheme, Icon, label }: DropdownItemProps) => (
     <DropdownItem onClick={() => setTheme(newTheme)} aria-label={`${ label } 테마 선택`}>
