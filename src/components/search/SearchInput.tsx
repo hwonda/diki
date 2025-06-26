@@ -177,38 +177,44 @@ const SearchInput = () => {
           <div className="w-full suggestions-modal">
             {searchQuery ? (
               recommendedTerms.length > 0 ? (
-                <div ref={containerRef} className="flex flex-col max-h-60 overflow-y-auto">
-                  {recommendedTerms.map((term, index) => (
-                    <div
-                      key={term.id}
-                      ref={(el) => {
-                        suggestionRefs.current[index] = el;
-                      }}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        handleSuggestionClick(term);
-                      }}
-                      onMouseEnter={() => setSelectedIndex(index)}
-                      className={`
+                <>
+                  <div ref={containerRef} className="flex flex-col max-h-60 overflow-y-auto">
+                    {recommendedTerms.map((term, index) => (
+                      <div
+                        key={term.id}
+                        ref={(el) => {
+                          suggestionRefs.current[index] = el;
+                        }}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          handleSuggestionClick(term);
+                        }}
+                        onMouseEnter={() => setSelectedIndex(index)}
+                        className={`
                         flex items-center px-4 py-2 hover:bg-gray4 cursor-pointer
-                        ${ index === recommendedTerms.length - 1 ? 'rounded-b-[21px]' : '' }
                         ${ selectedIndex === index ? 'bg-gray4' : '' }
                       `}
-                    >
-                      <Search className="text-gray1 size-4 mr-2 shrink-0" />
-                      <div className="flex flex-col">
-                        <span className="text-sub text-sm">
-                          {term.title?.ko || term.title?.en}
-                        </span>
-                        {term.description?.short && (
-                          <span className="text-[13px] text-gray1 line-clamp-1">
-                            {term.description.short}
+                      >
+                        <Search className="text-gray1 size-4 mr-2 shrink-0" />
+                        <div className="flex flex-col">
+                          <span className="text-sub text-sm">
+                            {term.title?.ko || term.title?.en}
                           </span>
-                        )}
+                          {term.description?.short && (
+                            <span className="text-[13px] text-gray1 line-clamp-1">
+                              {term.description.short}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                  <div className='flex items-center justify-end pr-4'>
+                    <p className='text-gray2 text-sm'>
+                      {'화살표와 Enter키를 사용해 검색 결과로 이동할 수 있습니다.\r'}
+                    </p>
+                  </div>
+                </>
               ) : (
                 <div className="flex items-center px-4 py-10 text-sub">
                   {'검색 결과가 없습니다.'}
