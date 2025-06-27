@@ -53,7 +53,7 @@ const Header = () => {
         style={{ transform: 'translateY(var(--header-transform, 0))' }}
       >
         <div className='flex justify-between items-center max-w-6xl mx-auto px-4 py-3 md:px-6 lg:px-8'>
-          <div className='flex items-center gap-3'>
+          <div className='flex items-center gap-1.5 sm:gap-3'>
             <AuthStatus />
             {!mounted ? (
               <div className="h-8 w-[76px] flex items-center justify-center">
@@ -75,8 +75,8 @@ const Header = () => {
             )}
           </div>
 
-          <div className='flex items-center gap-3'>
-            <div className='w-full flex justify-end items-center gap-3'>
+          <div className='flex items-center gap-1.5 sm:gap-3'>
+            <div className='w-full flex justify-end items-center gap-1.5 sm:gap-3'>
               {!isHomePage && (
                 <Link href='/' onClick={handleClickHome} aria-label='홈으로 이동'>
                   <span className='h-8 flex items-center text-3xl font-bold'>
