@@ -23,10 +23,10 @@ export default function ThankYouPage() {
         <h1 className="text-2xl font-bold">{'감사합니다!'}</h1>
 
         <div className="py-4">
-          <p className="mb- text-sub">
-            {'작성하신 포스트가 Github Issue(비공개 레포지토리)에 등록되었으며'}
+          <p className="mb- text-sub whitespace-pre-line">
+            {'작성하신 포스트가 Github Issue(비공개 레포지토리)에'}
             <br />
-            {'내부 검토 후 반영될 예정입니다.'}
+            {'등록되었으며, 내부 검토 후 반영될 예정입니다.'}
           </p>
 
           {/* {issueUrl && (
