@@ -1,4 +1,4 @@
-name: git push into hwonda repo for deploy to vercel
+name: deploy production to vercel
 
 permissions:
   contents: read
