@@ -33,9 +33,12 @@ const TagsSection = ({ formData, setFormData }: TagsSectionProps) => {
   }, [formData.tags]);
 
   const handleLinkSelect = (url: string, title: string) => {
+    // URL에서 /posts/ 접두사 제거
+    const cleanUrl = url.replace(/^\/posts\//, '');
+
     const tagToAdd = {
       name: title,
-      internal_link: url,
+      internal_link: cleanUrl,
     };
 
     setFormData((prev) => ({
@@ -65,7 +68,7 @@ const TagsSection = ({ formData, setFormData }: TagsSectionProps) => {
               </button>
             </div>
             {tag.internal_link && (
-              <Link href={tag.internal_link} target="_blank" rel="noopener noreferrer" className="w-full text-sm text-primary hover:underline truncate">
+              <Link href={`/posts/${ tag.internal_link }`} target="_blank" rel="noopener noreferrer" className="w-full text-sm text-primary hover:underline truncate">
                 {`${ tag.internal_link }`}
               </Link>
             )}
