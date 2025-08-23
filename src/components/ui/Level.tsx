@@ -2,9 +2,10 @@ import React from 'react';
 
 interface LevelProps {
   level?: number;
+  customLabel?: string;
 }
 
-const Level = ({ level = 0 }: LevelProps) => {
+const Level = ({ level = 0, customLabel = '요약' }: LevelProps) => {
   const getLevelInfo = (level: number) => {
     switch (level) {
       case 1:
@@ -39,7 +40,7 @@ const Level = ({ level = 0 }: LevelProps) => {
         };
       default:
         return {
-          label: '요약',
+          label: customLabel,
           gradientColors: ['from-pink-300', 'to-emerald-300'],
           bgColor: 'bg-background',
         };

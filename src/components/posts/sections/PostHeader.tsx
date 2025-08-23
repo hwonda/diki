@@ -130,27 +130,32 @@ const PostHeader = ({ term, onShare }: PostHeaderProps) => {
         level={term.difficulty?.level ?? 0}
         description={term.difficulty?.description ?? ''}
       />
-      <div className='flex flex-wrap gap-1 mt-1.5 md:hidden'>
+      <div className='flex items-start gap-1 mt-1.5 md:hidden'>
         {term.tags && term.tags.length > 0 && (
           <>
-            {term.tags.map((item) => (
-              item.internal_link ? (
-                <Fragment key={item.name}>
-                  <Link
-                    href={transformToSlug(item.internal_link)}
-                    className='group flex shrink-0 justify-center items-center gap-1 tag-button rounded-3xl text-sm hover:no-underline border-accent text-accent hover:bg-background-secondary mt-px pl-2.5 pr-[9px]'
-                  >
-                    <span className='text-primary'>{item.name}</span>
-                  </Link>
-                </Fragment>
-              ) : (
-                <Fragment key={item.name}>
-                  <span className='tag-button-no-link flex justify-center shrink-0 rounded-lg text-sm text-sub mt-px pl-2.5 pr-[9px] bg-gray5'>
-                    {item.name}
-                  </span>
-                </Fragment>
-              )
-            ))}
+            <div>
+              <Level customLabel="태그" />
+            </div>
+            <div className='flex flex-wrap gap-1'>
+              {term.tags.map((item) => (
+                item.internal_link ? (
+                  <Fragment key={item.name}>
+                    <Link
+                      href={transformToSlug(item.internal_link)}
+                      className='group flex shrink-0 justify-center items-center gap-1 tag-button rounded-3xl text-sm hover:no-underline border-accent text-accent hover:bg-background-secondary mt-px pl-2.5 pr-[9px]'
+                    >
+                      <span className='text-primary'>{item.name}</span>
+                    </Link>
+                  </Fragment>
+                ) : (
+                  <Fragment key={item.name}>
+                    <span className='tag-button-no-link flex justify-center shrink-0 rounded-lg text-sm text-sub mt-px pl-2.5 pr-[9px] bg-gray5'>
+                      {item.name}
+                    </span>
+                  </Fragment>
+                )
+              ))}
+            </div>
           </>
         )}
       </div>
