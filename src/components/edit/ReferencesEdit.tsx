@@ -8,14 +8,14 @@ import { TermData, References, Tutorial, Book, Academic, Opensource } from '@/ty
 import { X } from 'lucide-react';
 
 export interface ReferencesEditHandle {
-  focus: () => void;
+  focus: ()=> void;
 }
 
 interface ReferencesSectionProps {
   formData?: TermData;
   setFormData: React.Dispatch<React.SetStateAction<TermData>>;
   autoFocus?: boolean;
-  onTabToNext?: () => void;
+  onTabToNext?: ()=> void;
 }
 
 type ReferenceTab = 'tutorial' | 'book' | 'academic' | 'opensource';
@@ -725,102 +725,102 @@ const ReferencesSection = forwardRef<ReferencesEditHandle, ReferencesSectionProp
       </div>
 
       {/* 각 탭 컨텐츠를 감싸는 컨테이너 */}
-      <div className="tab-content-container relative my-2">
+      <div className="relative mb-2">
         {/* 튜토리얼 탭 컨텐츠 */}
         {activeTab === 'tutorial' && (
           <div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-              {formData?.references?.tutorials?.map((item, index) => (
-                <div key={index} className="bg-gray5 rounded-lg p-3 flex flex-col border border-gray4 mb-2">
-                  <div className="flex justify-between items-start">
-                    <span className="font-medium truncate">{item.title}</span>
-                    <button
-                      type="button"
-                      onClick={(e) => handleRemoveTutorial(index, e)}
-                      className="ml-2 text-level-5"
-                    >
-                      <X className="size-5" />
-                    </button>
+            {formData?.references?.tutorials && formData.references.tutorials.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 my-2 gap-2">
+                {formData.references.tutorials.map((item, index) => (
+                  <div key={index} className="bg-gray5 rounded-lg p-3 flex flex-col border border-gray4">
+                    <div className="flex justify-between items-start">
+                      <span className="font-medium truncate">{item.title}</span>
+                      <button
+                        type="button"
+                        onClick={(e) => handleRemoveTutorial(index, e)}
+                        className="ml-2 text-level-5"
+                      >
+                        <X className="size-5" />
+                      </button>
+                    </div>
+                    {item.platform && <span className="text-sm">{`플랫폼: ${ item.platform }`}</span>}
+                    {item.external_link && (
+                      <Link href={item.external_link} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline truncate">
+                        {`링크: ${ item.external_link }`}
+                      </Link>
+                    )}
                   </div>
-                  {item.platform && <span className="text-sm">{`플랫폼: ${ item.platform }`}</span>}
-                  {item.external_link && (
-                    <Link href={item.external_link} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline truncate">
-                      {`링크: ${ item.external_link }`}
-                    </Link>
-                  )}
+                ))}
+              </div>
+            )}
+            <div className="p-3 bg-gray5 rounded-b-lg">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-gray0">{'제목'}<span className="text-level-5 text-xs ml-0.5">{'*'}</span></label>
+                  <input
+                    ref={tutorialTitleRef}
+                    type="text"
+                    placeholder="튜토리얼 제목"
+                    className="w-full p-2 border border-gray4 rounded-md text-main"
+                    value={tutorial.title || ''}
+                    onChange={handleTutorialTitleChange}
+                    onKeyDown={(e) => handleInputKeyDown(e, tutorialPlatformRef)}
+                  />
+                  <p className={`text-sm ml-1 mt-1 ${ titleError.tutorial ? 'text-level-5' : 'text-primary' }`}>
+                    {titleError.tutorial || '튜토리얼을 추가하려면 반드시 제목을 작성해야 합니다.'}
+                  </p>
                 </div>
-              ))}
-            </div>
-            <div className="space-y-4">
-              <div className="border border-gray4 p-3 rounded-md">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-sm font-medium mb-1 text-gray0">{'제목'}<span className="text-level-5 text-xs ml-0.5">{'*'}</span></label>
-                    <input
-                      ref={tutorialTitleRef}
-                      type="text"
-                      placeholder="튜토리얼 제목"
-                      className="w-full p-2 border border-gray4 rounded-md text-main"
-                      value={tutorial.title || ''}
-                      onChange={handleTutorialTitleChange}
-                      onKeyDown={(e) => handleInputKeyDown(e, tutorialPlatformRef)}
-                    />
-                    <p className={`text-sm ml-1 mt-1 ${ titleError.tutorial ? 'text-level-5' : 'text-primary' }`}>
-                      {titleError.tutorial || '튜토리얼을 추가하려면 반드시 제목을 작성해야 합니다.'}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1 text-gray0">{'플랫폼'}</label>
-                    <input
-                      ref={tutorialPlatformRef}
-                      type="text"
-                      placeholder="플랫폼 (ex. TensorFlow, PyTorch, OpenCV)"
-                      className="w-full p-2 border border-gray4 rounded-md text-main"
-                      value={tutorial.platform || ''}
-                      onChange={(e) => setTutorial({ ...tutorial, platform: e.target.value })}
-                      onKeyDown={(e) => handleInputKeyDown(e, tutorialLinkRef)}
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium mb-1 text-gray0">{'링크'}<span className="text-level-5 text-xs ml-0.5">{'*'}</span></label>
-                    <input
-                      ref={tutorialLinkRef}
-                      type="url"
-                      placeholder="https://..."
-                      className="w-full p-2 border border-gray4 rounded-md text-main"
-                      value={tutorial.external_link || ''}
-                      onChange={handleTutorialLinkChange}
-                      onFocus={handleLinkFocus}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
-                          e.preventDefault();
-                          handleAddTutorial(e as unknown as React.MouseEvent<Element, MouseEvent>);
-                        }
-                      }}
-                    />
-                    <p className={`text-sm ml-1 mt-1 ${ linkError && activeTab === 'tutorial' ? 'text-level-5' : 'text-primary' }`}>
-                      {linkError && activeTab === 'tutorial' ? linkError : '튜토리얼을 추가하려면 반드시 링크를 작성해야 합니다.'}
-                    </p>
-                  </div>
-                  <div className="md:col-span-2 flex justify-end">
-                    <button
-                      type="button"
-                      onClick={handleAddTutorial}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Tab' && !e.shiftKey && onTabToNext) {
-                          e.preventDefault();
-                          onTabToNext();
-                        }
-                      }}
-                      className={`px-4 py-2 rounded-md ${
-                        tutorial.title?.trim() && tutorial.external_link?.trim()
-                          ? 'bg-primary dark:bg-secondary text-white hover:opacity-90'
-                          : 'text-main bg-gray4 hover:text-white hover:bg-gray3'
-                      }`}
-                    >
-                      {'튜토리얼 추가'}
-                    </button>
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-gray0">{'플랫폼'}</label>
+                  <input
+                    ref={tutorialPlatformRef}
+                    type="text"
+                    placeholder="플랫폼 (ex. TensorFlow, PyTorch, OpenCV)"
+                    className="w-full p-2 border border-gray4 rounded-md text-main"
+                    value={tutorial.platform || ''}
+                    onChange={(e) => setTutorial({ ...tutorial, platform: e.target.value })}
+                    onKeyDown={(e) => handleInputKeyDown(e, tutorialLinkRef)}
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium mb-1 text-gray0">{'링크'}<span className="text-level-5 text-xs ml-0.5">{'*'}</span></label>
+                  <input
+                    ref={tutorialLinkRef}
+                    type="url"
+                    placeholder="https://..."
+                    className="w-full p-2 border border-gray4 rounded-md text-main"
+                    value={tutorial.external_link || ''}
+                    onChange={handleTutorialLinkChange}
+                    onFocus={handleLinkFocus}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                        e.preventDefault();
+                        handleAddTutorial(e as unknown as React.MouseEvent<Element, MouseEvent>);
+                      }
+                    }}
+                  />
+                  <p className={`text-sm ml-1 mt-1 ${ linkError && activeTab === 'tutorial' ? 'text-level-5' : 'text-primary' }`}>
+                    {linkError && activeTab === 'tutorial' ? linkError : '튜토리얼을 추가하려면 반드시 링크를 작성해야 합니다.'}
+                  </p>
+                </div>
+                <div className="md:col-span-2 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={handleAddTutorial}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Tab' && !e.shiftKey && onTabToNext) {
+                        e.preventDefault();
+                        onTabToNext();
+                      }
+                    }}
+                    className={`px-4 py-2 rounded-md ${
+                      tutorial.title?.trim() && tutorial.external_link?.trim()
+                        ? 'bg-primary dark:bg-secondary text-white hover:opacity-90'
+                        : 'text-main bg-gray4 hover:text-white hover:bg-gray3'
+                    }`}
+                  >
+                    {'튜토리얼 추가'}
+                  </button>
                 </div>
               </div>
             </div>
@@ -830,33 +830,35 @@ const ReferencesSection = forwardRef<ReferencesEditHandle, ReferencesSectionProp
         {/* 참고서적 탭 컨텐츠 */}
         {activeTab === 'book' && (
           <div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-              {formData?.references?.books?.map((item, index) => (
-                <div key={index} className="bg-gray5 rounded-lg p-3 flex flex-col border border-gray4 mb-2">
-                  <div className="flex justify-between items-start">
-                    <span className="font-medium truncate">{item.title}</span>
-                    <button
-                      type="button"
-                      onClick={(e) => handleRemoveBook(index, e)}
-                      className="ml-2 text-level-5"
-                    >
-                      <X className="size-5" />
-                    </button>
+            {formData?.references?.books && formData.references.books.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 my-2 gap-2">
+                {formData?.references?.books?.map((item, index) => (
+                  <div key={index} className="bg-gray5 rounded-lg p-3 flex flex-col border border-gray4">
+                    <div className="flex justify-between items-start">
+                      <span className="font-medium truncate">{item.title}</span>
+                      <button
+                        type="button"
+                        onClick={(e) => handleRemoveBook(index, e)}
+                        className="ml-2 text-level-5"
+                      >
+                        <X className="size-5" />
+                      </button>
+                    </div>
+                    {item.authors && item.authors.length > 0 && <span className="text-sm">{`저자: ${ item.authors.join(', ') }`}</span>}
+                    {item.publisher && <span className="text-sm">{`출판사: ${ item.publisher }`}</span>}
+                    {item.year && <span className="text-sm">{`출판년도: ${ item.year }`}</span>}
+                    {item.isbn && <span className="text-sm">{`ISBN: ${ item.isbn }`}</span>}
+                    {item.external_link && (
+                      <Link href={item.external_link} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline truncate">
+                        {`링크: ${ item.external_link }`}
+                      </Link>
+                    )}
                   </div>
-                  {item.authors && item.authors.length > 0 && <span className="text-sm">{`저자: ${ item.authors.join(', ') }`}</span>}
-                  {item.publisher && <span className="text-sm">{`출판사: ${ item.publisher }`}</span>}
-                  {item.year && <span className="text-sm">{`출판년도: ${ item.year }`}</span>}
-                  {item.isbn && <span className="text-sm">{`ISBN: ${ item.isbn }`}</span>}
-                  {item.external_link && (
-                    <Link href={item.external_link} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline truncate">
-                      {`링크: ${ item.external_link }`}
-                    </Link>
-                  )}
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
             <div className="space-y-4">
-              <div className="border border-gray4 p-3 rounded-md">
+              <div className="p-3 bg-gray5 rounded-b-lg">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-sm font-medium mb-1 text-gray0">{'제목'}<span className="text-level-5 text-xs ml-0.5">{'*'}</span></label>
@@ -976,32 +978,34 @@ const ReferencesSection = forwardRef<ReferencesEditHandle, ReferencesSectionProp
         {/* 연구논문 탭 컨텐츠 */}
         {activeTab === 'academic' && (
           <div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-              {formData?.references?.academic?.map((item, index) => (
-                <div key={index} className="bg-gray5 rounded-lg p-3 flex flex-col border border-gray4 mb-2">
-                  <div className="flex justify-between items-start">
-                    <span className="font-medium truncate">{item.title}</span>
-                    <button
-                      type="button"
-                      onClick={(e) => handleRemoveAcademic(index, e)}
-                      className="ml-2 text-level-5"
-                    >
-                      <X className="size-5" />
-                    </button>
+            {formData?.references?.academic && formData.references.academic.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 my-2 gap-2">
+                {formData.references.academic.map((item, index) => (
+                  <div key={index} className="bg-gray5 rounded-lg p-3 flex flex-col border border-gray4">
+                    <div className="flex justify-between items-start">
+                      <span className="font-medium truncate">{item.title}</span>
+                      <button
+                        type="button"
+                        onClick={(e) => handleRemoveAcademic(index, e)}
+                        className="ml-2 text-level-5"
+                      >
+                        <X className="size-5" />
+                      </button>
+                    </div>
+                    {item.authors && item.authors.length > 0 && <span className="text-sm">{`저자: ${ item.authors.join(', ') }`}</span>}
+                    {item.year && <span className="text-sm">{`출판년도: ${ item.year }`}</span>}
+                    {item.doi && <span className="text-sm">{`DOI: ${ item.doi }`}</span>}
+                    {item.external_link && (
+                      <Link href={item.external_link} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline truncate">
+                        {`링크: ${ item.external_link }`}
+                      </Link>
+                    )}
                   </div>
-                  {item.authors && item.authors.length > 0 && <span className="text-sm">{`저자: ${ item.authors.join(', ') }`}</span>}
-                  {item.year && <span className="text-sm">{`출판년도: ${ item.year }`}</span>}
-                  {item.doi && <span className="text-sm">{`DOI: ${ item.doi }`}</span>}
-                  {item.external_link && (
-                    <Link href={item.external_link} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline truncate">
-                      {`링크: ${ item.external_link }`}
-                    </Link>
-                  )}
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
             <div className="space-y-4">
-              <div className="border border-gray4 p-3 rounded-md">
+              <div className="p-3 bg-gray5 rounded-b-lg">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-sm font-medium mb-1 text-gray0">{'제목'}<span className="text-level-5 text-xs ml-0.5">{'*'}</span></label>
@@ -1109,31 +1113,33 @@ const ReferencesSection = forwardRef<ReferencesEditHandle, ReferencesSectionProp
         {/* 오픈소스 탭 컨텐츠 */}
         {activeTab === 'opensource' && (
           <div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-              {formData?.references?.opensource?.map((item, index) => (
-                <div key={index} className="bg-gray5 rounded-lg p-3 flex flex-col border border-gray4 mb-2">
-                  <div className="flex justify-between items-start">
-                    <span className="font-medium truncate">{item.name}</span>
-                    <button
-                      type="button"
-                      onClick={(e) => handleRemoveOpensource(index, e)}
-                      className="ml-2 text-level-5"
-                    >
-                      <X className="size-5" />
-                    </button>
+            {formData?.references?.opensource && formData.references.opensource.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 my-2 gap-2">
+                {formData.references.opensource.map((item, index) => (
+                  <div key={index} className="bg-gray5 rounded-lg p-3 flex flex-col border border-gray4">
+                    <div className="flex justify-between items-start">
+                      <span className="font-medium truncate">{item.name}</span>
+                      <button
+                        type="button"
+                        onClick={(e) => handleRemoveOpensource(index, e)}
+                        className="ml-2 text-level-5"
+                      >
+                        <X className="size-5" />
+                      </button>
+                    </div>
+                    {item.license && <span className="text-sm">{`라이선스: ${ item.license }`}</span>}
+                    {item.description && <span className="text-sm">{`설명: ${ item.description }`}</span>}
+                    {item.external_link && (
+                      <Link href={item.external_link} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline truncate">
+                        {`링크: ${ item.external_link }`}
+                      </Link>
+                    )}
                   </div>
-                  {item.license && <span className="text-sm">{`라이선스: ${ item.license }`}</span>}
-                  {item.description && <span className="text-sm">{`설명: ${ item.description }`}</span>}
-                  {item.external_link && (
-                    <Link href={item.external_link} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline truncate">
-                      {`링크: ${ item.external_link }`}
-                    </Link>
-                  )}
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
             <div className="space-y-4">
-              <div className="border border-gray4 p-3 rounded-md">
+              <div className="p-3 bg-gray5 rounded-b-lg">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-sm font-medium mb-1 text-gray0">{'이름'}<span className="text-level-5 text-xs ml-0.5">{'*'}</span></label>
