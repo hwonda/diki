@@ -9,13 +9,13 @@ import { X } from 'lucide-react';
 import InternalLinkSearch from './InternalLinkSearch';
 
 export interface TagsEditHandle {
-  focus: () => void;
+  focus: ()=> void;
 }
 
 interface TagsSectionProps {
   formData: TermData;
   setFormData: React.Dispatch<React.SetStateAction<TermData>>;
-  onTabToNext?: () => void;
+  onTabToNext?: ()=> void;
   autoFocus?: boolean;
 }
 

@@ -7,14 +7,14 @@ import { isFieldEmpty, getFieldGuidance, getRequiredFieldError } from '@/utils/f
 import CreateSlider from '@/components/ui/CreateSlider';
 
 export interface RelevanceEditHandle {
-  focus: () => void;
+  focus: ()=> void;
 }
 
 interface RelevanceSectionProps {
   formData: TermData;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>)=> void;
   handleCustomChange?: (name: string, value: number)=> void;
-  onTabToNext?: () => void;
+  onTabToNext?: ()=> void;
   autoFocus?: boolean;
 }
 

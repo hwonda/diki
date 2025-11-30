@@ -11,7 +11,7 @@ interface InternalLinkSearchProps {
   onSelect: (url: string, title: string)=> void;
   refocus?: boolean;
   inputRef?: RefObject<HTMLInputElement>;
-  onTabToNext?: () => void;
+  onTabToNext?: ()=> void;
 }
 
 const InternalLinkSearch = ({ onSelect, refocus = false, inputRef, onTabToNext }: InternalLinkSearchProps) => {

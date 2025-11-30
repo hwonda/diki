@@ -9,13 +9,13 @@ import { X } from 'lucide-react';
 import InternalLinkSearch from './InternalLinkSearch';
 
 export interface TermsEditHandle {
-  focus: () => void;
+  focus: ()=> void;
 }
 
 interface TermsSectionProps {
   formData: TermData;
   setFormData: React.Dispatch<React.SetStateAction<TermData>>;
-  onTabToNext?: () => void;
+  onTabToNext?: ()=> void;
   autoFocus?: boolean;
 }
 
@@ -76,7 +76,7 @@ const TermsSection = forwardRef<TermsEditHandle, TermsSectionProps>(({ formData,
     }
   };
 
-  const validateInputs = (): boolean => {
+  const validateInputs = useCallback((): boolean => {
     let isValid = true;
 
     if (!newTerm.term) {
@@ -98,7 +98,7 @@ const TermsSection = forwardRef<TermsEditHandle, TermsSectionProps>(({ formData,
     }
 
     return isValid;
-  };
+  }, [newTerm]);
 
   const handleAddTerm = useCallback(() => {
     if (!validateInputs()) return;
@@ -112,7 +112,7 @@ const TermsSection = forwardRef<TermsEditHandle, TermsSectionProps>(({ formData,
     setTermError(null);
     setDescriptionError(null);
     termInputRef.current?.focus();
-  }, [newTerm, setFormData]);
+  }, [newTerm, setFormData, validateInputs]);
 
   const handleTermChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!newTerm.internal_link) {

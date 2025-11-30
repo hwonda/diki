@@ -3,13 +3,13 @@ import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } f
 import { X } from 'lucide-react';
 
 export interface EtcTitleEditHandle {
-  focus: () => void;
+  focus: ()=> void;
 }
 
 interface EtcTitleEditProps {
   formData: TermData;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>)=> void;
-  onTabToNext?: () => void;
+  onTabToNext?: ()=> void;
   autoFocus?: boolean;
 }
 

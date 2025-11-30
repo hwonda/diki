@@ -7,7 +7,7 @@ import { isFieldEmpty, getFieldGuidance, getRequiredFieldError } from '@/utils/f
 import CreateSlider from '@/components/ui/CreateSlider';
 
 export interface DifficultyEditHandle {
-  focus: () => void;
+  focus: ()=> void;
 }
 
 interface DifficultySectionProps {
@@ -15,7 +15,7 @@ interface DifficultySectionProps {
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>)=> void;
   handleCustomChange?: (name: string, value: number)=> void;
   isModal?: boolean;
-  onTabToNext?: () => void;
+  onTabToNext?: ()=> void;
   autoFocus?: boolean;
 }
 

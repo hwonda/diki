@@ -7,14 +7,14 @@ import { isFieldEmpty, getFieldGuidance, getRequiredFieldError } from '@/utils/f
 import { X } from 'lucide-react';
 
 export interface UsecaseEditHandle {
-  focus: () => void;
+  focus: ()=> void;
 }
 
 interface UsecaseSectionProps {
   formData: TermData;
   setFormData: React.Dispatch<React.SetStateAction<TermData>>;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>)=> void;
-  onTabToNext?: () => void;
+  onTabToNext?: ()=> void;
   autoFocus?: boolean;
 }
 
@@ -61,7 +61,6 @@ const UsecaseSection = forwardRef<UsecaseEditHandle, UsecaseSectionProps>(({ for
       setNewIndustry('');
     }
   };
-
 
   const handleRemoveIndustry = (index: number) => {
     setFormData((prev) => ({

@@ -6,14 +6,14 @@ import { setFieldError, setFieldTouched, setFieldValid } from '@/store/formValid
 import { validateField, isFieldEmpty, getFieldGuidance, getRequiredFieldError } from '@/utils/formValidation';
 
 export interface ShortDescriptionEditHandle {
-  focus: () => void;
+  focus: ()=> void;
 }
 
 interface ShortDescriptionEditProps {
   formData: TermData;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>)=> void;
   onEnterPress?: ()=> void;
-  onTabToNext?: () => void;
+  onTabToNext?: ()=> void;
   autoFocus?: boolean;
 }
 
