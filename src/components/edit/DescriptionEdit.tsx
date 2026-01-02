@@ -59,8 +59,21 @@ const DescriptionSection = forwardRef<DescriptionEditHandle, DescriptionSectionP
     const isValid = e.target.value.trim() !== '';
     dispatch(setFieldValid({ field: 'description.full', valid: isValid }));
 
-    e.target.style.height = 'auto';
-    e.target.style.height = `calc(${ e.target.scrollHeight }px)`;
+    const textarea = e.target;
+
+    // textarea 및 부모 컨테이너의 스크롤 위치 저장
+    const scrollTop = textarea.scrollTop;
+    const parentScrollable = textarea.closest('.overflow-y-auto') as HTMLElement | null;
+    const parentScrollTop = parentScrollable?.scrollTop ?? 0;
+
+    textarea.style.height = 'auto';
+    textarea.style.height = `calc(${ textarea.scrollHeight }px)`;
+
+    // 스크롤 위치 복원
+    textarea.scrollTop = scrollTop;
+    if (parentScrollable) {
+      parentScrollable.scrollTop = parentScrollTop;
+    }
   };
 
   const handleBlur = useCallback(() => {
@@ -109,7 +122,7 @@ const DescriptionSection = forwardRef<DescriptionEditHandle, DescriptionSectionP
           className="overflow-hidden transition-all duration-300 ease-in-out"
           style={{ height: isGuideOpen ? (contentHeight ? `${ contentHeight }px` : 'auto') : '0px' }}
         >
-          <div className={`grid grid-cols-[auto_1fr] items-center gap-px bg-gray4 text-sm ${ isGuideOpen ? 'animate-slideDown' : '' }`}>
+          <div className={`prose grid grid-cols-[auto_1fr] items-center gap-px bg-gray4 text-sm ${ isGuideOpen ? 'animate-slideDown' : '' }`}>
             <div className="bg-background flex justify-center items-center text-sub h-full px-2 border-t border-gray4 font-bold">{'문법'}</div>
             <div className="flex justify-center items-center gap-2 bg-background py-1 px-2 border-t border-gray4 font-bold">
               <MarkdownContent content="설명" />
