@@ -111,50 +111,35 @@ export default function ProfileEditPage({ params }: { params: { slug: string } }
         // profiles 컬렉션에서 사용자 데이터 가져오기 시도
         const response = await fetch(`/api/profiles/${ params.slug }`);
 
-        if (response.ok) {
-          // API에서 데이터 가져오기 성공한 경우
-          const profileData = await response.json();
-          setProfile(profileData);
-          setFormData({
-            name: profileData.name,
-            username: profileData.username,
-            email: profileData.email,
-            thumbnail: profileData.thumbnail,
-            intro: profileData.intro || '',
-            social: {
-              github: profileData.social.github || '',
-              linkedin: profileData.social.linkedin || '',
-            },
-            showLinks: profileData.showLinks || {
-              email: true,
-              github: true,
-              linkedin: true,
-            },
-          });
-        } else {
-          // API 데이터가 없고, 본인 프로필이며 쿠키에 정보가 있는 경우
-          if (isOwnProfile && cookieProfile) {
-            setProfile(cookieProfile);
-            setFormData({
-              name: cookieProfile.name,
-              username: cookieProfile.username,
-              email: cookieProfile.email,
-              thumbnail: cookieProfile.thumbnail,
-              intro: cookieProfile.intro || '',
-              social: {
-                github: cookieProfile.social.github || '',
-                linkedin: cookieProfile.social.linkedin || '',
-              },
-              showLinks: cookieProfile.showLinks || {
-                email: true,
-                github: true,
-                linkedin: true,
-              },
-            });
-          } else {
-            throw new Error('프로필을 찾을 수 없습니다.');
-          }
+        // API에서 데이터 가져오기
+        const profileData = response.ok ? await response.json() : null;
+
+        // 쿠키 데이터가 있으면 우선 사용 (빌드 시점 정적 데이터보다 최신)
+        const resolvedProfile = isOwnProfile && cookieProfile
+          ? profileData ? { ...profileData, ...cookieProfile } : cookieProfile
+          : profileData;
+
+        if (!resolvedProfile) {
+          throw new Error('프로필을 찾을 수 없습니다.');
         }
+
+        setProfile(resolvedProfile);
+        setFormData({
+          name: resolvedProfile.name,
+          username: resolvedProfile.username,
+          email: resolvedProfile.email,
+          thumbnail: resolvedProfile.thumbnail,
+          intro: resolvedProfile.intro || '',
+          social: {
+            github: resolvedProfile.social.github || '',
+            linkedin: resolvedProfile.social.linkedin || '',
+          },
+          showLinks: resolvedProfile.showLinks || {
+            email: true,
+            github: true,
+            linkedin: true,
+          },
+        });
       } catch (error) {
         console.error('프로필 데이터 로드 오류:', error);
         setError('프로필 데이터를 가져오는데 실패했습니다.');

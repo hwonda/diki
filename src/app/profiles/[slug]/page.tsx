@@ -68,9 +68,9 @@ export default async function ProfilePage({ params }: { params: { slug: string }
   // 쿠키에서 사용자 정보 가져오기
   const { cookieProfile, isOwnProfile } = getUserProfileFromCookie(params.slug);
 
-  // profiles.json에 없고 쿠키에 정보가 있는 경우
-  if (!profile && cookieProfile) {
-    profile = cookieProfile;
+  // 쿠키 데이터가 있으면 우선 표출 (빌드 시점 정적 데이터보다 최신)
+  if (isOwnProfile && cookieProfile) {
+    profile = profile ? { ...profile, ...cookieProfile } : cookieProfile;
   }
 
   if (!profile) {
