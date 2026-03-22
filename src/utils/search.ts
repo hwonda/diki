@@ -31,8 +31,16 @@ const SEARCH_FIELDS = {
   opensourceTitles: { boost: 1, path: (term: TermData) => term.references?.opensource?.map((o) => o.name).join(' ') },
 };
 
+// 인덱스 캐싱
+let cachedIndex: lunr.Index | null = null;
+let cachedTermsLength = 0;
+
 export function buildSearchIndex(terms: TermData[]) {
-  return lunr(function (this: lunr.Builder) {
+  if (cachedIndex && cachedTermsLength === terms.length) {
+    return cachedIndex;
+  }
+
+  cachedIndex = lunr(function (this: lunr.Builder) {
     this.pipeline.reset();
     this.searchPipeline.reset();
     this.pipeline.add(koTokenizer);
@@ -56,6 +64,9 @@ export function buildSearchIndex(terms: TermData[]) {
       this.add(doc);
     });
   });
+
+  cachedTermsLength = terms.length;
+  return cachedIndex;
 }
 
 function calculateScore(term: TermData, queryLower: string): number {
@@ -91,7 +102,7 @@ export function searchTerms(query: string, terms: TermData[]): TermData[] {
     `${ query }*`,
     `*${ query }`,
     `${ query }~1`,
-    ...words.filter((word) => word.length > 1).flatMap((word) => [word, `${ word }*`]),
+    ...words.filter((word) => word.length > 1).flatMap((word) => [word, `${ word }*`, `${ word }~1`]),
   ];
 
   try {
@@ -113,25 +124,21 @@ export function searchTerms(query: string, terms: TermData[]): TermData[] {
       }, new Map())
     ).map(([, result]) => result);
 
-    const filteredResults = uniqueResults
-      .map((result) => terms[parseInt(result.ref)])
-      .filter((term) =>
-        Object.values(SEARCH_FIELDS).some(({ path }) => {
-          const value = path(term)?.toLowerCase() || '';
-          return value.includes(queryLower);
-        })
-      );
-
-    if (filteredResults.length === 0) {
+    if (uniqueResults.length === 0) {
       return performFallbackSearch(terms, queryLower);
     }
 
-    const scoredResults = filteredResults
-      .map((term) => ({ term, score: calculateScore(term, queryLower) }))
+    // lunr 스코어 기반 정렬 (퍼지 결과 포함), 정확한 매칭에 보너스 부여
+    const scoredResults = uniqueResults
+      .map((result) => {
+        const term = terms[parseInt(result.ref)];
+        const exactScore = calculateScore(term, queryLower);
+        return { term, score: result.score + exactScore };
+      })
       .sort((a, b) => b.score - a.score)
       .map((item) => item.term);
 
-    return scoredResults.length > 0 ? scoredResults : performFallbackSearch(terms, queryLower);
+    return scoredResults;
   } catch (error) {
     console.log('error', error);
     return performFallbackSearch(terms, queryLower);
