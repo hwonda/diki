@@ -57,17 +57,16 @@ function parseMarkdownSegment(segment: string) {
   html = html.replace(/<br\s*\/?>/gi, '<div class="br-gap"></div>');
 
   // 이미지 처리
-  // 이미지 처리
   html = html.replace(/!\[(.*?)\]\((.*?)\)/g, `
   <div class="flex flex-col items-center my-1.5">
-    <img 
-      src="$2" 
-      alt="$1" 
+    <img
+      src="$2"
+      alt="$1"
       loading="lazy"
       width="800"
       height="450"
-      style="aspect-ratio: 16 / 9;" 
-      class="w-full rounded-lg m-0" 
+      style="aspect-ratio: 16 / 9;"
+      class="w-full rounded-lg m-0"
       onerror="this.onerror=null;this.src='/image-not-found.png';"
     />
     <p class="text-gray1 text-center text-sm mt-1">$1</p>
@@ -84,13 +83,6 @@ function parseMarkdownSegment(segment: string) {
   return html;
 }
 
-// 수식/텍스트 분리
-function splitContentIntoSegments(text: string) {
-  const regex = /(\$\$[\s\S]*?\$\$|\$(?!\$)[\s\S]*?(?<!\$)\$(?!\$))/g;
-  const segments = text.split(regex).filter((segment) => segment !== '');
-  return segments;
-}
-
 interface MarkdownContentProps {
   content: string; // 마크다운+수식이 섞인 문자열
 }
@@ -102,27 +94,31 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
     setRenderKey((prev) => prev + 1);
   }, [content]);
 
-  const segments = splitContentIntoSegments(content);
+  // 수식 구분자($, $$)를 그대로 유지한 채 마크다운만 파싱
+  // 블록 수식($$...$$)은 별도 줄에 있으므로 분리하여 처리
+  const blockMathRegex = /(\$\$[\s\S]*?\$\$)/g;
+  const blocks = content.split(blockMathRegex).filter((s) => s !== '');
 
   return (
     <MathJaxProvider key={renderKey}>
       <div>
-        {/* 수식 처리 */}
-        {segments.map((segment, i) => {
-          const isMathBlock = segment.startsWith('$$') && segment.endsWith('$$');
-          const isMathInline = segment.startsWith('$') && segment.endsWith('$') && !isMathBlock;
+        {blocks.map((block, i) => {
+          const isBlockMath = block.startsWith('$$') && block.endsWith('$$');
 
-          if (isMathBlock || isMathInline) {
+          if (isBlockMath) {
             return (
-              <MathJax key={`${ renderKey }-${ i }`} inline={!isMathBlock} className={`${ isMathBlock ? 'markdown-math-block' : 'markdown-math-inline' }`}>
-                {segment}
+              <MathJax key={`${ renderKey }-block-${ i }`} className="markdown-math-block">
+                {block}
               </MathJax>
             );
           }
 
-          // 일반 텍스트 처리
-          const html = parseMarkdownSegment(segment);
-          return <span key={`markdown-${ i }`} dangerouslySetInnerHTML={{ __html: html }} className="break-all" />;
+          const html = parseMarkdownSegment(block);
+          return (
+            <MathJax key={`${ renderKey }-segment-${ i }`} hideUntilTypeset="first">
+              <span className="break-all" dangerouslySetInnerHTML={{ __html: html }} />
+            </MathJax>
+          );
         })}
       </div>
     </MathJaxProvider>
