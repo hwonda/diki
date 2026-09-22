@@ -34,7 +34,7 @@ export function getUserProfileFromCookie(username: string) {
       name: userInfo.name,
       thumbnail: userInfo.thumbnail,
       email: userInfo.email || '', // 쿠키에 이메일 정보가 있으면 사용
-      role: 'contributor', // 기본 역할
+      role: userInfo.role || 'contributor',
       social: social,
       updatedAt: new Date().toISOString(), // 현재 시간으로 설정
       showLinks: showLinks,

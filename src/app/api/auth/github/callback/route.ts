@@ -112,19 +112,21 @@ export async function GET(request: NextRequest) {
         updatedAt: new Date().toISOString(),
       };
 
+      const existingData = existingProfile || (userDoc ? userDoc.data() : {});
       cookieUserInfo = {
-        id: existingProfile?.id || (userDoc ? userDoc.data().id : newId),
-        username: existingProfile?.username || username,
-        name: existingProfile?.name || userData.name || userData.login,
-        thumbnail: existingProfile?.thumbnail || userData.avatar_url,
-        email: existingProfile?.email || primaryEmail,
-        social: existingProfile?.social || {
+        id: existingData?.id || newId,
+        username: existingData?.username || username,
+        name: existingData?.name || userData.name || userData.login,
+        thumbnail: existingData?.thumbnail || userData.avatar_url,
+        email: existingData?.email || primaryEmail,
+        role: existingData?.role || 'contributor',
+        social: existingData?.social || {
           github: username,
           linkedin: username,
         },
-        rank: existingProfile?.rank || (userDoc ? userDoc.data().rank : { current: 0, postsCount: 0, remainingForNextRank: 1 }),
-        intro: existingProfile?.intro || (userDoc ? userDoc.data().intro : ''),
-        showLinks: existingProfile?.showLinks || (userDoc && userDoc.data().showLinks) || {
+        rank: existingData?.rank || { current: 0, postsCount: 0, remainingForNextRank: 1 },
+        intro: existingData?.intro || '',
+        showLinks: existingData?.showLinks || {
           email: true,
           github: true,
           linkedin: true,

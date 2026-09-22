@@ -51,7 +51,7 @@ function getClientProfileFromCookie(username: string) {
       name: userInfo.name,
       thumbnail: userInfo.thumbnail,
       email: userInfo.email || '',
-      role: 'contributor',
+      role: userInfo.role || 'contributor',
       social: social,
       updatedAt: new Date().toISOString(),
       intro: userInfo.intro || '',

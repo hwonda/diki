@@ -35,10 +35,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 업데이트할 데이터 준비
+    const existingData = profileDoc.data();
     const updateData = {
       ...data.profile_data,
-      username: profileDoc.data()?.username,
+      username: existingData?.username,
+      role: existingData?.role,
+      id: existingData?.id,
       updatedAt: new Date().toISOString(),
       intro: data.profile_data.intro,
       showLinks: data.profile_data.showLinks || {
