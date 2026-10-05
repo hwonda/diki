@@ -4,21 +4,8 @@ import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
-import { Lock, Check, ArrowRight, Clock, Construction } from 'lucide-react';
-
-export type StepStatus = 'completed' | 'available' | 'locked' | 'draft';
-
-export interface CourseStep {
-  title: string;
-  status: StepStatus;
-}
-
-export interface CoursePhase {
-  id: string;
-  title: string;
-  locked?: boolean;
-  steps: CourseStep[];
-}
+import { Lock, Check, ArrowRight, Clock, Construction, RotateCcw, BookOpen } from 'lucide-react';
+import { PhaseState, StepStatus } from '@/content/progress';
 
 export interface CourseActivity {
   label: string;
@@ -27,11 +14,10 @@ export interface CourseActivity {
 }
 
 interface CourseMapProps {
-  phases: CoursePhase[];
+  phases: PhaseState[];
   activities: CourseActivity[];
   basePath: string;
   startLabel: string;
-  goalOf: (step: CourseStep)=> string;
 }
 
 const zigzag = ['translate-x-0', 'translate-x-10', 'translate-x-0', '-translate-x-10'];
@@ -44,21 +30,21 @@ const statusLabel: Record<StepStatus, string> = {
 };
 
 function StepNode({ index, status, selected }: { index: number; status: StepStatus; selected: boolean }) {
-  const base = 'flex size-14 items-center justify-center rounded-2xl border-2 text-lg font-bold transition-all duration-200';
+  const base = 'flex size-14 items-center justify-center rounded-2xl text-lg font-bold transition-all duration-200';
 
   if (status === 'completed') {
-    return <div className={`${ base } border-primary bg-primary text-background`}><Check className="size-6" /></div>;
+    return <div className={`${ base } bg-primary text-background`}><Check className="size-6" /></div>;
   }
   if (status === 'available') {
-    return <div className={`${ base } border-primary bg-background text-primary ${ selected ? 'shadow-lg' : '' }`}>{index}</div>;
+    return <div className={`${ base } bg-secondary text-accent ${ selected ? 'shadow-lg' : '' }`}>{index}</div>;
   }
   if (status === 'draft') {
-    return <div className={`${ base } border-dashed border-gray3 bg-gray5 text-gray3`}>{index}</div>;
+    return <div className={`${ base } bg-extreme-light text-gray1 opacity-50`}>{index}</div>;
   }
-  return <div className={`${ base } border-gray4 bg-gray5 text-gray3`}>{index}</div>;
+  return <div className={`${ base } bg-extreme-light text-gray1`}>{index}</div>;
 }
 
-export default function CourseMap({ phases, activities, basePath, startLabel, goalOf }: CourseMapProps) {
+export default function CourseMap({ phases, activities, basePath, startLabel }: CourseMapProps) {
   const { isLoggedIn } = useSelector((state: RootState) => state.auth);
   const firstAvailable = phases.flatMap((p) => p.steps.map((s, i) => ({ phaseId: p.id, index: i, status: s.status })))
     .find((s) => s.status === 'available');
@@ -83,10 +69,10 @@ export default function CourseMap({ phases, activities, basePath, startLabel, go
 
   if (phases.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-light py-16 text-center">
-        <Construction className="size-8 text-gray3" />
+      <div className="flex flex-col items-center gap-2 rounded-2xl bg-extreme-light py-16 text-center">
+        <Construction className="size-8 text-gray1" />
         <p className="font-medium text-gray1">{'준비 중인 콘텐츠입니다'}</p>
-        <p className="text-sm text-gray2">{'콘텐츠가 공개되면 이곳에서 바로 시작할 수 있습니다'}</p>
+        <p className="text-sm text-gray1">{'콘텐츠가 공개되면 이곳에서 바로 시작할 수 있습니다'}</p>
       </div>
     );
   }
@@ -94,8 +80,8 @@ export default function CourseMap({ phases, activities, basePath, startLabel, go
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <div className="rounded-xl border border-light bg-background p-4">
-          <p className="text-xs text-gray2">{'진행률'}</p>
+        <div className="rounded-xl bg-extreme-light p-4">
+          <p className="text-xs text-gray1">{'진행률'}</p>
           <div className="mt-2 flex items-center gap-3">
             <span className="text-xl font-bold text-main">{`${ progress }%`}</span>
             <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray4">
@@ -103,15 +89,15 @@ export default function CourseMap({ phases, activities, basePath, startLabel, go
             </div>
           </div>
         </div>
-        <div className="rounded-xl border border-light bg-background p-4">
-          <p className="text-xs text-gray2">{'완료한 Step'}</p>
+        <div className="rounded-xl bg-extreme-light p-4">
+          <p className="text-xs text-gray1">{'완료한 Step'}</p>
           <p className="mt-2 text-xl font-bold text-main">
             {completedCount}
-            <span className="text-sm font-normal text-gray2">{` / ${ requiredSteps.length }`}</span>
+            <span className="text-sm font-normal text-gray1">{` / ${ requiredSteps.length }`}</span>
           </p>
         </div>
-        <div className="col-span-2 rounded-xl border border-light bg-background p-4 sm:col-span-1">
-          <p className="text-xs text-gray2">{'기록 저장'}</p>
+        <div className="col-span-2 rounded-xl bg-extreme-light p-4 sm:col-span-1">
+          <p className="text-xs text-gray1">{'기록 저장'}</p>
           {isLoggedIn ? (
             <p className="mt-2 text-sm font-medium text-main">{'진행 기록이 계정에 저장됩니다'}</p>
           ) : (
@@ -125,12 +111,12 @@ export default function CourseMap({ phases, activities, basePath, startLabel, go
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
-        <div className="space-y-8 rounded-2xl border border-light bg-background px-4 py-6 lg:col-span-2">
+        <div className="space-y-8 rounded-2xl border border-light px-4 py-6 lg:col-span-2">
           {phases.map((phase) => (
             <section key={phase.id}>
               <div className="mb-6 flex justify-center">
-                <span className={`flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-semibold
-                  ${ phase.locked ? 'border-gray4 text-gray2' : 'border-primary text-primary' }`}
+                <span className={`flex items-center gap-1.5 rounded-full bg-extreme-light px-4 py-1.5 text-sm font-semibold
+                  ${ phase.locked ? 'text-gray1' : 'text-primary' }`}
                 >
                   {phase.locked && <Lock className="size-3.5" />}
                   {phase.title}
@@ -140,7 +126,7 @@ export default function CourseMap({ phases, activities, basePath, startLabel, go
                 {phase.steps.map((step, i) => {
                   const isSelected = selected.phaseId === phase.id && selected.index === i;
                   return (
-                    <li key={i} className={`transition-transform ${ zigzag[i % zigzag.length] }`}>
+                    <li key={step.id} className={`transition-transform ${ zigzag[i % zigzag.length] }`}>
                       <button
                         onClick={() => selectStep(phase.id, i)}
                         aria-current={isSelected ? 'step' : undefined}
@@ -151,7 +137,7 @@ export default function CourseMap({ phases, activities, basePath, startLabel, go
                         <div className={`rounded-2xl p-1 ${ isSelected ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : '' }`}>
                           <StepNode index={i + 1} status={step.status} selected={isSelected} />
                         </div>
-                        <span className={`max-w-32 truncate text-xs ${ isSelected ? 'font-semibold text-main' : step.status === 'available' || step.status === 'completed' ? 'text-sub' : 'text-gray2' }`}>
+                        <span className={`max-w-32 truncate text-xs ${ isSelected ? 'font-semibold text-main' : step.status === 'available' || step.status === 'completed' ? 'text-sub' : 'text-gray1' }`}>
                           {step.title}
                         </span>
                       </button>
@@ -164,8 +150,8 @@ export default function CourseMap({ phases, activities, basePath, startLabel, go
         </div>
 
         {selectedPhase && selectedStep && (
-          <aside ref={detailRef} className="h-fit scroll-mt-4 rounded-2xl border border-light bg-background p-6 lg:sticky lg:top-6 lg:col-span-3">
-            <p className="text-xs text-gray2">{`${ selectedPhase.title } · Step ${ selected.index + 1 }`}</p>
+          <aside ref={detailRef} className="h-fit scroll-mt-4 rounded-2xl border border-light p-6 lg:sticky lg:top-6 lg:col-span-3">
+            <p className="text-xs text-gray1">{`${ selectedPhase.title } · Step ${ selected.index + 1 }`}</p>
             <div className="mt-1 flex items-start justify-between gap-4">
               <h2 className="text-2xl font-bold text-main">{selectedStep.title}</h2>
               <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium
@@ -174,25 +160,37 @@ export default function CourseMap({ phases, activities, basePath, startLabel, go
                 {statusLabel[selectedStep.status]}
               </span>
             </div>
-            <p className="mt-2 text-sm text-gray1">{goalOf(selectedStep)}</p>
+            <p className="mt-2 text-sm text-gray1">{selectedStep.summary}</p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              {selectedStep.review && (
+                <span className="flex items-center gap-1 rounded-full bg-gray4 px-2.5 py-1 text-xs font-medium text-level-4">
+                  <RotateCcw className="size-3" />
+                  {'복습 필요'}
+                </span>
+              )}
+              <Link href={`/posts/${ selectedStep.id }`} className="flex items-center gap-1 text-xs text-gray1 hover:text-primary">
+                <BookOpen className="size-3" />
+                {'용어사전에서 보기'}
+              </Link>
+            </div>
 
-            <div className="mt-6 overflow-hidden rounded-xl border border-extreme-light">
-              <div className="flex items-center justify-between bg-gray5 px-4 py-2 text-xs text-gray2">
+            <div className="mt-6">
+              <div className="mb-3 flex items-center justify-between text-xs text-gray1">
                 <span>{'진행 순서'}</span>
                 <span className="flex items-center gap-1">
                   <Clock className="size-3" />
                   {`약 ${ totalMinutes }분`}
                 </span>
               </div>
-              <ol className="divide-y divide-extreme-light">
+              <ol className="space-y-3">
                 {activities.map((activity, i) => (
-                  <li key={activity.label} className="flex items-center gap-3 px-4 py-3">
-                    <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-gray5 text-xs font-semibold text-gray1">{i + 1}</span>
+                  <li key={activity.label} className="flex items-center gap-3">
+                    <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-extreme-light text-xs font-semibold text-gray1">{i + 1}</span>
                     <div className="flex-1">
                       <p className="text-sm font-medium text-main">{activity.label}</p>
-                      <p className="text-xs text-gray2">{activity.description}</p>
+                      <p className="text-xs text-gray1">{activity.description}</p>
                     </div>
-                    <span className="text-xs text-gray2">{`${ activity.minutes }분`}</span>
+                    <span className="text-xs text-gray1">{`${ activity.minutes }분`}</span>
                   </li>
                 ))}
               </ol>
@@ -201,7 +199,7 @@ export default function CourseMap({ phases, activities, basePath, startLabel, go
             <div className="mt-6">
               {selectedStep.status === 'available' || selectedStep.status === 'completed' ? (
                 <Link
-                  href={`${ basePath }/${ selectedPhase.id }/${ selected.index + 1 }`}
+                  href={`${ basePath }/${ selectedPhase.id }/${ selectedStep.id }`}
                   className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 font-semibold text-background transition-opacity hover:opacity-90"
                 >
                   {selectedStep.status === 'completed' ? '다시 풀어보기' : startLabel}
