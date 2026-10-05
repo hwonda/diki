@@ -15,6 +15,8 @@ import MicrosoftClarity from '@/components/meta/MicrosoftClarity';
 import ReduxProvider from '@/components/redux/ReduxProvider';
 import DataInitializer from '@/components/redux/DataInitializer';
 import Footer from '@/components/common/Footer';
+import TopProgressBar from '@/components/common/TopProgressBar';
+import { Suspense } from 'react';
 
 interface RootLayoutProps {
   readonly children: React.ReactNode;
@@ -74,6 +76,9 @@ const RootLayout = async ({ children }: RootLayoutProps) => {
           <ThemeProvider>
             <ToastProvider>
               <Header />
+              <Suspense fallback={null}>
+                <TopProgressBar />
+              </Suspense>
               <main className='mt-16 max-w-6xl min-h-[calc(100vh_-150px)] mx-auto px-4 py-3 md:px-6 lg:px-8'>{children}</main>
               <div className='hidden sm:block'>
                 <Footer />
