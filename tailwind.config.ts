@@ -88,6 +88,10 @@ const config: Config = {
           '0%': { transform: 'translateX(100%)', opacity: '0' },
           '100%': { transform: 'translateX(0)', opacity: '1' },
         },
+        glow: {
+          '0%, 100%': { transform: 'scale(1)', opacity: '0.08' },
+          '50%': { transform: 'scale(1.15)', opacity: '0.16' },
+        },
         staggeredBounce: {
           '0%, 100%': { transform: 'translateY(0)', opacity: '0.5' },
           '40%': { transform: 'translateY(5px)', opacity: '0.7' },
@@ -106,6 +110,7 @@ const config: Config = {
         introSecond: 'intro 1.1s ease-in-out both',
         slideLeftToRight: 'slideLeftToRight 0.2s ease-in-out',
         slideRightToLeft: 'slideRightToLeft 0.2s ease-in-out',
+        glow: 'glow 9s ease-in-out infinite',
         bounceArrow1: 'staggeredBounce 1.5s ease-in-out infinite',
         bounceArrow2: 'staggeredBounce 1.5s ease-in-out infinite 0.2s',
       },

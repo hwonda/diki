@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { MathJax } from 'better-react-mathjax';
 import { MathJaxProvider } from './MathJaxProvider';
 
@@ -89,8 +89,12 @@ interface MarkdownContentProps {
 
 export default function MarkdownContent({ content }: MarkdownContentProps) {
   const [renderKey, setRenderKey] = useState(0);
+  const renderedContent = useRef(content);
 
+  // 첫 마운트 직후 다시 마운트하면 MathJax가 사라진 노드를 조판하다 실패하므로 내용이 바뀔 때만 갱신한다
   useEffect(() => {
+    if (renderedContent.current === content) return;
+    renderedContent.current = content;
     setRenderKey((prev) => prev + 1);
   }, [content]);
 

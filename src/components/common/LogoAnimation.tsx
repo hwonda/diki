@@ -60,7 +60,9 @@ const LogoAnimation = ({ fontSize = '4rem', delayAnimation = true }: LogoAnimati
       <h1 className="sr-only">{'디키'}</h1>
 
       <div className="flex font-bold text-main" style={{ fontSize : responsiveFontSize }}>
-        <div className="relative flex justify-end overflow-hidden w-[6ch]">
+        <div className="relative flex justify-end overflow-hidden">
+          {/* DataWiki 폭 기준으로 중앙 정렬되도록 DataW 너비를 고정한다 */}
+          <span aria-hidden className="invisible whitespace-nowrap">{'DataW'}</span>
           {/* 현재 텍스트 */}
           <span
             className={`absolute flex justify-end top-0 right-0 w-full text-primary ${

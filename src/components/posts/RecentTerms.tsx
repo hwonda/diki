@@ -5,7 +5,7 @@ import { RootState } from '@/store';
 import Link from 'next/link';
 import { TermData } from '@/types';
 import { useEffect, useRef, useState } from 'react';
-import { Rocket } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 
 const skeleton_count = 6;
 
@@ -73,12 +73,15 @@ export default function RecentTerms({ initialTerms = [] }: RecentTermsProps) {
   const isLocalLoading = terms.length === 0 || (isLoading && initialTerms.length === 0);
 
   return (
-    <div className='w-full space-y-1.5'>
-      <div className='flex items-center gap-1 sm:gap-1.5'>
-        <Rocket className='size-4' />
-        <span className='text-base text-sub font-semibold'>{'최신 포스트'}</span>
+    <div className='w-full'>
+      <div className='text-center'>
+        <h2 className='flex items-center justify-center gap-2 text-2xl font-bold text-main'>
+          <Sparkles className='size-5 text-primary' />
+          {'새로 올라온 용어'}
+        </h2>
+        <p className='mt-2 text-sm text-gray1'>{'가장 최근에 추가된 데이터 용어를 살펴보세요'}</p>
       </div>
-      <div ref={containerRef} className='flex justify-between overflow-hidden gap-2'>
+      <div ref={containerRef} className='mt-8 flex justify-between overflow-hidden gap-2'>
         {isLocalLoading ? (
           Array(skeleton_count).fill(0).map((_, index) => (
             <SkeletonItem key={`skeleton-${ index }`} />
@@ -97,6 +100,12 @@ export default function RecentTerms({ initialTerms = [] }: RecentTermsProps) {
             </Link>
           ))
         )}
+      </div>
+      <div className='mt-6 text-center'>
+        <Link href='/posts' className='inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline'>
+          {'전체 용어 보기'}
+          <ArrowRight className='size-4' />
+        </Link>
       </div>
     </div>
   );
