@@ -17,11 +17,22 @@ interface AdContainerProps {
   containerClassName?: string;
 }
 
+// 프리뷰·로컬 개발에서는 광고 대신 같은 크기의 빈 영역만 남긴다(Vercel 값이 없으면 NODE_ENV로 판단)
+const isProduction = (process.env.NEXT_PUBLIC_VERCEL_ENV ?? (process.env.NODE_ENV === 'production' ? 'production' : 'development')) === 'production';
+
 const AdContainer = ({ slot, format, className, containerClassName }: AdContainerProps) => {
   useEffect(() => {
-    if(process.env.NODE_ENV !== 'production') return;
+    if (!isProduction) return;
     (window.adsbygoogle = window.adsbygoogle || []).push({});
   }, []);
+
+  if (!isProduction) {
+    return (
+      <div className={`googleAd-container ${ containerClassName ?? '' }`}>
+        <div className={className} />
+      </div>
+    );
+  }
 
   return (
     <div className={`googleAd-container ${ containerClassName ?? '' }`}>
