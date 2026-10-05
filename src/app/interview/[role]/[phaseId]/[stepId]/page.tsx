@@ -26,6 +26,7 @@ export function generateMetadata({ params }: Props): Metadata {
   return {
     title: term && role ? `${ term.title?.ko } ${ role.label } 면접 질문` : '면접 준비',
     description: term && role ? buildInterview(term, role.id).question : undefined,
+    robots: { index: false, follow: true },
   };
 }
 

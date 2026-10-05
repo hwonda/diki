@@ -24,6 +24,7 @@ export function generateMetadata({ params }: Props): Metadata {
   return {
     title: term ? `${ term.title?.ko } 학습` : '학습하기',
     description: term?.description?.short,
+    robots: { index: false, follow: true },
   };
 }
 
