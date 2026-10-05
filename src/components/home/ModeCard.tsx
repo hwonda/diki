@@ -26,10 +26,10 @@ const modeConfig = {
     from: 'from-level-1',
     border: 'hover:border-level-1',
     trail: [
-      { label: '입문', title: '데이터와 데이터셋' },
-      { label: '기초', title: '지도 학습과 비지도 학습' },
-      { label: '중급', title: '교차 검증과 평가 지표' },
-      { label: '고급 · 마스터', title: '트레이드오프 판단' },
+      { label: '입문', title: 'AI와 머신러닝의 큰 그림' },
+      { label: '기초', title: '모델이 배우는 방식' },
+      { label: '중급', title: '딥러닝 아키텍처' },
+      { label: '고급 · 마스터', title: '생성형 AI와 LLM' },
     ],
   },
   interview: {
@@ -75,7 +75,7 @@ export default function ModeCard({ mode }: ModeCardProps) {
   return (
     <Link
       href={config.href}
-      className="group relative flex flex-col overflow-hidden rounded-2xl bg-background p-6 hover:scale-105 transition-all duration-300"
+      className="group relative flex h-full flex-col overflow-hidden rounded-2xl bg-background p-6 transition-all duration-300 hover:scale-105"
     >
       <div className={`pointer-events-none absolute inset-x-0 top-0 h-56 bg-gradient-to-b to-transparent opacity-15 ${ config.from }`} />
 
@@ -92,7 +92,10 @@ export default function ModeCard({ mode }: ModeCardProps) {
         {trail.map((item, i) => (
           <li key={`${ item.label }-${ i }`} className="flex gap-3">
             <div className="flex flex-col items-center">
-              <span className={`mt-1.5 size-2 shrink-0 rounded-full ${ config.bg } ${ i === 0 ? '' : 'opacity-40' }`} />
+              <span
+                style={{ transitionDelay: `${ i * 90 }ms` }}
+                className={`mt-1.5 size-2 shrink-0 rounded-full transition-all duration-300 ${ config.bg } ${ i === 0 ? '' : 'opacity-40 group-hover:opacity-100' }`}
+              />
               {i < trail.length - 1 && <span className="my-1 w-px flex-1 bg-gray4" />}
             </div>
             <div className="min-w-0 pb-4">
