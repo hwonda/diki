@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import PostList from '@/components/posts/PostList';
 import Footer from '@/components/common/Footer';
 import PostCard from '@/components/posts/PostCard';
+import AllTermsIndex from '@/components/posts/AllTermsIndex';
 import { readPublishedTerms, sortByCreatedDesc } from '@/utils/termsServer';
 import { dikiMetadata } from '@/constants';
 import { Metadata } from 'next';
@@ -45,7 +46,8 @@ export function generateStaticParams() {
 }
 
 export default async function PostsPage() {
-  const firstPage = sortByCreatedDesc(readPublishedTerms()).slice(0, 12);
+  const terms = readPublishedTerms();
+  const firstPage = sortByCreatedDesc(terms).slice(0, 12);
 
   return (
     <div className="relative">
@@ -76,6 +78,7 @@ export default async function PostsPage() {
           <PostList itemsPerPage={12} />
         </div>
       </Suspense>
+      <AllTermsIndex terms={terms} />
       <div className='block sm:hidden'>
         <Footer />
       </div>
