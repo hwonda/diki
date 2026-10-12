@@ -4,6 +4,7 @@ import PostList from '@/components/posts/PostList';
 import Footer from '@/components/common/Footer';
 import PostCard from '@/components/posts/PostCard';
 import AllTermsIndex from '@/components/posts/AllTermsIndex';
+import PostsHeading, { PostsHeadingView } from '@/components/posts/PostsHeading';
 import { readPublishedTerms, sortByCreatedDesc } from '@/utils/termsServer';
 import { dikiMetadata } from '@/constants';
 import { Metadata } from 'next';
@@ -51,7 +52,11 @@ export default async function PostsPage() {
 
   return (
     <div className="relative">
-      <h1 className="sr-only">{'데이터 용어사전 전체 목록'}</h1>
+      <div className="pb-6 pt-8">
+        <Suspense fallback={<PostsHeadingView search={false} />}>
+          <PostsHeading />
+        </Suspense>
+      </div>
       <JsonLdSchema
         id="collection-page-schema"
         schema={generateCollectionPageSchema(

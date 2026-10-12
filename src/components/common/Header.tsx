@@ -112,7 +112,7 @@ const Header = () => {
             <div className="flex items-center gap-1">
               <TooltipButton
                 isLink={true}
-                href='/posts'
+                href='/posts?mode=search'
                 tooltip='검색'
                 className='rounded-md p-2 hover:bg-background-secondary'
                 ariaLabel='검색하기'
