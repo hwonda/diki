@@ -317,7 +317,6 @@ export default function LearnStepClient({ stage, previousStage, phaseId, stepId,
       title={term.title}
       subtitle={term.titleEn}
       progress={progress}
-      narrow
       hideNav={playable}
       neighbors={neighbors}
       firstAvailable={firstAvailable ? { href: `/learn/${ stage.id }/${ firstAvailable.p.id }/${ firstAvailable.s.id }`, title: firstAvailable.s.title } : null}
@@ -472,7 +471,7 @@ export default function LearnStepClient({ stage, previousStage, phaseId, stepId,
                 </button>
               </div>
               <p className="mt-2 hidden text-center text-xs text-gray3 sm:block">
-                {current.kind === 'choice' && !checked ? '1~4로 선택 · ←로 이전 · →로 확인 · ←로 이전' : '←로 이전 · →로 계속'}
+                {current.kind === 'choice' && !checked ? '1~4로 선택 · ←로 이전 / →로 확인 / ←로 이전' : '←로 이전 / →로 계속'}
               </p>
             </>
           )}
