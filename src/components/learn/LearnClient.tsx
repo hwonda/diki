@@ -49,7 +49,7 @@ export default function LearnClient({ stages }: { stages: StageSummary[] }) {
               >
                 <span className={`flex size-10 items-center justify-center rounded-full text-sm font-bold transition-all duration-200
                   ${ isSelected
-              ? locked ? 'bg-gray4 text-gray1 shadow-md' : 'bg-primary text-background shadow-md'
+              ? locked ? 'bg-extreme-light text-primary ring-2 ring-primary shadow-md' : 'bg-primary text-background shadow-md'
               : locked
                 ? 'bg-extreme-light text-gray1 group-hover:bg-gray4'
                 : 'bg-extreme-light text-sub group-hover:bg-secondary group-hover:text-accent' }`}
@@ -85,6 +85,7 @@ export default function LearnClient({ stages }: { stages: StageSummary[] }) {
         activities={activities}
         basePath={`/learn/${ stage.id }`}
         startLabel="학습 시작하기"
+        lockedReason={unlocked[stageIndex] ? undefined : `${ stages[stageIndex - 1]?.label } 단계를 모두 완료하면 해제됩니다`}
       />
     </div>
   );

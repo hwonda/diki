@@ -1,10 +1,10 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
-import { Lock, Check, ArrowRight, Clock, Construction, RotateCcw, BookOpen } from 'lucide-react';
+import { Lock, Check, ArrowRight, Clock, Construction, RotateCcw, BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
 import { PhaseState, StepStatus } from '@/content/progress';
 
 export interface CourseActivity {
@@ -18,6 +18,7 @@ interface CourseMapProps {
   activities: CourseActivity[];
   basePath: string;
   startLabel: string;
+  lockedReason?: string;
 }
 
 const zigzag = ['translate-x-0', 'translate-x-10', 'translate-x-0', '-translate-x-10'];
@@ -30,13 +31,13 @@ const statusLabel: Record<StepStatus, string> = {
 };
 
 function StepNode({ index, status, selected }: { index: number; status: StepStatus; selected: boolean }) {
-  const base = 'flex size-14 items-center justify-center rounded-2xl text-lg font-bold transition-all duration-200';
+  const base = `flex size-14 items-center justify-center rounded-2xl text-lg font-bold transition-all duration-200 ${ selected ? 'ring-2 ring-primary' : '' }`;
 
   if (status === 'completed') {
     return <div className={`${ base } bg-primary text-background`}><Check className="size-6" /></div>;
   }
   if (status === 'available') {
-    return <div className={`${ base } bg-secondary text-accent ${ selected ? 'shadow-lg' : '' }`}>{index}</div>;
+    return <div className={`${ base } bg-secondary text-accent`}>{index}</div>;
   }
   if (status === 'draft') {
     return <div className={`${ base } bg-extreme-light text-gray1 opacity-50`}>{index}</div>;
@@ -44,12 +45,24 @@ function StepNode({ index, status, selected }: { index: number; status: StepStat
   return <div className={`${ base } bg-extreme-light text-gray1`}>{index}</div>;
 }
 
-export default function CourseMap({ phases, activities, basePath, startLabel }: CourseMapProps) {
+export default function CourseMap({ phases, activities, basePath, startLabel, lockedReason }: CourseMapProps) {
   const { isLoggedIn } = useSelector((state: RootState) => state.auth);
   const firstAvailable = phases.flatMap((p) => p.steps.map((s, i) => ({ phaseId: p.id, index: i, status: s.status })))
     .find((s) => s.status === 'available');
   const [selected, setSelected] = useState({ phaseId: firstAvailable?.phaseId ?? phases[0]?.id, index: firstAvailable?.index ?? 0 });
+  const [phaseIndex, setPhaseIndex] = useState(() => Math.max(0, phases.findIndex((p) => p.id === (firstAvailable?.phaseId ?? phases[0]?.id))));
+  const touchStartX = useRef<number | null>(null);
+  const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
   const detailRef = useRef<HTMLElement>(null);
+
+  // Phase를 넘기면 그 Phase에서 진행할 Step(없으면 첫 Step)을 상세 패널에 보여준다
+  const goToPhase = (target: number) => {
+    if (target < 0 || target >= phases.length || target === phaseIndex) return;
+    setPhaseIndex(target);
+    const phase = phases[target];
+    const available = phase.steps.findIndex((step) => step.status === 'available');
+    setSelected({ phaseId: phase.id, index: Math.max(0, available) });
+  };
 
   const selectStep = (phaseId: string, index: number) => {
     setSelected({ phaseId, index });
@@ -59,10 +72,23 @@ export default function CourseMap({ phases, activities, basePath, startLabel }: 
     }
   };
 
+  // Phase를 바꾸면 그 Phase의 스크롤 영역에서 선택된 Step이 가운데 오도록 맞춘다
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      const slide = slideRefs.current[phaseIndex];
+      const target = slide?.querySelector<HTMLElement>('[aria-current="step"]');
+      if (!slide || !target || slide.scrollHeight <= slide.clientHeight) return;
+      const offset = target.getBoundingClientRect().top - slide.getBoundingClientRect().top;
+      slide.scrollTo({ top: slide.scrollTop + offset - ((slide.clientHeight - target.offsetHeight) / 2) });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [phaseIndex]);
+
   const requiredSteps = phases.flatMap((p) => p.steps).filter((s) => s.status !== 'draft');
   const completedCount = requiredSteps.filter((s) => s.status === 'completed').length;
   const progress = requiredSteps.length ? Math.round((completedCount / requiredSteps.length) * 100) : 0;
 
+  const currentPhase = phases[phaseIndex] ?? phases[0];
   const selectedPhase = phases.find((p) => p.id === selected.phaseId);
   const selectedStep = selectedPhase?.steps[selected.index];
   const totalMinutes = activities.reduce((sum, a) => sum + a.minutes, 0);
@@ -111,46 +137,102 @@ export default function CourseMap({ phases, activities, basePath, startLabel }: 
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
-        <div className="space-y-8 rounded-2xl border border-light px-4 py-6 lg:col-span-2">
-          {phases.map((phase) => (
-            <section key={phase.id}>
-              <div className="mb-6 flex justify-center">
-                <span className={`flex items-center gap-1.5 rounded-full bg-extreme-light px-4 py-1.5 text-sm font-semibold
-                  ${ phase.locked ? 'text-gray1' : 'text-primary' }`}
-                >
-                  {phase.locked && <Lock className="size-3.5" />}
-                  {phase.title}
-                </span>
+        <div className="relative lg:col-span-2">
+          <div
+            className="flex flex-col rounded-2xl border border-light px-4 py-5 lg:absolute lg:inset-0"
+            onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
+            onTouchEnd={(e) => {
+              if (touchStartX.current === null) return;
+              const dx = e.changedTouches[0].clientX - touchStartX.current;
+              if (Math.abs(dx) > 50) goToPhase(phaseIndex + (dx < 0 ? 1 : -1));
+              touchStartX.current = null;
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => goToPhase(phaseIndex - 1)}
+                disabled={phaseIndex === 0}
+                aria-label="이전 Phase"
+                className="flex size-9 shrink-0 items-center justify-center rounded-full text-gray1 transition-colors hover:bg-extreme-light hover:text-primary disabled:invisible"
+              >
+                <ChevronLeft className="size-5" />
+              </button>
+              <div className="min-w-0 flex-1 text-center">
+                <p className={`flex items-center justify-center gap-1.5 truncate text-sm font-bold ${ currentPhase.locked ? 'text-gray1' : 'text-primary' }`}>
+                  {currentPhase.locked && <Lock className="size-3.5 shrink-0" />}
+                  <span className="truncate">{currentPhase.title}</span>
+                </p>
+                <p className="mt-0.5 text-xs text-gray1">
+                  {`${ phaseIndex + 1 } / ${ phases.length } · ${ currentPhase.steps.filter((step) => step.status === 'completed').length }/${ currentPhase.steps.length } 완료`}
+                </p>
               </div>
-              <ol className="flex flex-col items-center gap-5">
-                {phase.steps.map((step, i) => {
-                  const isSelected = selected.phaseId === phase.id && selected.index === i;
-                  return (
-                    <li key={step.id} className={`transition-transform ${ zigzag[i % zigzag.length] }`}>
-                      <button
-                        onClick={() => selectStep(phase.id, i)}
-                        aria-current={isSelected ? 'step' : undefined}
-                        aria-label={`Step ${ i + 1 } ${ step.title } (${ statusLabel[step.status] })`}
-                        className={`group flex flex-col items-center gap-1.5 rounded-2xl p-1 outline-none focus-visible:ring-2 focus-visible:ring-primary
-                          ${ isSelected ? '' : 'opacity-90 hover:opacity-100' }`}
-                      >
-                        <div className={`rounded-2xl p-1 ${ isSelected ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : '' }`}>
-                          <StepNode index={i + 1} status={step.status} selected={isSelected} />
-                        </div>
-                        <span className={`max-w-32 truncate text-xs ${ isSelected ? 'font-semibold text-main' : step.status === 'available' || step.status === 'completed' ? 'text-sub' : 'text-gray1' }`}>
-                          {step.title}
-                        </span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ol>
-            </section>
-          ))}
+              <button
+                onClick={() => goToPhase(phaseIndex + 1)}
+                disabled={phaseIndex === phases.length - 1}
+                aria-label="다음 Phase"
+                className="flex size-9 shrink-0 items-center justify-center rounded-full text-gray1 transition-colors hover:bg-extreme-light hover:text-primary disabled:invisible"
+              >
+                <ChevronRight className="size-5" />
+              </button>
+            </div>
+
+            <div className="mt-4 overflow-hidden lg:min-h-0 lg:flex-1">
+              <div
+                className="flex transition-transform duration-500 ease-out motion-reduce:transition-none lg:h-full"
+                style={{ transform: `translateX(-${ phaseIndex * 100 }%)` }}
+              >
+                {phases.map((phase, phaseIdx) => (
+                  <div
+                    key={phase.id}
+                    ref={(el) => { slideRefs.current[phaseIdx] = el; }}
+                    aria-hidden={phaseIdx !== phaseIndex}
+                    className="relative w-full shrink-0 lg:h-full lg:overflow-y-auto"
+                  >
+                    <ol className="flex flex-col items-center gap-5 py-2">
+                      {phase.steps.map((step, i) => {
+                        const isSelected = selected.phaseId === phase.id && selected.index === i;
+                        return (
+                          <li key={step.id} className={zigzag[i % zigzag.length]}>
+                            <button
+                              onClick={() => selectStep(phase.id, i)}
+                              tabIndex={phaseIdx === phaseIndex ? 0 : -1}
+                              aria-current={isSelected ? 'step' : undefined}
+                              aria-label={`Step ${ i + 1 } ${ step.title } (${ statusLabel[step.status] })`}
+                              className={`group flex flex-col items-center gap-1.5 rounded-2xl p-1 outline-none focus-visible:ring-2 focus-visible:ring-primary
+                            ${ isSelected ? '' : 'opacity-90 hover:opacity-100' }`}
+                            >
+                              <StepNode index={i + 1} status={step.status} selected={isSelected} />
+                              <span className={`max-w-32 truncate text-xs ${ isSelected ? 'font-semibold text-primary' : step.status === 'available' || step.status === 'completed' ? 'text-sub' : 'text-gray1' }`}>
+                                {step.title}
+                              </span>
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ol>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-4 flex justify-center gap-1.5" role="tablist" aria-label="Phase 선택">
+              {phases.map((phase, i) => (
+                <button
+                  key={phase.id}
+                  role="tab"
+                  aria-selected={i === phaseIndex}
+                  aria-label={`${ phase.title }${ phase.completed ? ' (완료)' : phase.locked ? ' (잠김)' : '' }`}
+                  onClick={() => goToPhase(i)}
+                  className={`h-2 rounded-full transition-all duration-300
+                  ${ i === phaseIndex ? 'w-6 bg-primary' : phase.completed ? 'w-2 bg-primary opacity-50' : phase.locked ? 'w-2 bg-gray4' : 'w-2 bg-gray3' }`}
+                />
+              ))}
+            </div>
+          </div>
         </div>
 
         {selectedPhase && selectedStep && (
-          <aside ref={detailRef} className="h-fit scroll-mt-4 rounded-2xl border border-light p-6 lg:sticky lg:top-6 lg:col-span-3">
+          <aside ref={detailRef} className="scroll-mt-4 rounded-2xl border border-light p-6 lg:col-span-3">
             <p className="text-xs text-gray1">{`${ selectedPhase.title } · Step ${ selected.index + 1 }`}</p>
             <div className="mt-1 flex items-start justify-between gap-4">
               <h2 className="text-2xl font-bold text-main">{selectedStep.title}</h2>
@@ -215,7 +297,7 @@ export default function CourseMap({ phases, activities, basePath, startLabel }: 
                   ) : (
                     <>
                       <Lock className="size-4" />
-                      {selectedPhase.locked ? '이전 Phase를 완료하면 해제됩니다' : '이전 Step을 완료하면 해제됩니다'}
+                      {lockedReason ?? (selectedPhase.locked ? '이전 Phase를 완료하면 해제됩니다' : '이전 Step을 완료하면 해제됩니다')}
                     </>
                   )}
                 </div>
