@@ -14,7 +14,7 @@ export const learnStages: StageDefinition[] = [
       {
         id: 'data-and-evaluation',
         title: '데이터 표현과 평가 첫걸음',
-        steps: ['tensor', 'tokenization', 'exploratory-data-analysis', 'confusion-matrix', 'model-evaluation-metrics'],
+        steps: ['tensor', 'tokenization', 'exploratory-data-analysis', 'data-visualization', 'confusion-matrix', 'precision-and-recall', 'model-evaluation-metrics'],
       },
     ],
   },
@@ -36,7 +36,7 @@ export const learnStages: StageDefinition[] = [
       {
         id: 'generalization',
         title: '일반화와 검증',
-        steps: ['underfitting', 'overfitting', 'cross-validation', 'regularization', 'feature-engineering', 'ensemble-learning'],
+        steps: ['underfitting', 'overfitting', 'cross-validation', 'regularization', 'feature-engineering', 'one-hot-encoding', 'data-leakage', 'ensemble-learning'],
       },
       {
         id: 'text-and-image',
@@ -46,7 +46,7 @@ export const learnStages: StageDefinition[] = [
       {
         id: 'tools-and-services',
         title: '개발 도구와 서비스 기초',
-        steps: ['pytorch', 'tensorflow', 'application-programming-interface', 'representational-state-transfer-api', 'latency', 'caching'],
+        steps: ['pytorch', 'tensorflow', 'application-programming-interface', 'representational-state-transfer-api', 'database', 'latency', 'caching'],
       },
     ],
   },
@@ -78,7 +78,7 @@ export const learnStages: StageDefinition[] = [
       {
         id: 'data-infrastructure',
         title: '데이터 인프라',
-        steps: ['data-governance', 'etl', 'data-pipeline', 'data-lake', 'data-mart', 'load-balancing'],
+        steps: ['big-data', 'data-governance', 'etl', 'data-pipeline', 'data-lake', 'data-mart', 'business-intelligence', 'load-balancing'],
       },
     ],
   },
@@ -100,7 +100,7 @@ export const learnStages: StageDefinition[] = [
       {
         id: 'ml-systems',
         title: 'ML 시스템 운영',
-        steps: ['data-warehouse', 'mlops', 'feature-store', 'model-serving'],
+        steps: ['data-warehouse', 'data-lineage', 'mlops', 'feature-store', 'model-serving', 'quantization', 'data-drift'],
       },
     ],
   },

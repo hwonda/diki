@@ -10,12 +10,12 @@ export const interviewRoles: RoleDefinition[] = [
       {
         id: 'ml-fundamentals',
         title: 'ML 기초 개념',
-        steps: ['machine-learning', 'supervised-learning', 'unsupervised-learning', 'classification', 'regression', 'confusion-matrix', 'model-evaluation-metrics'],
+        steps: ['machine-learning', 'supervised-learning', 'unsupervised-learning', 'classification', 'regression', 'confusion-matrix', 'precision-and-recall', 'model-evaluation-metrics'],
       },
       {
         id: 'generalization',
         title: '일반화와 모델 검증',
-        steps: ['underfitting', 'overfitting', 'cross-validation', 'regularization', 'hyperparameter', 'feature-engineering', 'ensemble-learning'],
+        steps: ['underfitting', 'overfitting', 'cross-validation', 'regularization', 'hyperparameter', 'feature-engineering', 'data-leakage', 'ensemble-learning'],
       },
       {
         id: 'optimization',
@@ -37,6 +37,11 @@ export const interviewRoles: RoleDefinition[] = [
         title: '생성 모델과 LLM',
         steps: ['large-language-models', 'fine-tuning', 'retrieval-augmented-generation', 'autoencoder', 'generative-adversarial-network', 'diffusion-model'],
       },
+      {
+        id: 'data-and-operations',
+        title: '데이터 준비와 모델 운영',
+        steps: ['one-hot-encoding', 'data-visualization', 'big-data', 'data-drift', 'quantization'],
+      },
     ],
   },
   {
@@ -53,17 +58,17 @@ export const interviewRoles: RoleDefinition[] = [
       {
         id: 'storage',
         title: '데이터 저장소',
-        steps: ['data-warehouse', 'data-lake', 'data-mart', 'vector-database', 'data-governance'],
+        steps: ['database', 'data-warehouse', 'data-lake', 'data-mart', 'business-intelligence', 'vector-database', 'data-governance', 'data-lineage'],
       },
       {
         id: 'pipelines',
         title: '파이프라인과 실험 인프라',
-        steps: ['etl', 'data-pipeline', 'feature-store', 'ab-testing', 'recommender-system'],
+        steps: ['big-data', 'etl', 'data-pipeline', 'feature-store', 'data-leakage', 'ab-testing', 'recommender-system'],
       },
       {
         id: 'ml-systems',
         title: 'ML 시스템 운영',
-        steps: ['mlops', 'model-serving', 'pytorch', 'large-language-models', 'retrieval-augmented-generation'],
+        steps: ['mlops', 'model-serving', 'quantization', 'data-drift', 'pytorch', 'large-language-models', 'retrieval-augmented-generation'],
       },
     ],
   },
@@ -76,12 +81,12 @@ export const interviewRoles: RoleDefinition[] = [
       {
         id: 'analysis-basics',
         title: '분석 기초',
-        steps: ['data-analyst', 'exploratory-data-analysis', 'data-mining', 'clustering', 'k-means-clustering'],
+        steps: ['data-analyst', 'exploratory-data-analysis', 'data-visualization', 'business-intelligence', 'data-mining', 'clustering', 'k-means-clustering'],
       },
       {
         id: 'metrics-and-experiments',
         title: '지표와 실험',
-        steps: ['confusion-matrix', 'model-evaluation-metrics', 'classification', 'regression', 'ab-testing'],
+        steps: ['confusion-matrix', 'precision-and-recall', 'model-evaluation-metrics', 'classification', 'regression', 'ab-testing'],
       },
       {
         id: 'modeling-for-analysis',
@@ -91,7 +96,7 @@ export const interviewRoles: RoleDefinition[] = [
       {
         id: 'data-infrastructure',
         title: '데이터 인프라 이해',
-        steps: ['data-warehouse', 'data-mart', 'data-pipeline', 'data-governance', 'data-engineer'],
+        steps: ['database', 'data-warehouse', 'data-mart', 'data-pipeline', 'data-governance', 'data-lineage', 'data-engineer'],
       },
     ],
   },
