@@ -30,7 +30,7 @@ export default function InterviewClient({ roles }: { roles: RoleSummary[] }) {
             <Link
               key={role.id}
               href={`/interview/${ role.id }`}
-              className={`group relative flex flex-col overflow-hidden rounded-2xl border border-light bg-background p-6 text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${ accent.border }`}
+              className={`group relative flex flex-col overflow-hidden rounded-2xl bg-background p-6 text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${ accent.border }`}
             >
               <div className={`pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b to-transparent opacity-15 ${ accent.from }`} />
               <span className={`relative text-3xl font-bold ${ accent.text }`}>{role.label}</span>
