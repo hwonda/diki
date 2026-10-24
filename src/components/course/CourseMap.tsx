@@ -137,7 +137,7 @@ export default function CourseMap({ phases, activities, basePath, startLabel, lo
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
-        <div className="relative lg:col-span-2">
+        <div className="relative lg:col-span-2 lg:min-h-[520px]">
           <div
             className="flex flex-col rounded-2xl border border-light px-4 py-5 lg:absolute lg:inset-0"
             onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
@@ -178,7 +178,7 @@ export default function CourseMap({ phases, activities, basePath, startLabel, lo
 
             <div className="mt-4 overflow-hidden lg:min-h-0 lg:flex-1">
               <div
-                className="flex transition-transform duration-500 ease-out motion-reduce:transition-none lg:h-full"
+                className="flex items-start transition-transform duration-500 ease-out motion-reduce:transition-none lg:h-full"
                 style={{ transform: `translateX(-${ phaseIndex * 100 }%)` }}
               >
                 {phases.map((phase, phaseIdx) => (
@@ -186,7 +186,7 @@ export default function CourseMap({ phases, activities, basePath, startLabel, lo
                     key={phase.id}
                     ref={(el) => { slideRefs.current[phaseIdx] = el; }}
                     aria-hidden={phaseIdx !== phaseIndex}
-                    className="relative w-full shrink-0 lg:h-full lg:overflow-y-auto"
+                    className={`relative w-full shrink-0 lg:h-full lg:overflow-y-auto ${ phaseIdx === phaseIndex ? '' : 'h-0' }`}
                   >
                     <ol className="flex flex-col items-center gap-5 py-2">
                       {phase.steps.map((step, i) => {
